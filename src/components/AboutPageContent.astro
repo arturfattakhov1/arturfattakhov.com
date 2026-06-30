@@ -1,0 +1,48 @@
+---
+import { aboutPageCopy } from '../data/about';
+import type { Language } from '../i18n/config';
+import AboutSections from './AboutSections.astro';
+import Container from './Container.astro';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const copy = aboutPageCopy[lang];
+---
+
+<AboutSections lang={lang}>
+  <Fragment slot="hero">
+    <Container class="about-copy about-copy--lead">
+      <p>{copy.hero}</p>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="biography">
+    <Container class="about-copy">
+      {copy.biography.map((paragraph) => <p>{paragraph}</p>)}
+    </Container>
+  </Fragment>
+
+  <Fragment slot="expertise">
+    <Container class="about-copy">
+      <p>{copy.expertiseIntroduction}</p>
+      <ul>
+        {copy.expertise.map((item) => <li>{item}</li>)}
+      </ul>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="current-work">
+    <Container class="about-copy">
+      <p>{copy.currentWork}</p>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="research">
+    <Container class="about-copy">
+      <p>{copy.research}</p>
+    </Container>
+  </Fragment>
+</AboutSections>
