@@ -1,0 +1,90 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  lang: 'ru' | 'en';
+  canonicalPath: '/ru/' | '/en/';
+}
+
+const { title, description, lang, canonicalPath } = Astro.props;
+const siteUrl = Astro.site ?? new URL('https://arturfattakhov.com');
+const canonicalUrl = new URL(canonicalPath, siteUrl);
+const russianUrl = new URL('/ru/', siteUrl);
+const englishUrl = new URL('/en/', siteUrl);
+const alternateLocale = lang === 'ru' ? 'en_US' : 'ru_RU';
+
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: lang === 'ru' ? 'Артур Фаттахов' : 'Artur Fattakhov',
+  alternateName: lang === 'ru' ? 'Artur Fattakhov' : 'Артур Фаттахов',
+  url: siteUrl.href,
+  jobTitle: lang === 'ru'
+    ? 'Ветеринарный врач, исследователь, предприниматель'
+    : 'Veterinary doctor, researcher, entrepreneur',
+  description,
+  knowsAbout: [
+    'Veterinary medicine',
+    'Artificial intelligence',
+    'Home veterinary care',
+    'Dogs',
+    'Cats',
+  ],
+  sameAs: [
+    'https://orcid.org/0000-0003-4142-0469',
+    'https://scholar.google.com/citations?user=eAu1IAsAAAAJ&hl=ru',
+    'https://www.researchgate.net/profile/Artur-Fattakhov-2',
+    'https://github.com/arturfattakhov1',
+    'https://www.instagram.com/dr.arturfattakhov/',
+    'https://www.threads.com/@dr.arturfattakhov',
+    'https://www.youtube.com/@dr.arturfattakhov',
+    'https://www.facebook.com/profile.php?id=61582287094595',
+  ],
+};
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="alternate" hreflang="ru" href={russianUrl} />
+    <link rel="alternate" hreflang="en" href={englishUrl} />
+    <link rel="alternate" hreflang="x-default" href={russianUrl} />
+
+    <meta property="og:type" content="profile" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content="Artur Fattakhov" />
+    <meta property="og:locale" content={lang === 'ru' ? 'ru_RU' : 'en_US'} />
+    <meta property="og:locale:alternate" content={alternateLocale} />
+    <meta property="profile:first_name" content={lang === 'ru' ? 'Артур' : 'Artur'} />
+    <meta property="profile:last_name" content={lang === 'ru' ? 'Фаттахов' : 'Fattakhov'} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href={`/${lang}/`} aria-label={lang === 'ru' ? 'На главную' : 'Home'}>
+        {lang === 'ru' ? 'Артур Фаттахов' : 'Artur Fattakhov'}
+      </a>
+      <nav aria-label={lang === 'ru' ? 'Выбор языка' : 'Language selection'}>
+        <a href="/ru/" lang="ru" aria-current={lang === 'ru' ? 'page' : undefined}>RU</a>
+        <a href="/en/" lang="en" aria-current={lang === 'en' ? 'page' : undefined}>EN</a>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer>
+      <small>© {new Date().getFullYear()} {lang === 'ru' ? 'Артур Фаттахов' : 'Artur Fattakhov'}</small>
+    </footer>
+  </body>
+</html>
