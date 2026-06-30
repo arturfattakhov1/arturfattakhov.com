@@ -1,0 +1,49 @@
+---
+import type { Language } from '../i18n/config';
+import PageSection from './PageSection.astro';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+
+const headings = {
+  ru: {
+    hero: 'Главное',
+    identity: 'Личность',
+    work: 'Работа',
+    research: 'Исследования',
+    publications: 'Публикации',
+    projects: 'Проекты',
+    media: 'Медиа',
+    profiles: 'Официальные профили',
+    contact: 'Контакты',
+  },
+  en: {
+    hero: 'Hero',
+    identity: 'Identity',
+    work: 'Work',
+    research: 'Research',
+    publications: 'Publications',
+    projects: 'Projects',
+    media: 'Media',
+    profiles: 'Official profiles',
+    contact: 'Contact',
+  },
+} as const satisfies Record<Language, Record<string, string>>;
+
+const copy = headings[lang];
+---
+
+<div class="home-sections">
+  <PageSection id="hero" title={copy.hero}><slot name="hero" /></PageSection>
+  <PageSection id="identity" title={copy.identity}><slot name="identity" /></PageSection>
+  <PageSection id="work" title={copy.work}><slot name="work" /></PageSection>
+  <PageSection id="research" title={copy.research}><slot name="research" /></PageSection>
+  <PageSection id="publications" title={copy.publications}><slot name="publications" /></PageSection>
+  <PageSection id="projects" title={copy.projects}><slot name="projects" /></PageSection>
+  <PageSection id="media" title={copy.media}><slot name="media" /></PageSection>
+  <PageSection id="official-profiles" title={copy.profiles}><slot name="profiles" /></PageSection>
+  <PageSection id="contact" title={copy.contact}><slot name="contact" /></PageSection>
+</div>
