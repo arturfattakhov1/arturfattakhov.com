@@ -1,0 +1,37 @@
+---
+import { getCollection } from 'astro:content';
+import { collectionPageContent } from '../../../data/pages';
+import { languages, localizedPath, type Language } from '../../../i18n/config';
+import PageLayout from '../../../layouts/PageLayout.astro';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang }, props: { lang } }));
+}
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const content = collectionPageContent.projects[lang];
+const entries = (await getCollection('projects', ({ data }) => data.lang === lang))
+  .sort((a, b) => b.data.startYear - a.data.startYear);
+const statusLabels = {
+  ru: { active: 'Активный проект', completed: 'Завершён', paused: 'Приостановлен' },
+  en: { active: 'Active project', completed: 'Completed', paused: 'Paused' },
+};
+---
+
+<PageLayout {...content} lang={lang} canonicalPath={localizedPath(lang, 'projects')}>
+  <ol class="entry-list project-list">
+    {entries.map((entry) => (
+      <li>
+        <article>
+          <p class="entry-meta">{entry.data.startYear} — {statusLabels[lang][entry.data.status]}</p>
+          <h2>{entry.data.url ? <a href={entry.data.url}>{entry.data.title}</a> : entry.data.title}</h2>
+          <p>{entry.data.description}</p>
+        </article>
+      </li>
+    ))}
+  </ol>
+</PageLayout>

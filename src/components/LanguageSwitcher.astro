@@ -1,0 +1,18 @@
+---
+import type { Language } from '../i18n/config';
+import { swapLanguage } from '../i18n/config';
+import { ui } from '../i18n/ui';
+
+interface Props {
+  lang: Language;
+  currentPath: string;
+}
+
+const { lang, currentPath } = Astro.props;
+---
+
+<nav class="language-switcher" aria-label={ui[lang].languageLabel}>
+  <a href={swapLanguage(currentPath, 'ru')} lang="ru" hreflang="ru" aria-current={lang === 'ru' ? 'page' : undefined}>RU</a>
+  <span aria-hidden="true">/</span>
+  <a href={swapLanguage(currentPath, 'en')} lang="en" hreflang="en" aria-current={lang === 'en' ? 'page' : undefined}>EN</a>
+</nav>

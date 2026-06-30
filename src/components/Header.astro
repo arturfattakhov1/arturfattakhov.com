@@ -1,0 +1,23 @@
+---
+import type { Language } from '../i18n/config';
+import { localizedPath } from '../i18n/config';
+import { ui } from '../i18n/ui';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import Navigation from './Navigation.astro';
+
+interface Props {
+  lang: Language;
+  currentPath: string;
+}
+
+const { lang, currentPath } = Astro.props;
+---
+
+<a class="skip-link" href="#main-content">{ui[lang].skipToContent}</a>
+<header class="site-header">
+  <div class="header-bar">
+    <a class="brand" href={localizedPath(lang)}>{ui[lang].siteName}</a>
+    <LanguageSwitcher lang={lang} currentPath={currentPath} />
+  </div>
+  <Navigation lang={lang} currentPath={currentPath} />
+</header>

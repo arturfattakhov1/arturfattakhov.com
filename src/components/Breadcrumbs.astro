@@ -1,0 +1,28 @@
+---
+import type { Language } from '../i18n/config';
+import { localizedPath } from '../i18n/config';
+import { ui } from '../i18n/ui';
+
+interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  lang: Language;
+  items: BreadcrumbItem[];
+}
+
+const { lang, items } = Astro.props;
+---
+
+<nav class="breadcrumbs" aria-label={lang === 'ru' ? 'Хлебные крошки' : 'Breadcrumbs'}>
+  <ol>
+    <li><a href={localizedPath(lang)}>{ui[lang].home}</a></li>
+    {items.map((item) => (
+      <li>
+        {item.href ? <a href={item.href}>{item.label}</a> : <span aria-current="page">{item.label}</span>}
+      </li>
+    ))}
+  </ol>
+</nav>

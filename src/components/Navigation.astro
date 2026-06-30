@@ -1,0 +1,26 @@
+---
+import type { Language } from '../i18n/config';
+import { localizedPath } from '../i18n/config';
+import { primaryNavigation, ui } from '../i18n/ui';
+
+interface Props {
+  lang: Language;
+  currentPath: string;
+}
+
+const { lang, currentPath } = Astro.props;
+---
+
+<nav class="primary-navigation" aria-label={ui[lang].primaryNavigation}>
+  <ul>
+    {primaryNavigation.map((item) => {
+      const href = localizedPath(lang, item.slug);
+      const active = currentPath.startsWith(href);
+      return (
+        <li>
+          <a href={href} aria-current={active ? 'page' : undefined}>{item.label[lang]}</a>
+        </li>
+      );
+    })}
+  </ul>
+</nav>

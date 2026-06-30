@@ -1,0 +1,22 @@
+---
+import type { Language } from '../i18n/config';
+import { localizedPath } from '../i18n/config';
+import { secondaryNavigation, ui } from '../i18n/ui';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+---
+
+<footer class="site-footer">
+  <nav aria-label={ui[lang].footerNavigation}>
+    <ul>
+      {secondaryNavigation.map((item) => (
+        <li><a href={localizedPath(lang, item.slug)}>{item.label[lang]}</a></li>
+      ))}
+    </ul>
+  </nav>
+  <small>© {new Date().getFullYear()} {ui[lang].siteName}</small>
+</footer>

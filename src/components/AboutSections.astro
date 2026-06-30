@@ -1,0 +1,55 @@
+---
+import type { Language } from '../i18n/config';
+import PageSection from './PageSection.astro';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+
+const headings = {
+  ru: {
+    hero: 'Главное',
+    biography: 'Биография',
+    expertise: 'Области экспертизы',
+    currentWork: 'Текущая работа',
+    research: 'Исследования',
+    projects: 'Проекты',
+    education: 'Образование',
+    profiles: 'Профессиональные профили',
+    publications: 'Публикации',
+    media: 'Медиа',
+    contact: 'Контакты',
+  },
+  en: {
+    hero: 'Hero',
+    biography: 'Biography',
+    expertise: 'Areas of expertise',
+    currentWork: 'Current work',
+    research: 'Research',
+    projects: 'Projects',
+    education: 'Education',
+    profiles: 'Professional profiles',
+    publications: 'Publications',
+    media: 'Media',
+    contact: 'Contact',
+  },
+} as const satisfies Record<Language, Record<string, string>>;
+
+const copy = headings[lang];
+---
+
+<div class="about-sections">
+  <PageSection id="hero" title={copy.hero}><slot name="hero" /></PageSection>
+  <PageSection id="biography" title={copy.biography}><slot name="biography" /></PageSection>
+  <PageSection id="areas-of-expertise" title={copy.expertise}><slot name="expertise" /></PageSection>
+  <PageSection id="current-work" title={copy.currentWork}><slot name="current-work" /></PageSection>
+  <PageSection id="research" title={copy.research}><slot name="research" /></PageSection>
+  <PageSection id="projects" title={copy.projects}><slot name="projects" /></PageSection>
+  <PageSection id="education" title={copy.education}><slot name="education" /></PageSection>
+  <PageSection id="professional-profiles" title={copy.profiles}><slot name="profiles" /></PageSection>
+  <PageSection id="publications" title={copy.publications}><slot name="publications" /></PageSection>
+  <PageSection id="media" title={copy.media}><slot name="media" /></PageSection>
+  <PageSection id="contact" title={copy.contact}><slot name="contact" /></PageSection>
+</div>
