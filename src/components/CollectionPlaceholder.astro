@@ -1,0 +1,14 @@
+---
+interface Props {
+  collection: string;
+  title: string;
+  description: string;
+}
+
+const { collection, title, description } = Astro.props;
+---
+
+<div class="collection-placeholder" data-collection={collection}>
+  <h3>{title}</h3>
+  <p>{description}</p>
+</div>

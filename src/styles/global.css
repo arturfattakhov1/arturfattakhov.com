@@ -178,7 +178,12 @@ main {
 }
 
 .page--home {
+  max-width: none;
   padding-top: clamp(5rem, 12vw, 10rem);
+}
+
+.page--home .page-header {
+  margin-bottom: clamp(2.5rem, 6vw, 4.5rem);
 }
 
 .page-header,
@@ -231,6 +236,11 @@ h1 {
   display: grid;
 }
 
+.container {
+  width: 100%;
+  min-width: 0;
+}
+
 .page-section {
   min-height: 7rem;
   padding-block: 2rem;
@@ -241,6 +251,157 @@ h1 {
   margin: 0;
   font-size: clamp(1.25rem, 3vw, 1.6rem);
   letter-spacing: -0.02em;
+}
+
+.home-sections .page-section {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.32fr) minmax(0, 1fr);
+  gap: 2rem clamp(2rem, 6vw, 5rem);
+  min-height: 12rem;
+  padding-block: clamp(3rem, 7vw, 5rem);
+}
+
+.home-sections #hero {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.home-sections #hero > h2 {
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.home-hero__subtitle {
+  max-width: 46rem;
+  margin: 0;
+  color: #34433b;
+  font-size: clamp(1.2rem, 2.5vw, 1.7rem);
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.button {
+  display: inline-flex;
+  min-height: 2.8rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1.1rem;
+  border: 1px solid var(--accent-dark);
+  border-radius: 0.2rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.button--primary {
+  color: #ffffff;
+  background: var(--accent-dark);
+}
+
+.button--primary:hover {
+  color: #ffffff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.button--secondary {
+  color: var(--accent-dark);
+  background: transparent;
+}
+
+.button--secondary:hover {
+  color: var(--text);
+  background: var(--surface);
+  border-color: var(--text);
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.card-grid--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.card-grid--profiles {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.card-grid > li {
+  display: flex;
+  min-width: 0;
+}
+
+.card {
+  width: 100%;
+  min-height: 10rem;
+  padding: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 0.2rem;
+}
+
+.card h3,
+.collection-placeholder h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+}
+
+.card p,
+.collection-placeholder p,
+.contact-panel p {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+}
+
+.card .card-status {
+  margin-top: 1.75rem;
+  font-size: 0.78rem;
+}
+
+.collection-placeholder {
+  min-height: 12rem;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  background: var(--surface);
+  border: 1px dashed #aebbb4;
+  border-radius: 0.2rem;
+}
+
+.collection-placeholder p {
+  max-width: 38rem;
+}
+
+.contact-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.contact-panel p {
+  max-width: 34rem;
+  margin: 0;
+  font-size: 1.05rem;
 }
 
 .section-grid section {
@@ -365,6 +526,31 @@ h1 {
     grid-template-columns: 1fr;
   }
 
+  .home-sections .page-section {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    min-height: 0;
+  }
+
+  .card-grid,
+  .card-grid--three,
+  .card-grid--profiles {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    min-height: 0;
+  }
+
+  .contact-panel {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .contact-panel .button {
+    width: 100%;
+  }
+
   .site-footer ul {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -374,5 +560,9 @@ h1 {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  .button {
+    transition: none;
   }
 }
