@@ -1,0 +1,18 @@
+---
+import { nowPageCopy } from '../data/remaining-pages';
+import type { Language } from '../i18n/config';
+import Container from './Container.astro';
+import NowSections from './NowSections.astro';
+
+interface Props { lang: Language; }
+const { lang } = Astro.props;
+const copy = nowPageCopy[lang];
+---
+
+<NowSections lang={lang}>
+  <Fragment slot="hero"><Container class="section-copy section-copy--lead"><p>{copy.hero}</p></Container></Fragment>
+  <Fragment slot="website"><Container class="section-copy"><p>{copy.personalWebsite}</p></Container></Fragment>
+  <Fragment slot="home-care"><Container class="section-copy"><p>{copy.homeVeterinaryCare}</p></Container></Fragment>
+  <Fragment slot="research"><Container class="section-copy"><p>{copy.research}</p></Container></Fragment>
+  <Fragment slot="ai"><Container class="section-copy"><p>{copy.ai}</p></Container></Fragment>
+</NowSections>

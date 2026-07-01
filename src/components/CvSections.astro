@@ -1,0 +1,23 @@
+---
+import type { Language } from '../i18n/config';
+import PageSection from './PageSection.astro';
+
+interface Props { lang: Language; }
+const { lang } = Astro.props;
+const headings = {
+  ru: { hero: 'CV', profile: 'Профессиональный профиль', education: 'Образование', research: 'Исследования', clinical: 'Клиническая практика', entrepreneurship: 'Предпринимательство', skills: 'Навыки', identifiers: 'Идентификаторы' },
+  en: { hero: 'CV', profile: 'Professional profile', education: 'Education', research: 'Research', clinical: 'Clinical practice', entrepreneurship: 'Entrepreneurship', skills: 'Skills', identifiers: 'Identifiers' },
+} as const satisfies Record<Language, Record<string, string>>;
+const copy = headings[lang];
+---
+
+<div class="cv-sections">
+  <PageSection id="cv-overview" title={copy.hero}><slot name="hero" /></PageSection>
+  <PageSection id="professional-profile" title={copy.profile}><slot name="profile" /></PageSection>
+  <PageSection id="cv-education" title={copy.education}><slot name="education" /></PageSection>
+  <PageSection id="cv-research" title={copy.research}><slot name="research" /></PageSection>
+  <PageSection id="clinical-practice" title={copy.clinical}><slot name="clinical" /></PageSection>
+  <PageSection id="cv-entrepreneurship" title={copy.entrepreneurship}><slot name="entrepreneurship" /></PageSection>
+  <PageSection id="cv-skills" title={copy.skills}><slot name="skills" /></PageSection>
+  <PageSection id="cv-identifiers" title={copy.identifiers}><slot name="identifiers" /></PageSection>
+</div>

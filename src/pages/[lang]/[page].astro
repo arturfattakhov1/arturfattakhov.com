@@ -1,8 +1,12 @@
 ---
 import AboutPageContent from '../../components/AboutPageContent.astro';
 import ContactPageContent from '../../components/ContactPageContent.astro';
+import CvPageContent from '../../components/CvPageContent.astro';
+import MediaPageContent from '../../components/MediaPageContent.astro';
+import NowPageContent from '../../components/NowPageContent.astro';
 import ProfilesPageContent from '../../components/ProfilesPageContent.astro';
 import ResearchPageContent from '../../components/ResearchPageContent.astro';
+import UsesPageContent from '../../components/UsesPageContent.astro';
 import { pageContent, type StandardPageSlug } from '../../data/pages';
 import { languages, localizedPath, type Language } from '../../i18n/config';
 import PageLayout from '../../layouts/PageLayout.astro';
@@ -33,4 +37,8 @@ const content = pageContent[lang][page];
   {page === 'research' && <ResearchPageContent lang={lang} />}
   {page === 'profiles' && <ProfilesPageContent lang={lang} />}
   {page === 'contact' && <ContactPageContent lang={lang} />}
+  {page === 'media' && <MediaPageContent lang={lang} />}
+  {page === 'cv' && <CvPageContent lang={lang} />}
+  {page === 'uses' && <UsesPageContent lang={lang} />}
+  {page === 'now' && <NowPageContent lang={lang} />}
 </PageLayout>

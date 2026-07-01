@@ -305,6 +305,28 @@ h1 {
   border-top: 1px solid var(--line);
 }
 
+.projects-sections .page-section,
+.media-sections .page-section,
+.cv-sections .page-section,
+.uses-sections .page-section,
+.now-sections .page-section {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.32fr) minmax(0, 1fr);
+  gap: 2rem clamp(2rem, 6vw, 5rem);
+  min-height: 10rem;
+  padding-block: clamp(2.5rem, 6vw, 4rem);
+  border-top: 1px solid var(--line);
+}
+
+.projects-sections .entry-list {
+  margin: 0;
+}
+
+.projects-sections .entry-list h3 {
+  margin: 0.35rem 0 0.75rem;
+  font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+}
+
 .publications-sections .entry-list {
   margin: 0;
 }
@@ -681,6 +703,16 @@ h1 {
   }
 
   .publications-sections .page-section {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    min-height: 0;
+  }
+
+  .projects-sections .page-section,
+  .media-sections .page-section,
+  .cv-sections .page-section,
+  .uses-sections .page-section,
+  .now-sections .page-section {
     grid-template-columns: 1fr;
     gap: 1.5rem;
     min-height: 0;

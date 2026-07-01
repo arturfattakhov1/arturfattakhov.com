@@ -1,0 +1,34 @@
+---
+import { identity } from '../data/identity';
+import { cvPageCopy } from '../data/remaining-pages';
+import type { Language } from '../i18n/config';
+import CollectionPlaceholder from './CollectionPlaceholder.astro';
+import Container from './Container.astro';
+import CvSections from './CvSections.astro';
+import ProfileCard from './ProfileCard.astro';
+
+type ProfileKey = (typeof identity.profiles)[number]['key'];
+interface Props { lang: Language; }
+const { lang } = Astro.props;
+const copy = cvPageCopy[lang];
+const byKey = new Map(identity.profiles.map((profile) => [profile.key, profile] as const));
+const keys: ProfileKey[] = ['orcid', 'googleScholar', 'researchGate', 'webOfScience'];
+const identifiers = keys.map((key) => byKey.get(key)).filter((profile) => profile !== undefined);
+---
+
+<CvSections lang={lang}>
+  <Fragment slot="hero"><Container class="section-copy section-copy--lead"><p>{copy.hero}</p></Container></Fragment>
+  <Fragment slot="profile"><Container class="section-copy"><p>{copy.professionalProfile}</p></Container></Fragment>
+  <Fragment slot="education"><Container><CollectionPlaceholder collection="cv-education" title={copy.placeholders.education} description={copy.placeholders.education} /></Container></Fragment>
+  <Fragment slot="research"><Container><CollectionPlaceholder collection="cv-research" title={copy.placeholders.research} description={copy.placeholders.research} /></Container></Fragment>
+  <Fragment slot="clinical"><Container><CollectionPlaceholder collection="cv-clinical-practice" title={copy.placeholders.clinicalPractice} description={copy.placeholders.clinicalPractice} /></Container></Fragment>
+  <Fragment slot="entrepreneurship"><Container><CollectionPlaceholder collection="cv-entrepreneurship" title={copy.placeholders.entrepreneurship} description={copy.placeholders.entrepreneurship} /></Container></Fragment>
+  <Fragment slot="skills"><Container><CollectionPlaceholder collection="cv-skills" title={copy.placeholders.skills} description={copy.placeholders.skills} /></Container></Fragment>
+  <Fragment slot="identifiers">
+    <Container>
+      <ul class="card-grid" role="list">
+        {identifiers.map((profile) => <li><ProfileCard profile={profile} linkLabel={copy.profileLinkLabel} externalLinkLabel={copy.externalLinkLabel} /></li>)}
+      </ul>
+    </Container>
+  </Fragment>
+</CvSections>

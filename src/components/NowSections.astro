@@ -1,0 +1,20 @@
+---
+import type { Language } from '../i18n/config';
+import PageSection from './PageSection.astro';
+
+interface Props { lang: Language; }
+const { lang } = Astro.props;
+const headings = {
+  ru: { hero: 'Сейчас', website: 'Личный сайт', homeCare: 'Ветеринарная помощь на дому', research: 'Исследования', ai: 'ИИ в ветеринарной медицине' },
+  en: { hero: 'Now', website: 'Personal website', homeCare: 'Home veterinary care', research: 'Research', ai: 'AI in veterinary medicine' },
+} as const satisfies Record<Language, Record<string, string>>;
+const copy = headings[lang];
+---
+
+<div class="now-sections">
+  <PageSection id="now-overview" title={copy.hero}><slot name="hero" /></PageSection>
+  <PageSection id="personal-website" title={copy.website}><slot name="website" /></PageSection>
+  <PageSection id="home-veterinary-care" title={copy.homeCare}><slot name="home-care" /></PageSection>
+  <PageSection id="now-research" title={copy.research}><slot name="research" /></PageSection>
+  <PageSection id="ai-in-veterinary-medicine" title={copy.ai}><slot name="ai" /></PageSection>
+</div>

@@ -1,0 +1,19 @@
+---
+import type { Language } from '../i18n/config';
+import PageSection from './PageSection.astro';
+
+interface Props { lang: Language; }
+const { lang } = Astro.props;
+const headings = {
+  ru: { hero: 'Проекты', focus: 'Направление', projects: 'Карточки проектов', future: 'Будущая структура' },
+  en: { hero: 'Projects', focus: 'Focus', projects: 'Project cards', future: 'Future structure' },
+} as const satisfies Record<Language, Record<string, string>>;
+const copy = headings[lang];
+---
+
+<div class="projects-sections">
+  <PageSection id="projects-overview" title={copy.hero}><slot name="hero" /></PageSection>
+  <PageSection id="project-focus" title={copy.focus}><slot name="focus" /></PageSection>
+  <PageSection id="project-cards" title={copy.projects}><slot name="projects" /></PageSection>
+  <PageSection id="future-project-structure" title={copy.future}><slot name="future" /></PageSection>
+</div>

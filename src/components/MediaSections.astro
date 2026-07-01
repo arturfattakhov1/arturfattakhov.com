@@ -1,0 +1,20 @@
+---
+import type { Language } from '../i18n/config';
+import PageSection from './PageSection.astro';
+
+interface Props { lang: Language; }
+const { lang } = Astro.props;
+const headings = {
+  ru: { hero: 'Медиа', interviews: 'Интервью', articles: 'Статьи', videos: 'Видео', podcasts: 'Подкасты' },
+  en: { hero: 'Media', interviews: 'Interviews', articles: 'Articles', videos: 'Videos', podcasts: 'Podcasts' },
+} as const satisfies Record<Language, Record<string, string>>;
+const copy = headings[lang];
+---
+
+<div class="media-sections">
+  <PageSection id="media-overview" title={copy.hero}><slot name="hero" /></PageSection>
+  <PageSection id="media-interviews" title={copy.interviews}><slot name="interviews" /></PageSection>
+  <PageSection id="media-articles" title={copy.articles}><slot name="articles" /></PageSection>
+  <PageSection id="media-videos" title={copy.videos}><slot name="videos" /></PageSection>
+  <PageSection id="media-podcasts" title={copy.podcasts}><slot name="podcasts" /></PageSection>
+</div>
