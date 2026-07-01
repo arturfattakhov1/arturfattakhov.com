@@ -24,7 +24,7 @@ const {
   {showBreadcrumbs && <Breadcrumbs lang={lang} items={[{ label: title }]} />}
   <article class:list={['page', { 'page--home': !showBreadcrumbs }]}>
     <header class="page-header">
-      <h1>{title}</h1>
+      <h1 id="page-title">{title}</h1>
     </header>
     <div class="page-content">
       <slot />

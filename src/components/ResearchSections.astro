@@ -1,5 +1,6 @@
 ---
 import type { Language } from '../i18n/config';
+import PageIntro from './PageIntro.astro';
 import PageSection from './PageSection.astro';
 
 interface Props {
@@ -10,7 +11,6 @@ const { lang } = Astro.props;
 
 const headings = {
   ru: {
-    hero: 'Исследования',
     interests: 'Исследовательские интересы',
     currentResearch: 'Текущие исследования',
     publications: 'Публикации',
@@ -19,7 +19,6 @@ const headings = {
     futureDirections: 'Будущие направления',
   },
   en: {
-    hero: 'Research',
     interests: 'Research Interests',
     currentResearch: 'Current Research',
     publications: 'Publications',
@@ -32,8 +31,8 @@ const headings = {
 const copy = headings[lang];
 ---
 
-<div class="research-sections">
-  <PageSection id="research-overview" title={copy.hero}><slot name="hero" /></PageSection>
+<div class="section-stack research-sections">
+  <PageIntro><slot name="hero" /></PageIntro>
   <PageSection id="research-interests" title={copy.interests}><slot name="interests" /></PageSection>
   <PageSection id="current-research" title={copy.currentResearch}><slot name="current-research" /></PageSection>
   <PageSection id="research-publications" title={copy.publications}><slot name="publications" /></PageSection>

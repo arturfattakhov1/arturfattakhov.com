@@ -1,18 +1,19 @@
 ---
 import type { Language } from '../i18n/config';
+import PageIntro from './PageIntro.astro';
 import PageSection from './PageSection.astro';
 
 interface Props { lang: Language; }
 const { lang } = Astro.props;
 const headings = {
-  ru: { hero: 'Инструменты', tools: 'Рабочие инструменты', software: 'Программное обеспечение', workflow: 'Клинический процесс', ai: 'Инструменты ИИ' },
-  en: { hero: 'Uses', tools: 'Tools', software: 'Software', workflow: 'Clinical workflow', ai: 'AI tools' },
+  ru: { tools: 'Рабочие инструменты', software: 'Программное обеспечение', workflow: 'Клинический процесс', ai: 'Инструменты ИИ' },
+  en: { tools: 'Tools', software: 'Software', workflow: 'Clinical workflow', ai: 'AI tools' },
 } as const satisfies Record<Language, Record<string, string>>;
 const copy = headings[lang];
 ---
 
-<div class="uses-sections">
-  <PageSection id="uses-overview" title={copy.hero}><slot name="hero" /></PageSection>
+<div class="section-stack uses-sections">
+  <PageIntro><slot name="hero" /></PageIntro>
   <PageSection id="working-tools" title={copy.tools}><slot name="tools" /></PageSection>
   <PageSection id="software" title={copy.software}><slot name="software" /></PageSection>
   <PageSection id="clinical-workflow" title={copy.workflow}><slot name="workflow" /></PageSection>

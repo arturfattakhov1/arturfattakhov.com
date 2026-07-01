@@ -1,5 +1,6 @@
 ---
 import type { Language } from '../i18n/config';
+import PageIntro from './PageIntro.astro';
 import PageSection from './PageSection.astro';
 
 interface Props {
@@ -10,14 +11,12 @@ const { lang } = Astro.props;
 
 const headings = {
   ru: {
-    hero: 'Официальные профили',
     research: 'Научные идентификаторы',
     professional: 'Профессиональные профили',
     public: 'Публичные профили',
     future: 'Будущие профили',
   },
   en: {
-    hero: 'Official profiles',
     research: 'Research identifiers',
     professional: 'Professional profiles',
     public: 'Public profiles',
@@ -28,8 +27,8 @@ const headings = {
 const copy = headings[lang];
 ---
 
-<div class="profiles-sections">
-  <PageSection id="profiles-overview" title={copy.hero}><slot name="hero" /></PageSection>
+<div class="section-stack profiles-sections">
+  <PageIntro><slot name="hero" /></PageIntro>
   <PageSection id="research-identifiers" title={copy.research}><slot name="research" /></PageSection>
   <PageSection id="professional-profiles" title={copy.professional}><slot name="professional" /></PageSection>
   <PageSection id="public-profiles" title={copy.public}><slot name="public" /></PageSection>
