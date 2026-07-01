@@ -28,10 +28,12 @@ const canonicalUrl = new URL(canonicalPath, siteUrl);
 const russianUrl = new URL(swapLanguage(canonicalPath, 'ru'), siteUrl);
 const englishUrl = new URL(swapLanguage(canonicalPath, 'en'), siteUrl);
 const isAboutPage = canonicalPath === `/${lang}/about/`;
+const isHomePage = canonicalPath === `/${lang}/`;
+const documentTitle = isHomePage ? title : `${title} — ${identity.name[lang]}`;
 const structuredData = createIdentityJsonLd(lang, isAboutPage);
 ---
 
-<title>{title}</title>
+<title>{documentTitle}</title>
 <meta name="description" content={description} />
 <link rel="canonical" href={canonicalUrl} />
 <link rel="alternate" hreflang="ru" href={russianUrl} />
@@ -39,7 +41,7 @@ const structuredData = createIdentityJsonLd(lang, isAboutPage);
 <link rel="alternate" hreflang="x-default" href={russianUrl} />
 
 <meta property="og:type" content={type} />
-<meta property="og:title" content={title} />
+<meta property="og:title" content={documentTitle} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonicalUrl} />
 <meta property="og:site_name" content={identity.name.en} />
@@ -47,9 +49,11 @@ const structuredData = createIdentityJsonLd(lang, isAboutPage);
 <meta property="og:locale:alternate" content={lang === 'ru' ? 'en_US' : 'ru_RU'} />
 {publishedTime && <meta property="article:published_time" content={publishedTime.toISOString()} />}
 {modifiedTime && <meta property="article:modified_time" content={modifiedTime.toISOString()} />}
+{type === 'profile' && <meta property="profile:first_name" content={identity.givenName} />}
+{type === 'profile' && <meta property="profile:last_name" content={identity.familyName} />}
 
 <meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content={title} />
+<meta name="twitter:title" content={documentTitle} />
 <meta name="twitter:description" content={description} />
 
 <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
