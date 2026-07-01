@@ -1,8 +1,13 @@
 ---
 import { aboutPageCopy } from '../data/about';
+import { identity } from '../data/identity';
 import type { Language } from '../i18n/config';
 import AboutSections from './AboutSections.astro';
+import Button from './Button.astro';
+import CollectionPlaceholder from './CollectionPlaceholder.astro';
 import Container from './Container.astro';
+import ProfileCard from './ProfileCard.astro';
+import { localizedPath } from '../i18n/config';
 
 interface Props {
   lang: Language;
@@ -10,6 +15,12 @@ interface Props {
 
 const { lang } = Astro.props;
 const copy = aboutPageCopy[lang];
+type ProfileKey = (typeof identity.profiles)[number]['key'];
+const profilesByKey = new Map(identity.profiles.map((profile) => [profile.key, profile] as const));
+const profileKeys: ProfileKey[] = ['orcid', 'googleScholar', 'researchGate', 'webOfScience', 'github'];
+const selectedProfiles = profileKeys
+  .map((key) => profilesByKey.get(key))
+  .filter((profile) => profile !== undefined);
 ---
 
 <AboutSections lang={lang}>
@@ -43,6 +54,47 @@ const copy = aboutPageCopy[lang];
   <Fragment slot="research">
     <Container class="about-copy">
       <p>{copy.research}</p>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="projects">
+    <Container>
+      <CollectionPlaceholder collection="projects" {...copy.placeholders.projects} />
+    </Container>
+  </Fragment>
+
+  <Fragment slot="education">
+    <Container>
+      <CollectionPlaceholder collection="about-education" {...copy.placeholders.education} />
+    </Container>
+  </Fragment>
+
+  <Fragment slot="profiles">
+    <Container>
+      <ul class="card-grid" role="list">
+        {selectedProfiles.map((profile) => (
+          <li><ProfileCard profile={profile} linkLabel={copy.profileLinkLabel} externalLinkLabel={copy.externalLinkLabel} /></li>
+        ))}
+      </ul>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="publications">
+    <Container>
+      <CollectionPlaceholder collection="publications" {...copy.placeholders.publications} />
+    </Container>
+  </Fragment>
+
+  <Fragment slot="media">
+    <Container>
+      <CollectionPlaceholder collection="media" {...copy.placeholders.media} />
+    </Container>
+  </Fragment>
+
+  <Fragment slot="contact">
+    <Container class="contact-panel">
+      <p>{copy.contact.description}</p>
+      <Button href={localizedPath(lang, 'contact')}>{copy.contact.cta}</Button>
     </Container>
   </Fragment>
 </AboutSections>

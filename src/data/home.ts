@@ -13,15 +13,20 @@ interface HomePageCopy {
   };
   identity: CardContent[];
   work: CardContent[];
-  research: string[];
+  research: Array<{ title: string; path: string }>;
   publications: {
     title: string;
     description: string;
   };
-  projects: string[];
+  projects: {
+    title: string;
+    description: string;
+  };
   media: string[];
-  profiles: string[];
   placeholderLabel: string;
+  linkLabel: string;
+  profileLinkLabel: string;
+  externalLinkLabel: string;
   contact: {
     description: string;
     cta: string;
@@ -47,15 +52,24 @@ export const homePageCopy: Record<Language, HomePageCopy> = {
       { title: 'Исследования', description: 'Ветеринарная медицина и технологии.' },
       { title: 'Образование', description: 'Раздел для будущих образовательных материалов.' },
     ],
-    research: ['Исследовательские интересы', 'Публикации', 'Патенты', 'Текущее PhD-исследование'],
+    research: [
+      { title: 'Исследовательские направления', path: 'research' },
+      { title: 'Публикации', path: 'publications' },
+      { title: 'Академические профили', path: 'profiles' },
+    ],
     publications: {
       title: 'Публикации пока не добавлены',
       description: 'Раздел подготовлен для автоматического вывода материалов из Markdown-коллекции.',
     },
-    projects: ['Проект 01', 'Проект 02', 'Проект 03'],
+    projects: {
+      title: 'Проекты пока не добавлены',
+      description: 'Проверенные проекты будут появляться здесь после добавления в Markdown-коллекцию.',
+    },
     media: ['Интервью', 'Статьи', 'Видео', 'Подкасты'],
-    profiles: ['Google Scholar', 'ORCID', 'ResearchGate', 'Web of Science Researcher', 'GitHub', 'YouTube', 'Instagram', 'Threads', 'Facebook'],
     placeholderLabel: 'Материалы будут добавлены позже',
+    linkLabel: 'Перейти к разделу',
+    profileLinkLabel: 'Открыть профиль',
+    externalLinkLabel: 'откроется в новой вкладке',
     contact: {
       description: 'Для профессиональных запросов используйте страницу контактов.',
       cta: 'Перейти к контактам',
@@ -79,15 +93,24 @@ export const homePageCopy: Record<Language, HomePageCopy> = {
       { title: 'Research', description: 'Veterinary medicine and technology.' },
       { title: 'Education', description: 'Reserved for future educational material.' },
     ],
-    research: ['Research interests', 'Publications', 'Patents', 'Current PhD research'],
+    research: [
+      { title: 'Research directions', path: 'research' },
+      { title: 'Publications', path: 'publications' },
+      { title: 'Academic profiles', path: 'profiles' },
+    ],
     publications: {
       title: 'No publications added yet',
       description: 'This section is ready to render entries automatically from the Markdown collection.',
     },
-    projects: ['Project 01', 'Project 02', 'Project 03'],
+    projects: {
+      title: 'No projects added yet',
+      description: 'Verified projects will appear here after they are added to the Markdown collection.',
+    },
     media: ['Interviews', 'Articles', 'Videos', 'Podcasts'],
-    profiles: ['Google Scholar', 'ORCID', 'ResearchGate', 'Web of Science Researcher', 'GitHub', 'YouTube', 'Instagram', 'Threads', 'Facebook'],
     placeholderLabel: 'Material will be added later',
+    linkLabel: 'View section',
+    profileLinkLabel: 'Open profile',
+    externalLinkLabel: 'opens in a new tab',
     contact: {
       description: 'Use the contact page for professional enquiries.',
       cta: 'Go to contact page',

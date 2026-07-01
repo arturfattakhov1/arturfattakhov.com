@@ -7,6 +7,15 @@ interface AboutPageCopy {
   expertise: string[];
   currentWork: string;
   research: string;
+  placeholders: {
+    projects: { title: string; description: string };
+    education: { title: string; description: string };
+    publications: { title: string; description: string };
+    media: { title: string; description: string };
+  };
+  profileLinkLabel: string;
+  externalLinkLabel: string;
+  contact: { description: string; cta: string };
 }
 
 export const aboutPageCopy: Record<Language, AboutPageCopy> = {
@@ -27,6 +36,15 @@ export const aboutPageCopy: Record<Language, AboutPageCopy> = {
     ],
     currentWork: 'Как предприниматель, я работаю над созданием современной ветеринарной службы, ориентированной на помощь собакам и кошкам на дому, стандартизацию качества и использование технологий для повышения эффективности ветеринарной помощи.',
     research: 'Как исследователь, я занимаюсь научной работой в области ветеринарной медицины и развиваю интерес к применению цифровых инструментов, данных и искусственного интеллекта в клинической практике.',
+    placeholders: {
+      projects: { title: 'Проекты будут добавлены после проверки', description: 'Раздел связан с будущей Markdown-коллекцией проектов.' },
+      education: { title: 'Сведения будут добавлены после проверки', description: 'Неподтверждённые данные об образовании не публикуются.' },
+      publications: { title: 'Публикации пока не добавлены', description: 'Библиографические данные будут опубликованы после проверки.' },
+      media: { title: 'Материалы пока не добавлены', description: 'Проверенные медиа-материалы будут добавлены позже.' },
+    },
+    profileLinkLabel: 'Открыть профиль',
+    externalLinkLabel: 'откроется в новой вкладке',
+    contact: { description: 'Для профессиональных, исследовательских и медиа-запросов используйте страницу контактов.', cta: 'Связаться' },
   },
   en: {
     hero: 'I am Artur Fattakhov - a veterinarian, researcher, and entrepreneur.',
@@ -45,5 +63,14 @@ export const aboutPageCopy: Record<Language, AboutPageCopy> = {
     ],
     currentWork: 'As an entrepreneur, I am focused on building a modern veterinary service for dogs and cats at home, with standardized quality and technology-supported clinical processes.',
     research: 'As a researcher, I work in veterinary medicine and develop an interest in digital tools, data, and artificial intelligence in clinical practice.',
+    placeholders: {
+      projects: { title: 'Projects will be added after verification', description: 'This section is connected to the future Markdown project collection.' },
+      education: { title: 'Details will be added after verification', description: 'Unverified education details are not published.' },
+      publications: { title: 'No publications added yet', description: 'Bibliographic data will be published after verification.' },
+      media: { title: 'No materials added yet', description: 'Verified media materials will be added later.' },
+    },
+    profileLinkLabel: 'Open profile',
+    externalLinkLabel: 'opens in a new tab',
+    contact: { description: 'Use the contact page for professional, research, and media inquiries.', cta: 'Contact' },
   },
 };

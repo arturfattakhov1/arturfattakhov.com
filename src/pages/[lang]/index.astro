@@ -4,7 +4,10 @@ import Card from '../../components/Card.astro';
 import CollectionPlaceholder from '../../components/CollectionPlaceholder.astro';
 import Container from '../../components/Container.astro';
 import HomeSections from '../../components/HomeSections.astro';
+import LinkCard from '../../components/LinkCard.astro';
+import ProfileCard from '../../components/ProfileCard.astro';
 import { homePageCopy } from '../../data/home';
+import { identity } from '../../data/identity';
 import { homeContent } from '../../data/pages';
 import { languages, localizedPath, type Language } from '../../i18n/config';
 import PageLayout from '../../layouts/PageLayout.astro';
@@ -58,8 +61,16 @@ const copy = homePageCopy[lang];
 
     <Fragment slot="research">
       <Container>
-        <ul class="card-grid" role="list">
-          {copy.research.map((title) => <li><Card title={title} status={copy.placeholderLabel} /></li>)}
+        <ul class="card-grid card-grid--three" role="list">
+          {copy.research.map((item) => (
+            <li>
+              <LinkCard
+                title={item.title}
+                href={localizedPath(lang, item.path)}
+                linkLabel={copy.linkLabel}
+              />
+            </li>
+          ))}
         </ul>
       </Container>
     </Fragment>
@@ -76,9 +87,7 @@ const copy = homePageCopy[lang];
 
     <Fragment slot="projects">
       <Container>
-        <ul class="card-grid card-grid--three" role="list">
-          {copy.projects.map((title) => <li><Card title={title} status={copy.placeholderLabel} /></li>)}
-        </ul>
+        <CollectionPlaceholder collection="projects" title={copy.projects.title} description={copy.projects.description} />
       </Container>
     </Fragment>
 
@@ -93,7 +102,15 @@ const copy = homePageCopy[lang];
     <Fragment slot="profiles">
       <Container>
         <ul class="card-grid card-grid--profiles" role="list">
-          {copy.profiles.map((title) => <li><Card title={title} status={copy.placeholderLabel} /></li>)}
+          {identity.profiles.map((profile) => (
+            <li>
+              <ProfileCard
+                profile={profile}
+                linkLabel={copy.profileLinkLabel}
+                externalLinkLabel={copy.externalLinkLabel}
+              />
+            </li>
+          ))}
         </ul>
       </Container>
     </Fragment>

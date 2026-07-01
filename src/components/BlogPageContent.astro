@@ -1,0 +1,47 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { blogPageCopy } from '../data/blog';
+import type { Language } from '../i18n/config';
+import { localizedPath } from '../i18n/config';
+import { ui } from '../i18n/ui';
+import BlogSections from './BlogSections.astro';
+import CollectionPlaceholder from './CollectionPlaceholder.astro';
+import Container from './Container.astro';
+
+interface Props {
+  lang: Language;
+  posts: CollectionEntry<'blog'>[];
+}
+
+const { lang, posts } = Astro.props;
+const copy = blogPageCopy[lang];
+const dateFormatter = new Intl.DateTimeFormat(lang === 'ru' ? 'ru-RU' : 'en-GB', {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
+---
+
+<BlogSections lang={lang}>
+  <Fragment slot="hero">
+    <Container class="section-copy section-copy--lead"><p>{copy.intro}</p></Container>
+  </Fragment>
+  <Fragment slot="articles">
+    <Container>
+      {posts.length > 0 ? (
+        <ol class="entry-list">
+          {posts.map((post) => (
+            <li>
+              <article>
+                <time datetime={post.data.publishDate.toISOString()}>{dateFormatter.format(post.data.publishDate)}</time>
+                <h3><a href={localizedPath(lang, 'blog/' + post.data.routeSlug)}>{post.data.title}</a></h3>
+                <p>{post.data.description}</p>
+                <a class="text-link" href={localizedPath(lang, 'blog/' + post.data.routeSlug)}>{ui[lang].readMore}<span aria-hidden="true"> →</span></a>
+              </article>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <CollectionPlaceholder collection="blog" title={copy.placeholderTitle} description={copy.placeholderDescription} />
+      )}
+    </Container>
+  </Fragment>
+</BlogSections>

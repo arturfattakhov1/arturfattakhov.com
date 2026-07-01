@@ -12,8 +12,8 @@ interface ResearchPageCopy {
     title: string;
     description: string;
   };
-  profiles: string[];
-  profilePlaceholder: string;
+  profileLinkLabel: string;
+  externalLinkLabel: string;
   futureDirections: string;
 }
 
@@ -37,8 +37,8 @@ export const researchPageCopy: Record<Language, ResearchPageCopy> = {
       title: 'Материалы пока не добавлены',
       description: 'Раздел подготовлен для будущих страниц патентов.',
     },
-    profiles: ['ORCID', 'Google Scholar', 'ResearchGate', 'Web of Science'],
-    profilePlaceholder: 'Место для ссылки на профиль',
+    profileLinkLabel: 'Открыть профиль',
+    externalLinkLabel: 'откроется в новой вкладке',
     futureDirections: 'Будущие исследования будут сосредоточены на применении искусственного интеллекта, клинической поддержке принятия решений и цифровых технологиях в ветеринарной медицине.',
   },
   en: {
@@ -60,8 +60,8 @@ export const researchPageCopy: Record<Language, ResearchPageCopy> = {
       title: 'No materials added yet',
       description: 'This section is prepared for future patent pages.',
     },
-    profiles: ['ORCID', 'Google Scholar', 'ResearchGate', 'Web of Science'],
-    profilePlaceholder: 'Reserved for a profile link',
+    profileLinkLabel: 'Open profile',
+    externalLinkLabel: 'opens in a new tab',
     futureDirections: 'Future research will focus on artificial intelligence, clinical decision support and digital technologies in veterinary medicine.',
   },
 };

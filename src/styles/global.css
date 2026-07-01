@@ -187,7 +187,7 @@ main {
 
 .page--home {
   max-width: none;
-  padding-top: clamp(5rem, 12vw, 10rem);
+  padding-top: clamp(4rem, 9vw, 7rem);
 }
 
 .page--home .page-header {
@@ -299,6 +299,20 @@ h1 {
 .publications-sections .entry-list h3 {
   margin: 0.35rem 0 0.75rem;
   font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+}
+
+.blog-sections .entry-list {
+  margin: 0;
+}
+
+.blog-sections .entry-list h3 {
+  margin: 0.35rem 0 0.75rem;
+  font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+}
+
+.blog-sections .entry-list h3 a {
+  color: var(--text);
+  text-decoration: none;
 }
 
 .section-copy {
@@ -458,7 +472,8 @@ h1 {
   font-size: 0.78rem;
 }
 
-.profile-card-link {
+.profile-card-link,
+.card-link {
   display: inline-flex;
   align-items: center;
   margin-top: 1.5rem;
