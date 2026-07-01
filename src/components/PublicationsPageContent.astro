@@ -1,0 +1,97 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { identity } from '../data/identity';
+import { publicationsPageCopy } from '../data/publications';
+import type { Language } from '../i18n/config';
+import Card from './Card.astro';
+import CollectionPlaceholder from './CollectionPlaceholder.astro';
+import Container from './Container.astro';
+import ProfileCard from './ProfileCard.astro';
+import PublicationsSections from './PublicationsSections.astro';
+
+type ProfileKey = (typeof identity.profiles)[number]['key'];
+
+interface Props {
+  lang: Language;
+  entries: CollectionEntry<'publications'>[];
+}
+
+const { lang, entries } = Astro.props;
+const copy = publicationsPageCopy[lang];
+const profilesByKey = new Map(identity.profiles.map((profile) => [profile.key, profile] as const));
+const identifierKeys: ProfileKey[] = ['googleScholar', 'orcid', 'researchGate', 'webOfScience'];
+const identifierProfiles = identifierKeys
+  .map((key) => profilesByKey.get(key))
+  .filter((profile) => profile !== undefined);
+---
+
+<PublicationsSections lang={lang}>
+  <Fragment slot="hero">
+    <Container class="section-copy section-copy--lead">
+      <p>{copy.hero}</p>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="scientific">
+    <Container>
+      {entries.length > 0 ? (
+        <ol class="entry-list">
+          {entries.map((entry) => (
+            <li>
+              <article>
+                <p class="entry-meta">{entry.data.date.getFullYear()} · {copy.statusLabels[entry.data.status]}</p>
+                <h3>
+                  {entry.data.externalUrl ? (
+                    <a href={entry.data.externalUrl} target="_blank" rel="noopener noreferrer">{entry.data.title}</a>
+                  ) : entry.data.title}
+                </h3>
+                <p>{entry.data.description}</p>
+                <p class="entry-authors">{entry.data.authors.join(', ')}</p>
+              </article>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <CollectionPlaceholder
+          collection="publications"
+          title={copy.scientificPublications.title}
+          description={copy.scientificPublications.description}
+        />
+      )}
+    </Container>
+  </Fragment>
+
+  <Fragment slot="professional">
+    <Container>
+      <CollectionPlaceholder
+        collection="professional-articles"
+        title={copy.professionalArticles.title}
+        description={copy.professionalArticles.description}
+      />
+    </Container>
+  </Fragment>
+
+  <Fragment slot="identifiers">
+    <Container>
+      <ul class="card-grid" role="list">
+        {identifierProfiles.map((profile) => (
+          <li>
+            <ProfileCard
+              profile={profile}
+              linkLabel={copy.profileLinkLabel}
+              externalLinkLabel={copy.externalLinkLabel}
+            />
+          </li>
+        ))}
+      </ul>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="future">
+    <Container>
+      <ul class="card-grid" role="list">
+        {copy.futureStructure.map((title) => <li><Card title={title} /></li>)}
+      </ul>
+    </Container>
+  </Fragment>
+</PublicationsSections>

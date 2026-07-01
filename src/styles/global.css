@@ -296,6 +296,24 @@ h1 {
   border-top: 1px solid var(--line);
 }
 
+.publications-sections .page-section {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.32fr) minmax(0, 1fr);
+  gap: 2rem clamp(2rem, 6vw, 5rem);
+  min-height: 10rem;
+  padding-block: clamp(2.5rem, 6vw, 4rem);
+  border-top: 1px solid var(--line);
+}
+
+.publications-sections .entry-list {
+  margin: 0;
+}
+
+.publications-sections .entry-list h3 {
+  margin: 0.35rem 0 0.75rem;
+  font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+}
+
 .section-copy {
   max-width: 46rem;
   color: #34433b;
@@ -657,6 +675,12 @@ h1 {
   }
 
   .contact-sections .page-section {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    min-height: 0;
+  }
+
+  .publications-sections .page-section {
     grid-template-columns: 1fr;
     gap: 1.5rem;
     min-height: 0;
