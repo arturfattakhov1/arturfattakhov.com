@@ -9,6 +9,7 @@ interface Props {
   lang: Language;
   canonicalPath: string;
   showBreadcrumbs?: boolean;
+  type?: 'profile' | 'article' | 'website';
 }
 
 const {
@@ -17,10 +18,11 @@ const {
   lang,
   canonicalPath,
   showBreadcrumbs = true,
+  type = 'website',
 } = Astro.props;
 ---
 
-<BaseLayout title={title} description={description} lang={lang} canonicalPath={canonicalPath} type={showBreadcrumbs ? 'website' : 'profile'}>
+<BaseLayout title={title} description={description} lang={lang} canonicalPath={canonicalPath} type={type}>
   {showBreadcrumbs && <Breadcrumbs lang={lang} items={[{ label: title }]} />}
   <article class:list={['page', { 'page--home': !showBreadcrumbs }]}>
     <header class="page-header">

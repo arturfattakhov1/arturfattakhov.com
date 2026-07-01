@@ -5,6 +5,7 @@ interface ProfilesPageCopy {
   hero: string;
   linkLabel: string;
   externalLinkLabel: string;
+  aboutCta: string;
   futureProfiles: string;
 }
 
@@ -13,12 +14,14 @@ export const profilesPageCopy: Record<Language, ProfilesPageCopy> = {
     hero: 'Эта страница объединяет официальные научные, профессиональные и публичные профили Артура Фаттахова.',
     linkLabel: 'Открыть профиль',
     externalLinkLabel: 'откроется в новой вкладке',
+    aboutCta: 'О профессиональном профиле',
     futureProfiles: 'Новые официальные профили будут добавляться только после подтверждения и унификации.',
   },
   en: {
     hero: `This page connects the official research, professional and public profiles of ${identity.name.en}.`,
     linkLabel: 'Open profile',
     externalLinkLabel: 'opens in a new tab',
+    aboutCta: 'About the professional profile',
     futureProfiles: 'New official profiles will be added only after verification and identity alignment.',
   },
 };

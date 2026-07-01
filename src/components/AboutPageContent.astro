@@ -76,6 +76,9 @@ const selectedProfiles = profileKeys
           <li><ProfileCard profile={profile} linkLabel={copy.profileLinkLabel} externalLinkLabel={copy.externalLinkLabel} /></li>
         ))}
       </ul>
+      <div class="button-group">
+        <Button href={localizedPath(lang, 'profiles')} variant="secondary">{copy.profileHubCta}</Button>
+      </div>
     </Container>
   </Fragment>
 

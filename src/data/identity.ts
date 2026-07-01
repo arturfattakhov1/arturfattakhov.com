@@ -42,7 +42,7 @@ export const schemaIds = {
 
 export const identityDescription = `${identity.jobTitle} focused on ${identity.focus}.`;
 
-export function createPersonSchema() {
+export function createPersonSchema(lang: Language) {
   const orcid = identity.profiles.find((profile) => profile.key === 'orcid');
 
   return {
@@ -67,7 +67,7 @@ export function createPersonSchema() {
       value: '0000-0003-4142-0469',
       url: orcid.url,
     }] : [],
-    mainEntityOfPage: { '@id': schemaIds.profilePage.ru },
+    mainEntityOfPage: { '@id': schemaIds.profilePage[lang] },
   } as const;
 }
 
@@ -79,6 +79,8 @@ export function createWebsiteSchema() {
     name: identity.name.en,
     alternateName: identity.name.ru,
     inLanguage: [identity.languages.ru.code, identity.languages.en.code],
+    about: { '@id': schemaIds.person },
+    publisher: { '@id': schemaIds.person },
   } as const;
 }
 
@@ -88,6 +90,9 @@ export function createProfilePageSchema(lang: Language) {
     '@id': schemaIds.profilePage[lang],
     url: `${identity.url}/${lang}/about/`,
     name: lang === 'ru' ? `О ${identity.name.ru}` : `About ${identity.name.en}`,
+    description: lang === 'ru'
+      ? 'Официальная страница об Артуре Фаттахове.'
+      : 'Official About page for Artur Fattakhov.',
     inLanguage: identity.languages[lang].code,
     isPartOf: { '@id': schemaIds.website },
     mainEntity: { '@id': schemaIds.person },
@@ -95,7 +100,7 @@ export function createProfilePageSchema(lang: Language) {
 }
 
 export function createIdentityJsonLd(lang: Language, includeProfilePage = false) {
-  const graph: Array<Record<string, unknown>> = [createPersonSchema(), createWebsiteSchema()];
+  const graph: Array<Record<string, unknown>> = [createPersonSchema(lang), createWebsiteSchema()];
 
   if (includeProfilePage) {
     graph.push(createProfilePageSchema(lang));

@@ -2,6 +2,8 @@
 import { identity } from '../data/identity';
 import { profilesPageCopy } from '../data/profiles';
 import type { Language } from '../i18n/config';
+import { localizedPath } from '../i18n/config';
+import Button from './Button.astro';
 import Container from './Container.astro';
 import ProfileCard from './ProfileCard.astro';
 import ProfilesSections from './ProfilesSections.astro';
@@ -27,6 +29,9 @@ const publicProfiles = selectProfiles(['youtube', 'instagram', 'threads', 'faceb
   <Fragment slot="hero">
     <Container class="section-copy section-copy--lead">
       <p>{copy.hero}</p>
+      <div class="button-group">
+        <Button href={localizedPath(lang, 'about')} variant="secondary">{copy.aboutCta}</Button>
+      </div>
     </Container>
   </Fragment>
 

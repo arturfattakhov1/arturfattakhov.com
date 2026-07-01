@@ -32,6 +32,7 @@ const content = pageContent[lang][page];
   description={content.description}
   lang={lang}
   canonicalPath={localizedPath(lang, page)}
+  type={page === 'about' ? 'profile' : 'website'}
 >
   {page === 'about' && <AboutPageContent lang={lang} />}
   {page === 'research' && <ResearchPageContent lang={lang} />}

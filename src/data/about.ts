@@ -15,6 +15,7 @@ interface AboutPageCopy {
   };
   profileLinkLabel: string;
   externalLinkLabel: string;
+  profileHubCta: string;
   contact: { description: string; cta: string };
 }
 
@@ -44,6 +45,7 @@ export const aboutPageCopy: Record<Language, AboutPageCopy> = {
     },
     profileLinkLabel: 'Открыть профиль',
     externalLinkLabel: 'откроется в новой вкладке',
+    profileHubCta: 'Все официальные профили',
     contact: { description: 'Для профессиональных, исследовательских и медиа-запросов используйте страницу контактов.', cta: 'Связаться' },
   },
   en: {
@@ -71,6 +73,7 @@ export const aboutPageCopy: Record<Language, AboutPageCopy> = {
     },
     profileLinkLabel: 'Open profile',
     externalLinkLabel: 'opens in a new tab',
+    profileHubCta: 'All official profiles',
     contact: { description: 'Use the contact page for professional, research, and media inquiries.', cta: 'Contact' },
   },
 };
