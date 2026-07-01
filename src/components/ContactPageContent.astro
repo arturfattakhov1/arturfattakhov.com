@@ -7,6 +7,7 @@ import Button from './Button.astro';
 import Card from './Card.astro';
 import ContactSections from './ContactSections.astro';
 import Container from './Container.astro';
+import KnowledgeHubNavigation from './KnowledgeHubNavigation.astro';
 import ProfileCard from './ProfileCard.astro';
 
 interface Props {
@@ -65,6 +66,7 @@ const copy = contactPageCopy[lang];
   <Fragment slot="response">
     <Container class="section-copy">
       <p>{copy.responseNote}</p>
+      <KnowledgeHubNavigation lang={lang} />
     </Container>
   </Fragment>
 </ContactSections>

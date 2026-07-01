@@ -5,6 +5,7 @@ import CollectionPlaceholder from '../../components/CollectionPlaceholder.astro'
 import Container from '../../components/Container.astro';
 import HomeSections from '../../components/HomeSections.astro';
 import LinkCard from '../../components/LinkCard.astro';
+import KnowledgeHubNavigation from '../../components/KnowledgeHubNavigation.astro';
 import ProfileCard from '../../components/ProfileCard.astro';
 import { homePageCopy } from '../../data/home';
 import { identity } from '../../data/identity';
@@ -72,6 +73,13 @@ const copy = homePageCopy[lang];
             </li>
           ))}
         </ul>
+      </Container>
+    </Fragment>
+
+    <Fragment slot="knowledge">
+      <Container class="section-copy">
+        <p>{copy.knowledgeHub}</p>
+        <KnowledgeHubNavigation lang={lang} />
       </Container>
     </Fragment>
 

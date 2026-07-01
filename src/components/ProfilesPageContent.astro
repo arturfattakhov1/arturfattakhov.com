@@ -5,6 +5,7 @@ import type { Language } from '../i18n/config';
 import { localizedPath } from '../i18n/config';
 import Button from './Button.astro';
 import Container from './Container.astro';
+import KnowledgeHubNavigation from './KnowledgeHubNavigation.astro';
 import ProfileCard from './ProfileCard.astro';
 import ProfilesSections from './ProfilesSections.astro';
 
@@ -68,6 +69,7 @@ const publicProfiles = selectProfiles(['youtube', 'instagram', 'threads', 'faceb
   <Fragment slot="future">
     <Container class="section-copy">
       <p>{copy.futureProfiles}</p>
+      <KnowledgeHubNavigation lang={lang} />
     </Container>
   </Fragment>
 </ProfilesSections>

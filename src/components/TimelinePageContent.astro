@@ -1,0 +1,36 @@
+---
+import { timelinePageCopy } from '../data/timeline';
+import type { Language } from '../i18n/config';
+import Card from './Card.astro';
+import Container from './Container.astro';
+import KnowledgeHubNavigation from './KnowledgeHubNavigation.astro';
+import PageIntro from './PageIntro.astro';
+import PageSection from './PageSection.astro';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const copy = timelinePageCopy[lang];
+---
+
+<div class="section-stack timeline-sections">
+  <PageIntro>
+    <Container class="section-copy section-copy--lead">
+      <p>{copy.hero}</p>
+      <KnowledgeHubNavigation lang={lang} exclude="timeline" />
+    </Container>
+  </PageIntro>
+
+  <PageSection id="professional-timeline" title={copy.sectionTitle}>
+    <Container>
+      <ol class="card-grid">
+        {copy.milestones.map((milestone) => <li><Card {...milestone} /></li>)}
+      </ol>
+      <div class="section-copy">
+        <p>{copy.closing}</p>
+      </div>
+    </Container>
+  </PageSection>
+</div>

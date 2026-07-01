@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 const root = new URL('../', import.meta.url);
 const domain = 'https://arturfattakhov.com';
 const languages = ['ru', 'en'];
-const routes = ['', 'about', 'research', 'publications', 'projects', 'media', 'blog', 'contact', 'cv', 'profiles', 'uses', 'now'];
+const routes = ['', 'about', 'research', 'publications', 'projects', 'media', 'blog', 'contact', 'cv', 'profiles', 'uses', 'now', 'knowledge', 'timeline', 'faq'];
 const errors = [];
 const pages = new Map();
 const titlesByLanguage = new Map(languages.map((lang) => [lang, new Set()]));
@@ -120,6 +120,14 @@ for (const lang of languages) {
   const jsonLd = JSON.parse(matchOne(profilesHtml ?? '', /<script type="application\/ld\+json">(.*?)<\/script>/) ?? '{}');
   const sameAs = jsonLd['@graph']?.find((node) => node['@id'] === `${domain}/#person`)?.sameAs ?? [];
   assert(sameAs.every((url) => profilesHtml?.includes(`href="${url.replaceAll('&', '&amp;')}"`)), `${profilesPath}: verified profile link missing from page`);
+
+  for (const sourceRoute of ['', 'about', 'research', 'projects', 'profiles', 'contact']) {
+    const sourcePath = sourceRoute ? `/${lang}/${sourceRoute}/` : `/${lang}/`;
+    const sourceHtml = pages.get(sourcePath);
+    for (const hubRoute of ['knowledge', 'timeline', 'faq']) {
+      assert(sourceHtml?.includes(`href="/${lang}/${hubRoute}/"`), `${sourcePath}: contextual ${hubRoute} link missing`);
+    }
+  }
 }
 
 const redirect = await readFile(new URL('dist/index.html', root), 'utf8');

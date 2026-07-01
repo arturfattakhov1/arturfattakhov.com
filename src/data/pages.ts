@@ -9,7 +9,10 @@ export type StandardPageSlug =
   | 'cv'
   | 'profiles'
   | 'uses'
-  | 'now';
+  | 'now'
+  | 'knowledge'
+  | 'timeline'
+  | 'faq';
 
 export interface PageContent {
   title: string;
@@ -31,6 +34,9 @@ export const pageContent: Record<Language, Record<StandardPageSlug, PageContent>
     profiles: { title: 'Профили', description: 'Официальные научные, профессиональные и публичные профили Артура Фаттахова.' },
     uses: { title: 'Инструменты', description: 'Раздел для проверенного списка рабочих инструментов, программного обеспечения и клинических процессов.' },
     now: { title: 'Сейчас', description: 'Текущие направления работы и профессионального внимания Артура Фаттахова.' },
+    knowledge: { title: 'База знаний', description: 'Профессиональная база знаний Артура Фаттахова о ветеринарной медицине, диагностике, исследованиях и технологиях.' },
+    timeline: { title: 'Хронология', description: 'Проверяемая профессиональная хронология Артура Фаттахова: образование, клиническая практика, исследования, публикации и проекты.' },
+    faq: { title: 'Вопросы и ответы', description: 'Ответы на основные вопросы о профессиональной деятельности, исследованиях, публикациях и официальных профилях Артура Фаттахова.' },
   },
   en: {
     about: { title: 'About', description: 'Professional profile of Artur Fattakhov across veterinary medicine, research, and entrepreneurship.' },
@@ -41,6 +47,9 @@ export const pageContent: Record<Language, Record<StandardPageSlug, PageContent>
     profiles: { title: 'Profiles', description: 'Official research, professional, and public profiles of Artur Fattakhov.' },
     uses: { title: 'Uses', description: 'A section for a verified list of working tools, software, and clinical workflows.' },
     now: { title: 'Now', description: 'Current areas of work and professional focus for Artur Fattakhov.' },
+    knowledge: { title: 'Knowledge Hub', description: 'Artur Fattakhov’s professional knowledge base on veterinary medicine, diagnostics, research, and technology.' },
+    timeline: { title: 'Timeline', description: 'A verifiable professional timeline for Artur Fattakhov covering education, clinical practice, research, publications, and projects.' },
+    faq: { title: 'FAQ', description: 'Answers to common questions about Artur Fattakhov’s professional work, research, publications, and official profiles.' },
   },
 };
 

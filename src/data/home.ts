@@ -14,6 +14,7 @@ interface HomePageCopy {
   identity: CardContent[];
   work: CardContent[];
   research: Array<{ title: string; path: string }>;
+  knowledgeHub: string;
   publications: {
     title: string;
     description: string;
@@ -57,6 +58,7 @@ export const homePageCopy: Record<Language, HomePageCopy> = {
       { title: 'Публикации', path: 'publications' },
       { title: 'Академические профили', path: 'profiles' },
     ],
+    knowledgeHub: 'База знаний объединяет тематические введения, проверяемую профессиональную хронологию и ответы на основные вопросы о работе, исследованиях и содержании сайта.',
     publications: {
       title: 'Проверенные библиографические записи',
       description: 'В разделе будут публиковаться научные работы и профессиональные статьи после проверки авторства, выходных данных, DOI и ссылки на первоисточник.',
@@ -98,6 +100,7 @@ export const homePageCopy: Record<Language, HomePageCopy> = {
       { title: 'Publications', path: 'publications' },
       { title: 'Academic profiles', path: 'profiles' },
     ],
+    knowledgeHub: 'The Knowledge Hub connects thematic introductions, a verifiable professional timeline, and answers to common questions about the work, research, and scope of this website.',
     publications: {
       title: 'Verified bibliographic records',
       description: 'Scientific work and professional articles will appear after authorship, publication details, DOI, and original source links have been checked.',

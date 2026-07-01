@@ -1,0 +1,27 @@
+---
+import type { Language } from '../i18n/config';
+import { localizedPath } from '../i18n/config';
+import Button from './Button.astro';
+
+type HubPage = 'knowledge' | 'timeline' | 'faq';
+
+interface Props {
+  lang: Language;
+  exclude?: HubPage;
+}
+
+const { lang, exclude } = Astro.props;
+const items: Array<{ slug: HubPage; label: Record<Language, string> }> = [
+  { slug: 'knowledge', label: { ru: 'База знаний', en: 'Knowledge Hub' } },
+  { slug: 'timeline', label: { ru: 'Хронология', en: 'Timeline' } },
+  { slug: 'faq', label: { ru: 'Вопросы и ответы', en: 'FAQ' } },
+];
+---
+
+<nav aria-label={lang === 'ru' ? 'Разделы профессиональной базы знаний' : 'Professional knowledge sections'}>
+  <div class="button-group">
+    {items.filter((item) => item.slug !== exclude).map((item) => (
+      <Button href={localizedPath(lang, item.slug)} variant="secondary">{item.label[lang]}</Button>
+    ))}
+  </div>
+</nav>

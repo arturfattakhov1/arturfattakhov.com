@@ -5,6 +5,7 @@ import type { Language } from '../i18n/config';
 import Card from './Card.astro';
 import CollectionPlaceholder from './CollectionPlaceholder.astro';
 import Container from './Container.astro';
+import KnowledgeHubNavigation from './KnowledgeHubNavigation.astro';
 import ProjectsSections from './ProjectsSections.astro';
 
 interface Props {
@@ -54,6 +55,7 @@ const copy = projectsPageCopy[lang];
       <ul class="card-grid card-grid--three" role="list">
         {copy.futureStructure.map((item) => <li><Card {...item} /></li>)}
       </ul>
+      <KnowledgeHubNavigation lang={lang} />
     </Container>
   </Fragment>
 </ProjectsSections>

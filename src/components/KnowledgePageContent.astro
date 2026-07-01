@@ -1,0 +1,32 @@
+---
+import { knowledgePageCopy } from '../data/knowledge';
+import type { Language } from '../i18n/config';
+import Container from './Container.astro';
+import KnowledgeHubNavigation from './KnowledgeHubNavigation.astro';
+import PageIntro from './PageIntro.astro';
+import PageSection from './PageSection.astro';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const copy = knowledgePageCopy[lang];
+---
+
+<div class="section-stack knowledge-sections">
+  <PageIntro>
+    <Container class="section-copy section-copy--lead">
+      <p>{copy.hero}</p>
+      <KnowledgeHubNavigation lang={lang} exclude="knowledge" />
+    </Container>
+  </PageIntro>
+
+  {copy.topics.map((topic) => (
+    <PageSection id={topic.id} title={topic.title}>
+      <Container class="section-copy">
+        <p>{topic.description}</p>
+      </Container>
+    </PageSection>
+  ))}
+</div>

@@ -14,6 +14,7 @@ const headings = {
     identity: 'Профессиональные роли',
     work: 'Текущие направления',
     research: 'Исследования',
+    knowledge: 'Профессиональная база знаний',
     publications: 'Публикации',
     projects: 'Проекты',
     media: 'Медиа',
@@ -25,6 +26,7 @@ const headings = {
     identity: 'Professional roles',
     work: 'Current areas of work',
     research: 'Research',
+    knowledge: 'Professional Knowledge Hub',
     publications: 'Publications',
     projects: 'Projects',
     media: 'Media',
@@ -41,6 +43,7 @@ const copy = headings[lang];
   <PageSection id="identity" title={copy.identity}><slot name="identity" /></PageSection>
   <PageSection id="work" title={copy.work}><slot name="work" /></PageSection>
   <PageSection id="research" title={copy.research}><slot name="research" /></PageSection>
+  <PageSection id="knowledge-hub" title={copy.knowledge}><slot name="knowledge" /></PageSection>
   <PageSection id="publications" title={copy.publications}><slot name="publications" /></PageSection>
   <PageSection id="projects" title={copy.projects}><slot name="projects" /></PageSection>
   <PageSection id="media" title={copy.media}><slot name="media" /></PageSection>

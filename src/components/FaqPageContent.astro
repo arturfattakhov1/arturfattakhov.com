@@ -1,0 +1,35 @@
+---
+import { faqPageCopy } from '../data/faq';
+import type { Language } from '../i18n/config';
+import Card from './Card.astro';
+import Container from './Container.astro';
+import KnowledgeHubNavigation from './KnowledgeHubNavigation.astro';
+import PageIntro from './PageIntro.astro';
+import PageSection from './PageSection.astro';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const copy = faqPageCopy[lang];
+---
+
+<div class="section-stack faq-sections">
+  <PageIntro>
+    <Container class="section-copy section-copy--lead">
+      <p>{copy.hero}</p>
+      <KnowledgeHubNavigation lang={lang} exclude="faq" />
+    </Container>
+  </PageIntro>
+
+  {copy.groups.map((group) => (
+    <PageSection id={group.id} title={group.title}>
+      <Container>
+        <ul class="card-grid" role="list">
+          {group.items.map((item) => <li><Card title={item.question} description={item.answer} /></li>)}
+        </ul>
+      </Container>
+    </PageSection>
+  ))}
+</div>

@@ -7,6 +7,7 @@ import Button from './Button.astro';
 import Card from './Card.astro';
 import CollectionPlaceholder from './CollectionPlaceholder.astro';
 import Container from './Container.astro';
+import KnowledgeHubNavigation from './KnowledgeHubNavigation.astro';
 import ProfileCard from './ProfileCard.astro';
 import ResearchSections from './ResearchSections.astro';
 
@@ -88,6 +89,7 @@ const academicProfiles = profileKeys
   <Fragment slot="future-directions">
     <Container class="about-copy">
       {copy.futureDirections.map((paragraph) => <p>{paragraph}</p>)}
+      <KnowledgeHubNavigation lang={lang} />
     </Container>
   </Fragment>
 </ResearchSections>

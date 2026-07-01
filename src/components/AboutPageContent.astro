@@ -6,6 +6,7 @@ import AboutSections from './AboutSections.astro';
 import Button from './Button.astro';
 import CollectionPlaceholder from './CollectionPlaceholder.astro';
 import Container from './Container.astro';
+import KnowledgeHubNavigation from './KnowledgeHubNavigation.astro';
 import ProfileCard from './ProfileCard.astro';
 import { localizedPath } from '../i18n/config';
 
@@ -54,6 +55,7 @@ const selectedProfiles = profileKeys
   <Fragment slot="research">
     <Container class="about-copy">
       {copy.research.map((paragraph) => <p>{paragraph}</p>)}
+      <KnowledgeHubNavigation lang={lang} />
     </Container>
   </Fragment>
 
