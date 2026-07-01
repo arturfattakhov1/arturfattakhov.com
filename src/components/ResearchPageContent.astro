@@ -2,6 +2,8 @@
 import { researchPageCopy } from '../data/research';
 import { identity } from '../data/identity';
 import type { Language } from '../i18n/config';
+import { localizedPath } from '../i18n/config';
+import Button from './Button.astro';
 import Card from './Card.astro';
 import CollectionPlaceholder from './CollectionPlaceholder.astro';
 import Container from './Container.astro';
@@ -24,22 +26,26 @@ const academicProfiles = profileKeys
 
 <ResearchSections lang={lang}>
   <Fragment slot="hero">
-    <Container class="section-copy section-copy--lead">
-      <p>{copy.hero}</p>
+    <Container class="about-copy about-copy--lead">
+      {copy.hero.map((paragraph) => <p>{paragraph}</p>)}
     </Container>
   </Fragment>
 
   <Fragment slot="interests">
     <Container>
       <ul class="card-grid card-grid--three" role="list">
-        {copy.interests.map((title) => <li><Card title={title} /></li>)}
+        {copy.interests.map((item) => <li><Card {...item} /></li>)}
       </ul>
     </Container>
   </Fragment>
 
   <Fragment slot="current-research">
-    <Container class="section-copy">
-      <p>{copy.currentResearch}</p>
+    <Container class="about-copy">
+      {copy.currentResearch.map((paragraph) => <p>{paragraph}</p>)}
+      <div class="button-group">
+        <Button href={localizedPath(lang, 'publications')}>{copy.relatedLinks.publications}</Button>
+        <Button href={localizedPath(lang, 'profiles')} variant="secondary">{copy.relatedLinks.profiles}</Button>
+      </div>
     </Container>
   </Fragment>
 
@@ -80,8 +86,8 @@ const academicProfiles = profileKeys
   </Fragment>
 
   <Fragment slot="future-directions">
-    <Container class="section-copy">
-      <p>{copy.futureDirections}</p>
+    <Container class="about-copy">
+      {copy.futureDirections.map((paragraph) => <p>{paragraph}</p>)}
     </Container>
   </Fragment>
 </ResearchSections>

@@ -3,6 +3,8 @@ import type { CollectionEntry } from 'astro:content';
 import { identity } from '../data/identity';
 import { publicationsPageCopy } from '../data/publications';
 import type { Language } from '../i18n/config';
+import { localizedPath } from '../i18n/config';
+import Button from './Button.astro';
 import Card from './Card.astro';
 import CollectionPlaceholder from './CollectionPlaceholder.astro';
 import Container from './Container.astro';
@@ -84,13 +86,17 @@ const identifierProfiles = identifierKeys
           </li>
         ))}
       </ul>
+      <div class="button-group">
+        <Button href={localizedPath(lang, 'research')}>{copy.relatedLinks.research}</Button>
+        <Button href={localizedPath(lang, 'profiles')} variant="secondary">{copy.relatedLinks.profiles}</Button>
+      </div>
     </Container>
   </Fragment>
 
   <Fragment slot="future">
     <Container>
       <ul class="card-grid" role="list">
-        {copy.futureStructure.map((title) => <li><Card title={title} /></li>)}
+        {copy.futureStructure.map((item) => <li><Card {...item} /></li>)}
       </ul>
     </Container>
   </Fragment>

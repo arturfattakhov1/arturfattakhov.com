@@ -2,6 +2,8 @@
 import { contactEmail, contactPageCopy } from '../data/contact';
 import { identity } from '../data/identity';
 import type { Language } from '../i18n/config';
+import { localizedPath } from '../i18n/config';
+import Button from './Button.astro';
 import Card from './Card.astro';
 import ContactSections from './ContactSections.astro';
 import Container from './Container.astro';
@@ -34,8 +36,13 @@ const copy = contactPageCopy[lang];
   <Fragment slot="inquiries">
     <Container>
       <ul class="card-grid" role="list">
-        {copy.inquiryTypes.map((title) => <li><Card title={title} /></li>)}
+        {copy.inquiryTypes.map((item) => <li><Card {...item} /></li>)}
       </ul>
+      <div class="button-group">
+        <Button href={localizedPath(lang, 'profiles')} variant="secondary">
+          {copy.profilesCta}
+        </Button>
+      </div>
     </Container>
   </Fragment>
 

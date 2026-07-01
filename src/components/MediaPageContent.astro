@@ -1,6 +1,8 @@
 ---
 import { mediaPageCopy } from '../data/remaining-pages';
 import type { Language } from '../i18n/config';
+import { localizedPath } from '../i18n/config';
+import Button from './Button.astro';
 import CollectionPlaceholder from './CollectionPlaceholder.astro';
 import Container from './Container.astro';
 import MediaSections from './MediaSections.astro';
@@ -12,18 +14,23 @@ const copy = mediaPageCopy[lang];
 
 <MediaSections lang={lang}>
   <Fragment slot="hero">
-    <Container class="section-copy section-copy--lead"><p>{copy.hero}</p></Container>
+    <Container class="section-copy section-copy--lead">
+      <p>{copy.hero}</p>
+      <div class="button-group">
+        <Button href={localizedPath(lang, 'contact')} variant="secondary">{copy.contactCta}</Button>
+      </div>
+    </Container>
   </Fragment>
   <Fragment slot="interviews">
-    <Container><CollectionPlaceholder collection="media-interviews" title={copy.placeholderTitle} description={copy.placeholderDescription} /></Container>
+    <Container><CollectionPlaceholder collection="media-interviews" {...copy.placeholders.interviews} /></Container>
   </Fragment>
   <Fragment slot="articles">
-    <Container><CollectionPlaceholder collection="media-articles" title={copy.placeholderTitle} description={copy.placeholderDescription} /></Container>
+    <Container><CollectionPlaceholder collection="media-articles" {...copy.placeholders.articles} /></Container>
   </Fragment>
   <Fragment slot="videos">
-    <Container><CollectionPlaceholder collection="media-videos" title={copy.placeholderTitle} description={copy.placeholderDescription} /></Container>
+    <Container><CollectionPlaceholder collection="media-videos" {...copy.placeholders.videos} /></Container>
   </Fragment>
   <Fragment slot="podcasts">
-    <Container><CollectionPlaceholder collection="media-podcasts" title={copy.placeholderTitle} description={copy.placeholderDescription} /></Container>
+    <Container><CollectionPlaceholder collection="media-podcasts" {...copy.placeholders.podcasts} /></Container>
   </Fragment>
 </MediaSections>

@@ -8,12 +8,13 @@ interface Props {
   profile: IdentityProfile;
   linkLabel: string;
   externalLinkLabel: string;
+  description?: string;
 }
 
-const { profile, linkLabel, externalLinkLabel } = Astro.props;
+const { profile, linkLabel, externalLinkLabel, description } = Astro.props;
 ---
 
-<Card title={profile.name}>
+<Card title={profile.name} description={description}>
   <a
     class="profile-card-link"
     href={profile.url}

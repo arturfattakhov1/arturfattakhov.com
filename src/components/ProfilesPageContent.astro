@@ -39,7 +39,7 @@ const publicProfiles = selectProfiles(['youtube', 'instagram', 'threads', 'faceb
     <Container>
       <ul class="card-grid" role="list">
         {researchProfiles.map((profile) => (
-          <li><ProfileCard profile={profile} linkLabel={copy.linkLabel} externalLinkLabel={copy.externalLinkLabel} /></li>
+          <li><ProfileCard profile={profile} description={copy.profileDescriptions[profile.key]} linkLabel={copy.linkLabel} externalLinkLabel={copy.externalLinkLabel} /></li>
         ))}
       </ul>
     </Container>
@@ -49,7 +49,7 @@ const publicProfiles = selectProfiles(['youtube', 'instagram', 'threads', 'faceb
     <Container>
       <ul class="card-grid" role="list">
         {professionalProfiles.map((profile) => (
-          <li><ProfileCard profile={profile} linkLabel={copy.linkLabel} externalLinkLabel={copy.externalLinkLabel} /></li>
+          <li><ProfileCard profile={profile} description={copy.profileDescriptions[profile.key]} linkLabel={copy.linkLabel} externalLinkLabel={copy.externalLinkLabel} /></li>
         ))}
       </ul>
     </Container>
@@ -59,7 +59,7 @@ const publicProfiles = selectProfiles(['youtube', 'instagram', 'threads', 'faceb
     <Container>
       <ul class="card-grid" role="list">
         {publicProfiles.map((profile) => (
-          <li><ProfileCard profile={profile} linkLabel={copy.linkLabel} externalLinkLabel={copy.externalLinkLabel} /></li>
+          <li><ProfileCard profile={profile} description={copy.profileDescriptions[profile.key]} linkLabel={copy.linkLabel} externalLinkLabel={copy.externalLinkLabel} /></li>
         ))}
       </ul>
     </Container>

@@ -12,8 +12,8 @@ const copy = usesPageCopy[lang];
 
 <UsesSections lang={lang}>
   <Fragment slot="hero"><Container class="section-copy section-copy--lead"><p>{copy.hero}</p></Container></Fragment>
-  <Fragment slot="tools"><Container><CollectionPlaceholder collection="uses-tools" title={copy.sections.tools} description={copy.sections.tools} /></Container></Fragment>
-  <Fragment slot="software"><Container><CollectionPlaceholder collection="uses-software" title={copy.sections.software} description={copy.sections.software} /></Container></Fragment>
-  <Fragment slot="workflow"><Container><CollectionPlaceholder collection="uses-clinical-workflow" title={copy.sections.clinicalWorkflow} description={copy.sections.clinicalWorkflow} /></Container></Fragment>
-  <Fragment slot="ai"><Container><CollectionPlaceholder collection="uses-ai-tools" title={copy.sections.aiTools} description={copy.sections.aiTools} /></Container></Fragment>
+  <Fragment slot="tools"><Container><CollectionPlaceholder collection="uses-tools" {...copy.sections.tools} /></Container></Fragment>
+  <Fragment slot="software"><Container><CollectionPlaceholder collection="uses-software" {...copy.sections.software} /></Container></Fragment>
+  <Fragment slot="workflow"><Container><CollectionPlaceholder collection="uses-clinical-workflow" {...copy.sections.clinicalWorkflow} /></Container></Fragment>
+  <Fragment slot="ai"><Container><CollectionPlaceholder collection="uses-ai-tools" {...copy.sections.aiTools} /></Container></Fragment>
 </UsesSections>

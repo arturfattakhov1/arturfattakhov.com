@@ -6,8 +6,8 @@ import PageSection from './PageSection.astro';
 interface Props { lang: Language; }
 const { lang } = Astro.props;
 const headings = {
-  ru: { focus: 'Направление', projects: 'Карточки проектов', future: 'Будущая структура' },
-  en: { focus: 'Focus', projects: 'Project cards', future: 'Future structure' },
+  ru: { focus: 'Текущая работа', projects: 'Будущие инициативы', future: 'Долгосрочное направление' },
+  en: { focus: 'Current work', projects: 'Future initiatives', future: 'Long-term direction' },
 } as const satisfies Record<Language, Record<string, string>>;
 const copy = headings[lang];
 ---

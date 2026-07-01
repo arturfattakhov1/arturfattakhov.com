@@ -52,7 +52,7 @@ const copy = projectsPageCopy[lang];
   <Fragment slot="future">
     <Container>
       <ul class="card-grid card-grid--three" role="list">
-        {copy.futureStructure.map((title) => <li><Card title={title} status={copy.futureLabel} /></li>)}
+        {copy.futureStructure.map((item) => <li><Card {...item} /></li>)}
       </ul>
     </Container>
   </Fragment>

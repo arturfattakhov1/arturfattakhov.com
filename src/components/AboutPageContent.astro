@@ -47,13 +47,13 @@ const selectedProfiles = profileKeys
 
   <Fragment slot="current-work">
     <Container class="about-copy">
-      <p>{copy.currentWork}</p>
+      {copy.currentWork.map((paragraph) => <p>{paragraph}</p>)}
     </Container>
   </Fragment>
 
   <Fragment slot="research">
     <Container class="about-copy">
-      <p>{copy.research}</p>
+      {copy.research.map((paragraph) => <p>{paragraph}</p>)}
     </Container>
   </Fragment>
 
