@@ -1,0 +1,43 @@
+---
+import type { Language } from '../i18n/config';
+import PageSection from './PageSection.astro';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+
+const headings = {
+  ru: {
+    hero: 'Исследования',
+    interests: 'Исследовательские интересы',
+    currentResearch: 'Текущие исследования',
+    publications: 'Публикации',
+    patents: 'Патенты',
+    profiles: 'Академические профили',
+    futureDirections: 'Будущие направления',
+  },
+  en: {
+    hero: 'Research',
+    interests: 'Research Interests',
+    currentResearch: 'Current Research',
+    publications: 'Publications',
+    patents: 'Patents',
+    profiles: 'Academic Profiles',
+    futureDirections: 'Future Directions',
+  },
+} as const satisfies Record<Language, Record<string, string>>;
+
+const copy = headings[lang];
+---
+
+<div class="research-sections">
+  <PageSection id="research-overview" title={copy.hero}><slot name="hero" /></PageSection>
+  <PageSection id="research-interests" title={copy.interests}><slot name="interests" /></PageSection>
+  <PageSection id="current-research" title={copy.currentResearch}><slot name="current-research" /></PageSection>
+  <PageSection id="research-publications" title={copy.publications}><slot name="publications" /></PageSection>
+  <PageSection id="research-patents" title={copy.patents}><slot name="patents" /></PageSection>
+  <PageSection id="academic-profiles" title={copy.profiles}><slot name="profiles" /></PageSection>
+  <PageSection id="future-directions" title={copy.futureDirections}><slot name="future-directions" /></PageSection>
+</div>

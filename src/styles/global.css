@@ -269,6 +269,30 @@ h1 {
   padding-block: clamp(2.5rem, 6vw, 4rem);
 }
 
+.research-sections .page-section {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.32fr) minmax(0, 1fr);
+  gap: 2rem clamp(2rem, 6vw, 5rem);
+  min-height: 10rem;
+  padding-block: clamp(2.5rem, 6vw, 4rem);
+  border-top: 1px solid var(--line);
+}
+
+.section-copy {
+  max-width: 46rem;
+  color: #34433b;
+  font-size: 1.05rem;
+}
+
+.section-copy--lead {
+  font-size: clamp(1.15rem, 2.3vw, 1.4rem);
+  line-height: 1.55;
+}
+
+.section-copy p {
+  margin: 0;
+}
+
 .about-copy {
   max-width: 46rem;
   color: #34433b;
@@ -567,6 +591,12 @@ h1 {
   }
 
   .about-sections .page-section {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    min-height: 0;
+  }
+
+  .research-sections .page-section {
     grid-template-columns: 1fr;
     gap: 1.5rem;
     min-height: 0;

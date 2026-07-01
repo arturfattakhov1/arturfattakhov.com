@@ -1,0 +1,71 @@
+---
+import { researchPageCopy } from '../data/research';
+import type { Language } from '../i18n/config';
+import Card from './Card.astro';
+import CollectionPlaceholder from './CollectionPlaceholder.astro';
+import Container from './Container.astro';
+import ResearchSections from './ResearchSections.astro';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const copy = researchPageCopy[lang];
+---
+
+<ResearchSections lang={lang}>
+  <Fragment slot="hero">
+    <Container class="section-copy section-copy--lead">
+      <p>{copy.hero}</p>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="interests">
+    <Container>
+      <ul class="card-grid card-grid--three" role="list">
+        {copy.interests.map((title) => <li><Card title={title} /></li>)}
+      </ul>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="current-research">
+    <Container class="section-copy">
+      <p>{copy.currentResearch}</p>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="publications">
+    <Container>
+      <CollectionPlaceholder
+        collection="publications"
+        title={copy.publications.title}
+        description={copy.publications.description}
+      />
+    </Container>
+  </Fragment>
+
+  <Fragment slot="patents">
+    <Container>
+      <CollectionPlaceholder
+        collection="patents"
+        title={copy.patents.title}
+        description={copy.patents.description}
+      />
+    </Container>
+  </Fragment>
+
+  <Fragment slot="profiles">
+    <Container>
+      <ul class="card-grid" role="list">
+        {copy.profiles.map((title) => <li><Card title={title} status={copy.profilePlaceholder} /></li>)}
+      </ul>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="future-directions">
+    <Container class="section-copy">
+      <p>{copy.futureDirections}</p>
+    </Container>
+  </Fragment>
+</ResearchSections>

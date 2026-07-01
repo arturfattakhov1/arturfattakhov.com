@@ -1,5 +1,6 @@
 ---
 import AboutPageContent from '../../components/AboutPageContent.astro';
+import ResearchPageContent from '../../components/ResearchPageContent.astro';
 import { pageContent, type StandardPageSlug } from '../../data/pages';
 import { languages, localizedPath, type Language } from '../../i18n/config';
 import PageLayout from '../../layouts/PageLayout.astro';
@@ -27,4 +28,5 @@ const content = pageContent[lang][page];
   canonicalPath={localizedPath(lang, page)}
 >
   {page === 'about' && <AboutPageContent lang={lang} />}
+  {page === 'research' && <ResearchPageContent lang={lang} />}
 </PageLayout>
