@@ -54,7 +54,7 @@ export const homePageCopy: Record<Language, HomePageCopy> = {
     },
     projects: ['Проект 01', 'Проект 02', 'Проект 03'],
     media: ['Интервью', 'Статьи', 'Видео', 'Подкасты'],
-    profiles: ['Google Scholar', 'ORCID', 'ResearchGate', 'Web of Science Researcher', 'GitHub', 'LinkedIn', 'YouTube', 'Instagram', 'Threads', 'Facebook'],
+    profiles: ['Google Scholar', 'ORCID', 'ResearchGate', 'Web of Science Researcher', 'GitHub', 'YouTube', 'Instagram', 'Threads', 'Facebook'],
     placeholderLabel: 'Материалы будут добавлены позже',
     contact: {
       description: 'Для профессиональных запросов используйте страницу контактов.',
@@ -86,7 +86,7 @@ export const homePageCopy: Record<Language, HomePageCopy> = {
     },
     projects: ['Project 01', 'Project 02', 'Project 03'],
     media: ['Interviews', 'Articles', 'Videos', 'Podcasts'],
-    profiles: ['Google Scholar', 'ORCID', 'ResearchGate', 'Web of Science Researcher', 'GitHub', 'LinkedIn', 'YouTube', 'Instagram', 'Threads', 'Facebook'],
+    profiles: ['Google Scholar', 'ORCID', 'ResearchGate', 'Web of Science Researcher', 'GitHub', 'YouTube', 'Instagram', 'Threads', 'Facebook'],
     placeholderLabel: 'Material will be added later',
     contact: {
       description: 'Use the contact page for professional enquiries.',

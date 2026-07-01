@@ -1,0 +1,68 @@
+---
+import { identity } from '../data/identity';
+import { profilesPageCopy } from '../data/profiles';
+import type { Language } from '../i18n/config';
+import Container from './Container.astro';
+import ProfileCard from './ProfileCard.astro';
+import ProfilesSections from './ProfilesSections.astro';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const copy = profilesPageCopy[lang];
+const profilesByKey = new Map(identity.profiles.map((profile) => [profile.key, profile] as const));
+type ProfileKey = (typeof identity.profiles)[number]['key'];
+
+const selectProfiles = (keys: readonly ProfileKey[]) =>
+  keys.map((key) => profilesByKey.get(key)).filter((profile) => profile !== undefined);
+
+const researchProfiles = selectProfiles(['orcid', 'googleScholar', 'researchGate', 'webOfScience']);
+const professionalProfiles = selectProfiles(['github']);
+const publicProfiles = selectProfiles(['youtube', 'instagram', 'threads', 'facebook']);
+---
+
+<ProfilesSections lang={lang}>
+  <Fragment slot="hero">
+    <Container class="section-copy section-copy--lead">
+      <p>{copy.hero}</p>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="research">
+    <Container>
+      <ul class="card-grid" role="list">
+        {researchProfiles.map((profile) => (
+          <li><ProfileCard profile={profile} linkLabel={copy.linkLabel} externalLinkLabel={copy.externalLinkLabel} /></li>
+        ))}
+      </ul>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="professional">
+    <Container>
+      <ul class="card-grid" role="list">
+        {professionalProfiles.map((profile) => (
+          <li><ProfileCard profile={profile} linkLabel={copy.linkLabel} externalLinkLabel={copy.externalLinkLabel} /></li>
+        ))}
+      </ul>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="public">
+    <Container>
+      <ul class="card-grid" role="list">
+        {publicProfiles.map((profile) => (
+          <li><ProfileCard profile={profile} linkLabel={copy.linkLabel} externalLinkLabel={copy.externalLinkLabel} /></li>
+        ))}
+      </ul>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="future">
+    <Container class="section-copy">
+      <p>{copy.futureProfiles}</p>
+    </Container>
+  </Fragment>
+</ProfilesSections>

@@ -1,5 +1,6 @@
 ---
 import AboutPageContent from '../../components/AboutPageContent.astro';
+import ProfilesPageContent from '../../components/ProfilesPageContent.astro';
 import ResearchPageContent from '../../components/ResearchPageContent.astro';
 import { pageContent, type StandardPageSlug } from '../../data/pages';
 import { languages, localizedPath, type Language } from '../../i18n/config';
@@ -29,4 +30,5 @@ const content = pageContent[lang][page];
 >
   {page === 'about' && <AboutPageContent lang={lang} />}
   {page === 'research' && <ResearchPageContent lang={lang} />}
+  {page === 'profiles' && <ProfilesPageContent lang={lang} />}
 </PageLayout>

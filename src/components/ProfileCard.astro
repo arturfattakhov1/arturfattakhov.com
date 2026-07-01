@@ -1,0 +1,26 @@
+---
+import { identity } from '../data/identity';
+import Card from './Card.astro';
+
+type IdentityProfile = (typeof identity.profiles)[number];
+
+interface Props {
+  profile: IdentityProfile;
+  linkLabel: string;
+  externalLinkLabel: string;
+}
+
+const { profile, linkLabel, externalLinkLabel } = Astro.props;
+---
+
+<Card title={profile.name}>
+  <a
+    class="profile-card-link"
+    href={profile.url}
+    target="_blank"
+    rel="me noopener noreferrer"
+    aria-label={`${linkLabel}: ${profile.name} (${externalLinkLabel})`}
+  >
+    {linkLabel}<span aria-hidden="true"> ↗</span>
+  </a>
+</Card>
