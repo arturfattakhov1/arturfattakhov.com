@@ -60,8 +60,8 @@ export const homePageCopy: Record<Language, HomePageCopy> = {
     ],
     knowledgeHub: 'База знаний объединяет тематические введения, проверяемую профессиональную хронологию и ответы на основные вопросы о работе, исследованиях и содержании сайта.',
     publications: {
-      title: 'Проверенные библиографические записи',
-      description: 'В разделе будут публиковаться научные работы и профессиональные статьи после проверки авторства, выходных данных, DOI и ссылки на первоисточник.',
+      title: 'Публикации и патент',
+      description: 'Проверенное портфолио включает две журнальные статьи, шесть публикаций в материалах конференций и один патент.',
     },
     projects: {
       title: 'Профессиональные инициативы',
@@ -102,8 +102,8 @@ export const homePageCopy: Record<Language, HomePageCopy> = {
     ],
     knowledgeHub: 'The Knowledge Hub connects thematic introductions, a verifiable professional timeline, and answers to common questions about the work, research, and scope of this website.',
     publications: {
-      title: 'Verified bibliographic records',
-      description: 'Scientific work and professional articles will appear after authorship, publication details, DOI, and original source links have been checked.',
+      title: 'Publications and patent',
+      description: 'The verified portfolio includes two journal articles, six conference publications, and one patent.',
     },
     projects: {
       title: 'Professional initiatives',

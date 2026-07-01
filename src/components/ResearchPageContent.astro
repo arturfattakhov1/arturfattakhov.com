@@ -1,14 +1,16 @@
 ---
 import { researchPageCopy } from '../data/research';
+import { publicationRecords } from '../data/publication-records';
 import { identity } from '../data/identity';
 import type { Language } from '../i18n/config';
 import { localizedPath } from '../i18n/config';
 import Button from './Button.astro';
 import Card from './Card.astro';
-import CollectionPlaceholder from './CollectionPlaceholder.astro';
 import Container from './Container.astro';
 import KnowledgeHubNavigation from './KnowledgeHubNavigation.astro';
+import LinkCard from './LinkCard.astro';
 import ProfileCard from './ProfileCard.astro';
+import PublicationCard from './PublicationCard.astro';
 import ResearchSections from './ResearchSections.astro';
 
 interface Props {
@@ -23,6 +25,7 @@ const profileKeys: ProfileKey[] = ['orcid', 'googleScholar', 'researchGate', 'we
 const academicProfiles = profileKeys
   .map((key) => profilesByKey.get(key))
   .filter((profile) => profile !== undefined);
+const patent = publicationRecords.find((record) => record.type === 'patent');
 ---
 
 <ResearchSections lang={lang}>
@@ -52,21 +55,18 @@ const academicProfiles = profileKeys
 
   <Fragment slot="publications">
     <Container>
-      <CollectionPlaceholder
-        collection="publications"
+      <LinkCard
         title={copy.publications.title}
         description={copy.publications.description}
+        href={localizedPath(lang, 'publications')}
+        linkLabel={copy.relatedLinks.publications}
       />
     </Container>
   </Fragment>
 
   <Fragment slot="patents">
     <Container>
-      <CollectionPlaceholder
-        collection="patents"
-        title={copy.patents.title}
-        description={copy.patents.description}
-      />
+      {patent && <PublicationCard record={patent} lang={lang} />}
     </Container>
   </Fragment>
 

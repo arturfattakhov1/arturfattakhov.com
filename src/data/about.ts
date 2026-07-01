@@ -16,6 +16,7 @@ interface AboutPageCopy {
   profileLinkLabel: string;
   externalLinkLabel: string;
   profileHubCta: string;
+  publicationsCta: string;
   contact: { description: string; cta: string };
 }
 
@@ -50,12 +51,13 @@ export const aboutPageCopy: Record<Language, AboutPageCopy> = {
     placeholders: {
       projects: { title: 'Проверенные проектные записи', description: 'Проектные страницы будут добавляться после подтверждения публичного названия, цели, статуса и моей роли.' },
       education: { title: 'Проверенные сведения об образовании', description: 'Данные об образовании будут опубликованы после сверки с первичными документами.' },
-      publications: { title: 'Проверенные библиографические записи', description: 'Публикации будут добавляться после проверки авторства, выходных данных и ссылки на первоисточник.' },
+      publications: { title: 'Публикации и патент', description: 'Портфолио содержит две журнальные статьи, шесть публикаций в материалах конференций и один патент с проверенными библиографическими данными.' },
       media: { title: 'Проверенные медиа-материалы', description: 'Интервью, лекции и другие материалы будут добавляться только со ссылкой на исходную публикацию.' },
     },
     profileLinkLabel: 'Открыть профиль',
     externalLinkLabel: 'откроется в новой вкладке',
     profileHubCta: 'Все официальные профили',
+    publicationsCta: 'Открыть портфолио публикаций',
     contact: { description: 'Для профессиональных, исследовательских, образовательных и медиа-запросов используйте официальную страницу контактов.', cta: 'Перейти к контактам' },
   },
   en: {
@@ -88,12 +90,13 @@ export const aboutPageCopy: Record<Language, AboutPageCopy> = {
     placeholders: {
       projects: { title: 'Verified project records', description: 'Project pages will be added after the public name, purpose, status, and my role have been confirmed.' },
       education: { title: 'Verified education records', description: 'Education details will be published after they have been checked against primary documents.' },
-      publications: { title: 'Verified bibliographic records', description: 'Publications will be added after authorship, publication details, and the original source link have been checked.' },
+      publications: { title: 'Publications and patent', description: 'The portfolio contains two journal articles, six conference publications, and one patent with verified bibliographic details.' },
       media: { title: 'Verified media material', description: 'Interviews, lectures, and other material will be added only with a link to the original publication.' },
     },
     profileLinkLabel: 'Open profile',
     externalLinkLabel: 'opens in a new tab',
     profileHubCta: 'All official profiles',
+    publicationsCta: 'Open publication portfolio',
     contact: { description: 'Use the official contact page for professional, research, educational, and media inquiries.', cta: 'Go to contact page' },
   },
 };

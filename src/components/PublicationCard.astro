@@ -1,0 +1,24 @@
+---
+import type { PublicationRecord } from '../data/publication-records';
+import { publicationPath } from '../data/publication-records';
+import { publicationsPageCopy } from '../data/publications';
+import type { Language } from '../i18n/config';
+import Card from './Card.astro';
+import PublicationBadges from './PublicationBadges.astro';
+
+interface Props {
+  record: PublicationRecord;
+  lang: Language;
+}
+
+const { record, lang } = Astro.props;
+const copy = publicationsPageCopy[lang];
+---
+
+<Card title={record.title[lang]} description={record.abstract[lang]}>
+  <PublicationBadges record={record} lang={lang} />
+  <p class="entry-authors">{record.authors.join(', ')}</p>
+  <a class="card-link" href={publicationPath(lang, record.slug)}>
+    {copy.readRecord}<span aria-hidden="true"> →</span>
+  </a>
+</Card>

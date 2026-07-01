@@ -1,71 +1,174 @@
 import type { Language } from '../i18n/config';
+import type { PublicationType } from './publication-records';
 
 interface PublicationsPageCopy {
   hero: string;
-  scientificPublications: {
-    title: string;
-    description: string;
-  };
-  professionalArticles: {
-    title: string;
-    description: string;
-  };
-  futureStructure: Array<{ title: string; description: string }>;
+  filtersTitle: string;
+  filterLabel: string;
+  filters: Record<'all' | PublicationType | '2021' | '2024' | '2025', string>;
+  groups: Record<PublicationType, string>;
+  typeLabels: Record<PublicationType, string>;
+  readRecord: string;
+  showingAll: string;
+  showingFiltered: string;
+  identifiersTitle: string;
   profileLinkLabel: string;
   externalLinkLabel: string;
   relatedLinks: { research: string; profiles: string };
-  statusLabels: Record<'published' | 'working-paper' | 'in-preparation', string>;
+}
+
+interface PublicationDetailCopy {
+  backToPublications: string;
+  bibliographicRecord: string;
+  abstract: string;
+  keywords: string;
+  researchArea: string;
+  methods: string;
+  keyFindings: string;
+  practicalSignificance: string;
+  authors: string;
+  type: string;
+  venue: string;
+  year: string;
+  volume: string;
+  issue: string;
+  pages: string;
+  location: string;
+  eventDate: string;
+  publisher: string;
+  notes: string;
+  patentNumber: string;
+  applicationNumber: string;
+  patentHolder: string;
+  priorityDate: string;
+  registrationDate: string;
+  expirationDate: string;
+  relatedPages: string;
+  researchLink: string;
 }
 
 export const publicationsPageCopy: Record<Language, PublicationsPageCopy> = {
   ru: {
-    hero: 'Раздел предназначен для проверенных научных публикаций и профессиональных статей Артура Фаттахова. Каждая запись будет добавляться только после сверки авторства, названия, даты, источника и постоянных идентификаторов.',
-    scientificPublications: {
-      title: 'Научные публикации проходят библиографическую проверку',
-      description: 'Будущие записи будут содержать полное название, список авторов, год, источник, DOI или другую постоянную ссылку, а также краткое описание темы. Непроверенные записи и показатели цитирования не публикуются.',
+    hero: 'Портфолио содержит девять проверенных записей: две журнальные статьи, шесть публикаций в материалах конференций и один патент. Библиографические сведения воспроизведены без добавления неподтверждённых идентификаторов, цитирований или результатов.',
+    filtersTitle: 'Фильтры публикаций',
+    filterLabel: 'Фильтровать публикации',
+    filters: {
+      all: 'Все',
+      journal: 'Журнальные статьи',
+      conference: 'Материалы конференций',
+      patent: 'Патент',
+      '2021': '2021',
+      '2024': '2024',
+      '2025': '2025',
     },
-    professionalArticles: {
-      title: 'Профессиональные и обзорные материалы',
-      description: 'Здесь будут размещаться авторские материалы о ветеринарной медицине, диагностике, исследованиях и технологиях. Для каждой статьи будут указаны дата, язык, статус обновления и использованные источники.',
+    groups: {
+      journal: 'Журнальные статьи',
+      conference: 'Материалы конференций',
+      patent: 'Патент',
     },
-    futureStructure: [
-      { title: 'Отдельная страница', description: 'Каждая проверенная публикация получит собственный постоянный адрес и полную библиографическую запись.' },
-      { title: 'Проверяемые идентификаторы', description: 'DOI, URL первоисточника и авторские идентификаторы будут указываться только при наличии.' },
-      { title: 'Связь с авторским профилем', description: 'Записи будут сопоставляться с ORCID и академическими профилями без переноса непроверенных метрик.' },
-      { title: 'Машиночитаемое описание', description: 'Структурированные данные будут добавляться на уровне публикации после заполнения обязательных проверенных полей.' },
-    ],
+    typeLabels: {
+      journal: 'Журнальная статья',
+      conference: 'Публикация конференции',
+      patent: 'Патент',
+    },
+    readRecord: 'Открыть запись',
+    showingAll: 'Показаны все публикации.',
+    showingFiltered: 'Применён фильтр',
+    identifiersTitle: 'Академические профили и идентификаторы',
     profileLinkLabel: 'Открыть профиль',
     externalLinkLabel: 'откроется в новой вкладке',
     relatedLinks: { research: 'Исследовательские направления', profiles: 'Все официальные профили' },
-    statusLabels: {
-      published: 'Опубликовано',
-      'working-paper': 'Рабочий материал',
-      'in-preparation': 'Готовится',
-    },
   },
   en: {
-    hero: 'This section is intended for verified scientific publications and professional articles by Artur Fattakhov. Each record will be added only after authorship, title, date, source, and persistent identifiers have been checked.',
-    scientificPublications: {
-      title: 'Scientific publications are undergoing bibliographic review',
-      description: 'Future records will include the full title, author list, year, source, DOI or another persistent link, and a concise description of the subject. Unverified records and citation metrics will not be published.',
+    hero: 'The portfolio contains nine verified records: two journal articles, six conference publications, and one patent. Bibliographic details are presented without adding unverified identifiers, citations, or findings.',
+    filtersTitle: 'Publication filters',
+    filterLabel: 'Filter publications',
+    filters: {
+      all: 'All',
+      journal: 'Journal Articles',
+      conference: 'Conference Papers',
+      patent: 'Patent',
+      '2021': '2021',
+      '2024': '2024',
+      '2025': '2025',
     },
-    professionalArticles: {
-      title: 'Professional and review material',
-      description: 'This area will contain original material on veterinary medicine, diagnostics, research, and technology. Each article will state its date, language, update status, and supporting sources.',
+    groups: {
+      journal: 'Journal Articles',
+      conference: 'Conference Papers',
+      patent: 'Patent',
     },
-    futureStructure: [
-      { title: 'Dedicated page', description: 'Each verified publication will have a permanent URL and a complete bibliographic record.' },
-      { title: 'Verifiable identifiers', description: 'DOIs, original source URLs, and author identifiers will be included only when available.' },
-      { title: 'Author-profile connection', description: 'Records will be reconciled with ORCID and academic profiles without importing unverified metrics.' },
-      { title: 'Machine-readable description', description: 'Publication-level structured data will be added after all required verified fields are available.' },
-    ],
+    typeLabels: {
+      journal: 'Journal article',
+      conference: 'Conference paper',
+      patent: 'Patent',
+    },
+    readRecord: 'Open record',
+    showingAll: 'Showing all publications.',
+    showingFiltered: 'Filter applied',
+    identifiersTitle: 'Academic profiles and identifiers',
     profileLinkLabel: 'Open profile',
     externalLinkLabel: 'opens in a new tab',
     relatedLinks: { research: 'Research directions', profiles: 'All official profiles' },
-    statusLabels: {
-      published: 'Published',
-      'working-paper': 'Working paper',
-      'in-preparation': 'In preparation',
-    },
+  },
+};
+
+export const publicationDetailCopy: Record<Language, PublicationDetailCopy> = {
+  ru: {
+    backToPublications: 'Все публикации',
+    bibliographicRecord: 'Библиографическая запись',
+    abstract: 'Аннотация',
+    keywords: 'Ключевые слова',
+    researchArea: 'Область исследования',
+    methods: 'Методы',
+    keyFindings: 'Ключевые результаты',
+    practicalSignificance: 'Практическая значимость',
+    authors: 'Авторы',
+    type: 'Тип публикации',
+    venue: 'Источник',
+    year: 'Год',
+    volume: 'Том',
+    issue: 'Выпуск',
+    pages: 'Страницы',
+    location: 'Место проведения',
+    eventDate: 'Дата конференции',
+    publisher: 'Издатель',
+    notes: 'Примечание',
+    patentNumber: 'Номер патента',
+    applicationNumber: 'Номер заявки',
+    patentHolder: 'Патентообладатель',
+    priorityDate: 'Дата приоритета',
+    registrationDate: 'Дата регистрации',
+    expirationDate: 'Дата окончания действия',
+    relatedPages: 'Связанные разделы',
+    researchLink: 'Перейти к исследованиям',
+  },
+  en: {
+    backToPublications: 'All publications',
+    bibliographicRecord: 'Bibliographic record',
+    abstract: 'Abstract',
+    keywords: 'Keywords',
+    researchArea: 'Research area',
+    methods: 'Methods',
+    keyFindings: 'Key findings',
+    practicalSignificance: 'Practical significance',
+    authors: 'Authors',
+    type: 'Publication type',
+    venue: 'Venue',
+    year: 'Year',
+    volume: 'Volume',
+    issue: 'Issue',
+    pages: 'Pages',
+    location: 'Location',
+    eventDate: 'Conference date',
+    publisher: 'Publisher',
+    notes: 'Note',
+    patentNumber: 'Patent number',
+    applicationNumber: 'Application number',
+    patentHolder: 'Patent holder',
+    priorityDate: 'Priority date',
+    registrationDate: 'Registration date',
+    expirationDate: 'Expiration date',
+    relatedPages: 'Related sections',
+    researchLink: 'Go to Research',
   },
 };

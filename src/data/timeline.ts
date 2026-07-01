@@ -8,6 +8,10 @@ interface TimelineMilestone {
 interface TimelinePageCopy {
   hero: string;
   sectionTitle: string;
+  verifiedTitle: string;
+  verifiedIntro: string;
+  yearHeadings: Record<'2021' | '2024' | '2025', string>;
+  publicationsCta: string;
   milestones: TimelineMilestone[];
   closing: string;
 }
@@ -16,6 +20,14 @@ export const timelinePageCopy: Record<Language, TimelinePageCopy> = {
   ru: {
     hero: 'Профессиональная хронология будет объединять только проверенные этапы образования, клинической работы, исследований, публикаций и проектов. Даты не указываются до подтверждения первичными документами или официальными источниками.',
     sectionTitle: 'Структура профессиональной хронологии',
+    verifiedTitle: 'Проверенные публикационные этапы',
+    verifiedIntro: 'Ниже указаны только годы, подтверждённые библиографическими и патентными записями.',
+    yearHeadings: {
+      '2021': '2021 — публикации конференций',
+      '2024': '2024 — публикации конференций',
+      '2025': '2025 — журнальные статьи и патент',
+    },
+    publicationsCta: 'Все публикации и патент',
     milestones: [
       { title: 'Образование', description: 'Подтверждённые образовательные этапы будут добавлены с точными названиями, датами и доступными документами.' },
       { title: 'Клиническая практика', description: 'Проверенные этапы ветеринарной практики будут описаны без неподтверждённых работодателей, должностей или показателей.' },
@@ -31,6 +43,14 @@ export const timelinePageCopy: Record<Language, TimelinePageCopy> = {
   en: {
     hero: 'The professional timeline will contain only verified milestones in education, clinical work, research, publications, and projects. Dates will not be stated until they are supported by primary documents or official sources.',
     sectionTitle: 'Professional timeline framework',
+    verifiedTitle: 'Verified publication milestones',
+    verifiedIntro: 'Only years supported by bibliographic and patent records are listed below.',
+    yearHeadings: {
+      '2021': '2021 — conference publications',
+      '2024': '2024 — conference publications',
+      '2025': '2025 — journal articles and patent',
+    },
+    publicationsCta: 'All publications and patent',
     milestones: [
       { title: 'Education', description: 'Verified education milestones will be added with accurate names, dates, and available supporting records.' },
       { title: 'Clinical Practice', description: 'Verified stages of veterinary practice will be described without unconfirmed employers, positions, or metrics.' },

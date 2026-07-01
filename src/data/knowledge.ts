@@ -4,6 +4,7 @@ interface KnowledgeTopic {
   id: string;
   title: string;
   description: string;
+  relatedPublicationSlugs?: string[];
 }
 
 interface KnowledgePageCopy {
@@ -19,11 +20,13 @@ export const knowledgePageCopy: Record<Language, KnowledgePageCopy> = {
         id: 'veterinary-medicine',
         title: 'Ветеринарная медицина',
         description: 'Раздел будет объединять материалы о ветеринарной помощи собакам и кошкам, клиническом мышлении, диагностике и последовательном ведении пациента. Информация общего характера не заменяет индивидуальную консультацию ветеринарного врача.',
+        relatedPublicationSlugs: ['distal-limb-disorders-cattle', 'ovariectomy-ovariohysterectomy-cats', 'feline-calicivirus-saint-petersburg', 'urethral-intussusception-cat'],
       },
       {
         id: 'diagnostic-imaging',
         title: 'Диагностическая визуализация',
         description: 'Будущие материалы будут объяснять роль визуальных методов в изучении анатомии и оценке клинических изменений. Особое внимание будет уделяться связи изображения с анамнезом, осмотром и другими данными.',
+        relatedPublicationSlugs: ['comparative-xray-morphometry-moose-cattle', 'diagnostic-imaging-distal-limb-cattle', 'xray-morphometric-laminitis-cattle-patent'],
       },
       {
         id: 'veterinary-ultrasonography',
@@ -34,6 +37,7 @@ export const knowledgePageCopy: Record<Language, KnowledgePageCopy> = {
         id: 'research',
         title: 'Исследования',
         description: 'Здесь будут собраны вводные материалы о постановке исследовательского вопроса, методах, морфометрии, рентгенографической анатомии и воспроизводимом описании результатов.',
+        relatedPublicationSlugs: ['comparative-xray-morphometry-moose-cattle', 'hoof-capsule-cattle-moose'],
       },
       {
         id: 'artificial-intelligence',
@@ -59,11 +63,13 @@ export const knowledgePageCopy: Record<Language, KnowledgePageCopy> = {
         id: 'veterinary-medicine',
         title: 'Veterinary Medicine',
         description: 'This area will connect material on veterinary care for dogs and cats, clinical reasoning, diagnostics, and continuity of patient management. General information does not replace individual consultation with a veterinarian.',
+        relatedPublicationSlugs: ['distal-limb-disorders-cattle', 'ovariectomy-ovariohysterectomy-cats', 'feline-calicivirus-saint-petersburg', 'urethral-intussusception-cat'],
       },
       {
         id: 'diagnostic-imaging',
         title: 'Diagnostic Imaging',
         description: 'Future material will explain the role of imaging methods in the study of anatomy and assessment of clinical changes. Particular attention will be paid to interpreting images alongside history, examination, and other data.',
+        relatedPublicationSlugs: ['comparative-xray-morphometry-moose-cattle', 'diagnostic-imaging-distal-limb-cattle', 'xray-morphometric-laminitis-cattle-patent'],
       },
       {
         id: 'veterinary-ultrasonography',
@@ -74,6 +80,7 @@ export const knowledgePageCopy: Record<Language, KnowledgePageCopy> = {
         id: 'research',
         title: 'Research',
         description: 'This area will provide introductions to research questions, methods, morphometry, radiographic anatomy, and reproducible reporting of results.',
+        relatedPublicationSlugs: ['comparative-xray-morphometry-moose-cattle', 'hoof-capsule-cattle-moose'],
       },
       {
         id: 'artificial-intelligence',

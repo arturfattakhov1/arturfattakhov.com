@@ -1,0 +1,111 @@
+---
+import { identity } from '../data/identity';
+import { createPublicationJsonLd, type PublicationRecord } from '../data/publication-records';
+import { publicationDetailCopy, publicationsPageCopy } from '../data/publications';
+import type { Language } from '../i18n/config';
+import { localizedPath } from '../i18n/config';
+import Breadcrumbs from './Breadcrumbs.astro';
+import Button from './Button.astro';
+import PublicationBadges from './PublicationBadges.astro';
+
+interface Props {
+  record: PublicationRecord;
+  lang: Language;
+}
+
+const { record, lang } = Astro.props;
+const copy = publicationDetailCopy[lang];
+const pageCopy = publicationsPageCopy[lang];
+const structuredData = createPublicationJsonLd(record, lang, identity.url);
+const dateFormatter = new Intl.DateTimeFormat(lang === 'ru' ? 'ru-RU' : 'en-GB', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+const formatDate = (date: string) => dateFormatter.format(new Date(`${date}T00:00:00Z`));
+---
+
+<Breadcrumbs
+  lang={lang}
+  items={[
+    { label: copy.backToPublications, href: localizedPath(lang, 'publications') },
+    { label: record.title[lang] },
+  ]}
+/>
+
+<article class="article publication-detail">
+  <header class="article-header">
+    <p class="eyebrow">{pageCopy.typeLabels[record.type]}</p>
+    <h1>{record.title[lang]}</h1>
+    <p class="lead">{record.abstract[lang]}</p>
+    <PublicationBadges record={record} lang={lang} />
+  </header>
+
+  <div class="prose">
+    <section aria-labelledby="bibliographic-record-heading">
+      <h2 id="bibliographic-record-heading">{copy.bibliographicRecord}</h2>
+      <p><strong>{copy.authors}:</strong> {record.authors.join(', ')}</p>
+      <p><strong>{copy.type}:</strong> {pageCopy.typeLabels[record.type]}</p>
+      <p><strong>{copy.venue}:</strong> {record.venue}</p>
+      <p><strong>{copy.year}:</strong> {record.year}</p>
+      {record.volume && <p><strong>{copy.volume}:</strong> {record.volume}</p>}
+      {record.issue && <p><strong>{copy.issue}:</strong> {record.issue}</p>}
+      {record.pages && <p><strong>{copy.pages}:</strong> {record.pages}</p>}
+      {record.location && <p><strong>{copy.location}:</strong> {record.location[lang]}</p>}
+      {record.eventDate && <p><strong>{copy.eventDate}:</strong> {record.eventDate[lang]}</p>}
+      {record.publisher && <p><strong>{copy.publisher}:</strong> {record.publisher}</p>}
+      {record.doi && <p><strong>DOI:</strong> <a href={`https://doi.org/${record.doi}`} target="_blank" rel="noopener noreferrer">{record.doi}</a></p>}
+      {record.edn && <p><strong>EDN:</strong> {record.edn}</p>}
+      {record.orcid && <p><strong>ORCID:</strong> <a href={`https://orcid.org/${record.orcid}`} target="_blank" rel="me noopener noreferrer">{record.orcid}</a></p>}
+      {record.patentNumber && <p><strong>{copy.patentNumber}:</strong> {record.patentNumber}</p>}
+      {record.applicationNumber && <p><strong>{copy.applicationNumber}:</strong> {record.applicationNumber}</p>}
+      {record.patentHolder && <p><strong>{copy.patentHolder}:</strong> {record.patentHolder}</p>}
+      {record.priorityDate && <p><strong>{copy.priorityDate}:</strong> <time datetime={record.priorityDate}>{formatDate(record.priorityDate)}</time></p>}
+      {record.registrationDate && <p><strong>{copy.registrationDate}:</strong> <time datetime={record.registrationDate}>{formatDate(record.registrationDate)}</time></p>}
+      {record.expirationDate && <p><strong>{copy.expirationDate}:</strong> <time datetime={record.expirationDate}>{formatDate(record.expirationDate)}</time></p>}
+      {record.dates?.map((date) => <p><strong>{date.label[lang]}:</strong> <time datetime={date.value}>{formatDate(date.value)}</time></p>)}
+      {record.notes && <p><strong>{copy.notes}:</strong> {record.notes[lang]}</p>}
+    </section>
+
+    <section aria-labelledby="abstract-heading">
+      <h2 id="abstract-heading">{copy.abstract}</h2>
+      <p>{record.abstract[lang]}</p>
+    </section>
+
+    <section aria-labelledby="keywords-heading">
+      <h2 id="keywords-heading">{copy.keywords}</h2>
+      <p>{record.keywords[lang].join(' · ')}</p>
+    </section>
+
+    <section aria-labelledby="research-area-heading">
+      <h2 id="research-area-heading">{copy.researchArea}</h2>
+      <p>{record.researchArea[lang]}</p>
+    </section>
+
+    <section aria-labelledby="methods-heading">
+      <h2 id="methods-heading">{copy.methods}</h2>
+      <p>{record.methods[lang]}</p>
+    </section>
+
+    <section aria-labelledby="findings-heading">
+      <h2 id="findings-heading">{copy.keyFindings}</h2>
+      <p>{record.keyFindings[lang]}</p>
+    </section>
+
+    <section aria-labelledby="significance-heading">
+      <h2 id="significance-heading">{copy.practicalSignificance}</h2>
+      <p>{record.practicalSignificance[lang]}</p>
+    </section>
+
+    <section aria-labelledby="related-pages-heading">
+      <h2 id="related-pages-heading">{copy.relatedPages}</h2>
+      <div class="button-group">
+        <Button href={localizedPath(lang, 'publications')} variant="secondary">{copy.backToPublications}</Button>
+        <Button href={localizedPath(lang, 'research')}>{copy.researchLink}</Button>
+      </div>
+    </section>
+  </div>
+
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+</article>

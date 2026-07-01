@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PublicationPageContent from '../../../components/PublicationPageContent.astro';
+import { publicationPath, publicationRecords, type PublicationRecord } from '../../../data/publication-records';
+import type { Language } from '../../../i18n/config';
+import { languages } from '../../../i18n/config';
+
+export function getStaticPaths() {
+  return languages.flatMap((lang) => publicationRecords.map((record) => ({
+    params: { lang, slug: record.slug },
+    props: { lang, record },
+  })));
+}
+
+interface Props {
+  lang: Language;
+  record: PublicationRecord;
+}
+
+const { lang, record } = Astro.props;
+---
+
+<BaseLayout
+  title={record.title[lang]}
+  description={record.abstract[lang]}
+  lang={lang}
+  canonicalPath={publicationPath(lang, record.slug)}
+  type="article"
+>
+  <PublicationPageContent record={record} lang={lang} />
+</BaseLayout>

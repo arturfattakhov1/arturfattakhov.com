@@ -1,0 +1,93 @@
+---
+import { publicationRecords, type PublicationType } from '../data/publication-records';
+import { publicationsPageCopy } from '../data/publications';
+import type { Language } from '../i18n/config';
+import Container from './Container.astro';
+import PageSection from './PageSection.astro';
+import PublicationCard from './PublicationCard.astro';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const copy = publicationsPageCopy[lang];
+const types: PublicationType[] = ['journal', 'conference', 'patent'];
+const filters = ['all', 'journal', 'conference', 'patent', '2021', '2024', '2025'] as const;
+---
+
+<div data-publication-portfolio data-showing-all={copy.showingAll} data-showing-filtered={copy.showingFiltered}>
+  <PageSection id="publication-filters" title={copy.filtersTitle}>
+    <Container>
+      <div class="button-group" role="group" aria-label={copy.filterLabel}>
+        {filters.map((filter) => (
+          <button
+            class:list={['button', filter === 'all' ? 'button--primary' : 'button--secondary']}
+            type="button"
+            data-publication-filter={filter}
+            aria-pressed={filter === 'all' ? 'true' : 'false'}
+          >
+            {copy.filters[filter]}
+          </button>
+        ))}
+      </div>
+      <p class="entry-meta" data-publication-status aria-live="polite">{copy.showingAll}</p>
+    </Container>
+  </PageSection>
+
+  {types.map((type) => {
+    const records = publicationRecords.filter((record) => record.type === type);
+    return (
+      <PageSection id={`${type}-publications`} title={copy.groups[type]}>
+        <Container>
+          <ul class="card-grid" role="list" data-publication-group={type}>
+            {records.map((record) => (
+              <li data-publication-item data-type={record.type} data-year={record.year}>
+                <PublicationCard record={record} lang={lang} />
+              </li>
+            ))}
+          </ul>
+        </Container>
+      </PageSection>
+    );
+  })}
+</div>
+
+<script is:inline>
+  document.querySelectorAll('[data-publication-portfolio]').forEach((portfolio) => {
+    const buttons = [...portfolio.querySelectorAll('[data-publication-filter]')];
+    const items = [...portfolio.querySelectorAll('[data-publication-item]')];
+    const groups = [...portfolio.querySelectorAll('[data-publication-group]')];
+    const status = portfolio.querySelector('[data-publication-status]');
+
+    const applyFilter = (filter) => {
+      items.forEach((item) => {
+        const matches = filter === 'all' || item.dataset.type === filter || item.dataset.year === filter;
+        item.hidden = !matches;
+      });
+
+      groups.forEach((group) => {
+        const section = group.closest('section');
+        if (section) section.hidden = ![...group.querySelectorAll('[data-publication-item]')].some((item) => !item.hidden);
+      });
+
+      buttons.forEach((button) => {
+        const active = button.dataset.publicationFilter === filter;
+        button.setAttribute('aria-pressed', String(active));
+        button.classList.toggle('button--primary', active);
+        button.classList.toggle('button--secondary', !active);
+      });
+
+      if (status) {
+        const activeButton = buttons.find((button) => button.dataset.publicationFilter === filter);
+        status.textContent = filter === 'all'
+          ? portfolio.dataset.showingAll
+          : `${portfolio.dataset.showingFiltered}: ${activeButton?.textContent?.trim() ?? filter}.`;
+      }
+    };
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => applyFilter(button.dataset.publicationFilter ?? 'all'));
+    });
+  });
+</script>

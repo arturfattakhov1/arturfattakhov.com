@@ -85,10 +85,11 @@ const copy = homePageCopy[lang];
 
     <Fragment slot="publications">
       <Container>
-        <CollectionPlaceholder
-          collection="publications"
+        <LinkCard
           title={copy.publications.title}
           description={copy.publications.description}
+          href={localizedPath(lang, 'publications')}
+          linkLabel={copy.linkLabel}
         />
       </Container>
     </Fragment>

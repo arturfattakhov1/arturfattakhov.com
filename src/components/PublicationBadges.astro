@@ -1,0 +1,42 @@
+---
+import type { PublicationRecord } from '../data/publication-records';
+import { publicationsPageCopy } from '../data/publications';
+import type { Language } from '../i18n/config';
+
+interface Props {
+  record: PublicationRecord;
+  lang: Language;
+}
+
+const { record, lang } = Astro.props;
+const copy = publicationsPageCopy[lang];
+---
+
+<ul class="publication-badges" role="list" aria-label={lang === 'ru' ? 'Библиографические признаки' : 'Bibliographic attributes'}>
+  <li>{copy.typeLabels[record.type]}</li>
+  <li>{record.year}</li>
+  {record.doi && <li>DOI {record.doi}</li>}
+  {record.edn && <li>EDN {record.edn}</li>}
+</ul>
+
+<style>
+  .publication-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0;
+    margin: 0 0 1rem;
+    list-style: none;
+  }
+
+  .publication-badges li {
+    padding: 0.25rem 0.5rem;
+    color: var(--accent-dark);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+  }
+</style>

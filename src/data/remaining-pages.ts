@@ -14,6 +14,7 @@ export const projectsPageCopy = {
       { title: 'Ответственное применение технологий', description: 'Использование цифровых инструментов и искусственного интеллекта только там, где их роль и ограничения можно объяснить и проверить.' },
     ],
     statusLabels: { active: 'Активный проект', completed: 'Завершён', paused: 'Приостановлен' },
+    publicationsCta: 'Связанные публикации и патент',
   },
   en: {
     hero: 'This section describes current professional work, future initiatives, and long-term directions. Project names or outcomes are not published without verified supporting information.',
@@ -28,6 +29,7 @@ export const projectsPageCopy = {
       { title: 'Responsible use of technology', description: 'Using digital tools and artificial intelligence only where their role and limitations can be explained and evaluated.' },
     ],
     statusLabels: { active: 'Active project', completed: 'Completed', paused: 'Paused' },
+    publicationsCta: 'Related publications and patent',
   },
 } as const satisfies Record<Language, Record<string, unknown>>;
 

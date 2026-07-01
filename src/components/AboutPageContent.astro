@@ -7,6 +7,7 @@ import Button from './Button.astro';
 import CollectionPlaceholder from './CollectionPlaceholder.astro';
 import Container from './Container.astro';
 import KnowledgeHubNavigation from './KnowledgeHubNavigation.astro';
+import LinkCard from './LinkCard.astro';
 import ProfileCard from './ProfileCard.astro';
 import { localizedPath } from '../i18n/config';
 
@@ -86,7 +87,12 @@ const selectedProfiles = profileKeys
 
   <Fragment slot="publications">
     <Container>
-      <CollectionPlaceholder collection="publications" {...copy.placeholders.publications} />
+      <LinkCard
+        title={copy.placeholders.publications.title}
+        description={copy.placeholders.publications.description}
+        href={localizedPath(lang, 'publications')}
+        linkLabel={copy.publicationsCta}
+      />
     </Container>
   </Fragment>
 

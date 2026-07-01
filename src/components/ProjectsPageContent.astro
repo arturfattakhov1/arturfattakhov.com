@@ -2,6 +2,8 @@
 import type { CollectionEntry } from 'astro:content';
 import { projectsPageCopy } from '../data/remaining-pages';
 import type { Language } from '../i18n/config';
+import { localizedPath } from '../i18n/config';
+import Button from './Button.astro';
 import Card from './Card.astro';
 import CollectionPlaceholder from './CollectionPlaceholder.astro';
 import Container from './Container.astro';
@@ -56,6 +58,9 @@ const copy = projectsPageCopy[lang];
         {copy.futureStructure.map((item) => <li><Card {...item} /></li>)}
       </ul>
       <KnowledgeHubNavigation lang={lang} />
+      <div class="button-group">
+        <Button href={localizedPath(lang, 'publications')}>{copy.publicationsCta}</Button>
+      </div>
     </Container>
   </Fragment>
 </ProjectsSections>

@@ -6,6 +6,17 @@ const root = new URL('../', import.meta.url);
 const domain = 'https://arturfattakhov.com';
 const languages = ['ru', 'en'];
 const routes = ['', 'about', 'research', 'publications', 'projects', 'media', 'blog', 'contact', 'cv', 'profiles', 'uses', 'now', 'knowledge', 'timeline', 'faq'];
+const publicationSlugs = [
+  'comparative-xray-morphometry-moose-cattle',
+  'hoof-capsule-cattle-moose',
+  'diagnostic-imaging-distal-limb-cattle',
+  'distal-limb-disorders-cattle',
+  'digitalization-cattle-farming',
+  'ovariectomy-ovariohysterectomy-cats',
+  'feline-calicivirus-saint-petersburg',
+  'urethral-intussusception-cat',
+  'xray-morphometric-laminitis-cattle-patent',
+];
 const errors = [];
 const pages = new Map();
 const titlesByLanguage = new Map(languages.map((lang) => [lang, new Set()]));
@@ -13,6 +24,53 @@ const descriptionsByLanguage = new Map(languages.map((lang) => [lang, new Set()]
 
 function assert(condition, message) {
   if (!condition) errors.push(message);
+}
+
+for (const lang of languages) {
+  for (const slug of publicationSlugs) {
+    const relativePath = `${lang}/publications/${slug}/`;
+    const html = await readFile(new URL(`dist/${relativePath}index.html`, root), 'utf8');
+    const expectedCanonical = `${domain}/${relativePath}`;
+    const alternatePath = `publications/${slug}/`;
+    pages.set(`/${relativePath}`, html);
+
+    assert(html.includes(`<html lang="${lang}">`), `${relativePath}: incorrect html lang`);
+    assert((html.match(/<h1(?:\s|>)/g) ?? []).length === 1, `${relativePath}: expected exactly one h1`);
+    assert(html.includes(`<link rel="canonical" href="${expectedCanonical}">`), `${relativePath}: incorrect canonical`);
+    assert(html.includes(`<link rel="alternate" hreflang="ru" href="${domain}/ru/${alternatePath}">`), `${relativePath}: missing ru alternate`);
+    assert(html.includes(`<link rel="alternate" hreflang="en" href="${domain}/en/${alternatePath}">`), `${relativePath}: missing en alternate`);
+    assert(html.includes(`<link rel="alternate" hreflang="x-default" href="${domain}/ru/${alternatePath}">`), `${relativePath}: missing x-default alternate`);
+
+    const description = matchOne(html, /<meta name="description" content="([^"]+)">/);
+    const title = matchOne(html, /<title>([^<]+)<\/title>/);
+    const expectedName = lang === 'ru' ? 'Артур Фаттахов' : 'Artur Fattakhov';
+    assert(Boolean(description), `${relativePath}: missing description`);
+    assert(!descriptionsByLanguage.get(lang).has(description), `${relativePath}: duplicate description`);
+    descriptionsByLanguage.get(lang).add(description);
+    assert(Boolean(title?.includes(expectedName)), `${relativePath}: document title is not entity-aware`);
+    assert(!titlesByLanguage.get(lang).has(title), `${relativePath}: duplicate document title`);
+    titlesByLanguage.get(lang).add(title);
+
+    assert(html.includes('<meta property="og:type" content="article">'), `${relativePath}: incorrect Open Graph type`);
+    assert(html.includes(`<meta property="og:title" content="${title}">`), `${relativePath}: incorrect Open Graph title`);
+    assert(html.includes(`<meta property="og:description" content="${description}">`), `${relativePath}: incorrect Open Graph description`);
+    assert(html.includes(`<meta property="og:url" content="${expectedCanonical}">`), `${relativePath}: incorrect Open Graph URL`);
+    assert(html.includes(`<meta name="twitter:title" content="${title}">`), `${relativePath}: incorrect Twitter title`);
+    assert(html.includes(`<meta name="twitter:description" content="${description}">`), `${relativePath}: incorrect Twitter description`);
+
+    const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]);
+    assert(new Set(ids).size === ids.length, `${relativePath}: duplicate HTML ids`);
+
+    const jsonLdBlocks = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)].map((match) => JSON.parse(match[1]));
+    assert(jsonLdBlocks.length === 2, `${relativePath}: expected identity and publication JSON-LD blocks`);
+    const publicationSchema = jsonLdBlocks.find((block) => block['@type'] === 'ScholarlyArticle' || block['@type'] === 'Patent');
+    const expectedType = slug.endsWith('-patent') ? 'Patent' : 'ScholarlyArticle';
+    assert(publicationSchema?.['@type'] === expectedType, `${relativePath}: incorrect publication schema type`);
+    assert(publicationSchema?.['@id'] === `${expectedCanonical}#publication`, `${relativePath}: incorrect publication schema id`);
+    assert(publicationSchema?.mainEntityOfPage === expectedCanonical, `${relativePath}: incorrect publication mainEntityOfPage`);
+    const schemaIds = jsonLdBlocks.flatMap((block) => block['@graph']?.map((node) => node['@id']) ?? [block['@id']]).filter(Boolean);
+    assert(new Set(schemaIds).size === schemaIds.length, `${relativePath}: duplicate JSON-LD ids`);
+  }
 }
 
 function matchOne(html, expression) {
@@ -90,6 +148,20 @@ for (const lang of languages) {
   }
 }
 
+for (const lang of languages) {
+  const indexHtml = pages.get(`/${lang}/publications/`) ?? '';
+  assert((indexHtml.match(/data-publication-item(?=\s|>)/g) ?? []).length === publicationSlugs.length, `${lang}/publications/: expected nine portfolio cards`);
+  assert((indexHtml.match(/data-type="journal"/g) ?? []).length === 2, `${lang}/publications/: expected two journal articles`);
+  assert((indexHtml.match(/data-type="conference"/g) ?? []).length === 6, `${lang}/publications/: expected six conference papers`);
+  assert((indexHtml.match(/data-type="patent"/g) ?? []).length === 1, `${lang}/publications/: expected one patent`);
+  for (const filter of ['all', 'journal', 'conference', 'patent', '2021', '2024', '2025']) {
+    assert(indexHtml.includes(`data-publication-filter="${filter}"`), `${lang}/publications/: missing ${filter} filter`);
+  }
+}
+
+const canonicalValues = [...pages.values()].map((html) => matchOne(html, /<link rel="canonical" href="([^"]+)">/)).filter(Boolean);
+assert(new Set(canonicalValues).size === canonicalValues.length, 'duplicate canonical URLs detected');
+
 for (const [sourcePath, html] of pages) {
   for (const match of html.matchAll(/<a\s+[^>]*href="([^"]+)"[^>]*>/g)) {
     const href = match[1].replaceAll('&amp;', '&');
@@ -128,6 +200,15 @@ for (const lang of languages) {
       assert(sourceHtml?.includes(`href="/${lang}/${hubRoute}/"`), `${sourcePath}: contextual ${hubRoute} link missing`);
     }
   }
+
+  for (const sourceRoute of ['about', 'research', 'projects', 'knowledge', 'timeline']) {
+    const sourcePath = `/${lang}/${sourceRoute}/`;
+    assert(pages.get(sourcePath)?.includes(`href="/${lang}/publications/"`), `${sourcePath}: contextual Publications link missing`);
+  }
+
+  const patentPath = `/${lang}/publications/xray-morphometric-laminitis-cattle-patent/`;
+  assert(pages.get(`/${lang}/publications/`)?.includes(`href="${patentPath}"`), `${lang}/publications/: Patent link missing`);
+  assert(pages.get(patentPath)?.includes(`href="/${lang}/research/"`), `${patentPath}: Research link missing`);
 }
 
 const redirect = await readFile(new URL('dist/index.html', root), 'utf8');
@@ -147,6 +228,11 @@ for (const lang of languages) {
   for (const route of routes) {
     const relativePath = route ? `${lang}/${route}/` : `${lang}/`;
     assert(sitemap.includes(`<loc>${domain}/${relativePath}</loc>`), `${relativePath}: missing from sitemap`);
+  }
+}
+for (const lang of languages) {
+  for (const slug of publicationSlugs) {
+    assert(sitemap.includes(`<loc>${domain}/${lang}/publications/${slug}/</loc>`), `${lang}/publications/${slug}/: missing from sitemap`);
   }
 }
 
@@ -175,5 +261,5 @@ if (errors.length > 0) {
   console.error(errors.map((error) => `- ${error}`).join('\n'));
   process.exitCode = 1;
 } else {
-  console.log(`Verified ${languages.length * routes.length} localized pages, redirects, metadata, JSON-LD, sitemap, robots, links, and source content.`);
+  console.log(`Verified ${languages.length * (routes.length + publicationSlugs.length)} localized pages, redirects, metadata, JSON-LD, sitemap, robots, links, filters, and source content.`);
 }

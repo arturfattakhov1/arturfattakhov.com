@@ -1,5 +1,4 @@
 ---
-import { getCollection } from 'astro:content';
 import PublicationsPageContent from '../../../components/PublicationsPageContent.astro';
 import { collectionPageContent } from '../../../data/pages';
 import { languages, localizedPath, type Language } from '../../../i18n/config';
@@ -15,10 +14,8 @@ interface Props {
 
 const { lang } = Astro.props;
 const content = collectionPageContent.publications[lang];
-const entries = (await getCollection('publications', ({ data }) => data.lang === lang))
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 
 <PageLayout {...content} lang={lang} canonicalPath={localizedPath(lang, 'publications')}>
-  <PublicationsPageContent lang={lang} entries={entries} />
+  <PublicationsPageContent lang={lang} />
 </PageLayout>

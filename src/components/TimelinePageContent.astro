@@ -1,9 +1,13 @@
 ---
 import { timelinePageCopy } from '../data/timeline';
+import { publicationPath, publicationRecords } from '../data/publication-records';
 import type { Language } from '../i18n/config';
+import { localizedPath } from '../i18n/config';
+import Button from './Button.astro';
 import Card from './Card.astro';
 import Container from './Container.astro';
 import KnowledgeHubNavigation from './KnowledgeHubNavigation.astro';
+import LinkCard from './LinkCard.astro';
 import PageIntro from './PageIntro.astro';
 import PageSection from './PageSection.astro';
 
@@ -19,9 +23,35 @@ const copy = timelinePageCopy[lang];
   <PageIntro>
     <Container class="section-copy section-copy--lead">
       <p>{copy.hero}</p>
+      <div class="button-group">
+        <Button href={localizedPath(lang, 'publications')}>{copy.publicationsCta}</Button>
+      </div>
       <KnowledgeHubNavigation lang={lang} exclude="timeline" />
     </Container>
   </PageIntro>
+
+  <PageSection id="verified-publication-milestones" title={copy.verifiedTitle}>
+    <Container>
+      <p class="section-copy">{copy.verifiedIntro}</p>
+      {[2021, 2024, 2025].map((year) => (
+        <section aria-labelledby={`timeline-${year}-heading`}>
+          <h3 id={`timeline-${year}-heading`}>{copy.yearHeadings[String(year) as keyof typeof copy.yearHeadings]}</h3>
+          <ul class="card-grid" role="list">
+            {publicationRecords.filter((record) => record.year === year).map((record) => (
+              <li>
+                <LinkCard
+                  title={record.title[lang]}
+                  description={record.venue}
+                  href={publicationPath(lang, record.slug)}
+                  linkLabel={lang === 'ru' ? 'Открыть запись' : 'Open record'}
+                />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </Container>
+  </PageSection>
 
   <PageSection id="professional-timeline" title={copy.sectionTitle}>
     <Container>

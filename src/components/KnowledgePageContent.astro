@@ -1,6 +1,9 @@
 ---
 import { knowledgePageCopy } from '../data/knowledge';
+import { getPublicationRecord, publicationPath } from '../data/publication-records';
 import type { Language } from '../i18n/config';
+import { localizedPath } from '../i18n/config';
+import Button from './Button.astro';
 import Container from './Container.astro';
 import KnowledgeHubNavigation from './KnowledgeHubNavigation.astro';
 import PageIntro from './PageIntro.astro';
@@ -18,6 +21,9 @@ const copy = knowledgePageCopy[lang];
   <PageIntro>
     <Container class="section-copy section-copy--lead">
       <p>{copy.hero}</p>
+      <div class="button-group">
+        <Button href={localizedPath(lang, 'publications')}>{lang === 'ru' ? 'Публикации и патент' : 'Publications and patent'}</Button>
+      </div>
       <KnowledgeHubNavigation lang={lang} exclude="knowledge" />
     </Container>
   </PageIntro>
@@ -26,6 +32,15 @@ const copy = knowledgePageCopy[lang];
     <PageSection id={topic.id} title={topic.title}>
       <Container class="section-copy">
         <p>{topic.description}</p>
+        {topic.relatedPublicationSlugs && (
+          <nav aria-label={lang === 'ru' ? `Публикации по теме «${topic.title}»` : `Publications related to ${topic.title}`}>
+            <ul class="link-list">
+              {topic.relatedPublicationSlugs.map((slug) => getPublicationRecord(slug)).filter((record) => record !== undefined).map((record) => (
+                <li><a href={publicationPath(lang, record.slug)}>{record.title[lang]}<span aria-hidden="true"> →</span></a></li>
+              ))}
+            </ul>
+          </nav>
+        )}
       </Container>
     </PageSection>
   ))}

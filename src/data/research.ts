@@ -38,12 +38,12 @@ export const researchPageCopy: Record<Language, ResearchPageCopy> = {
       'До публикации конкретных записей раздел фиксирует направления интереса, но не заявляет о завершённых исследованиях, результатах или сотрудничестве.',
     ],
     publications: {
-      title: 'Проверенные публикации по исследовательским темам',
-      description: 'Связанные научные работы появятся здесь после проверки библиографических данных и добавления в коллекцию публикаций.',
+      title: 'Проверенное портфолио публикаций',
+      description: 'Портфолио содержит две журнальные статьи и шесть публикаций в материалах конференций за 2021, 2024 и 2025 годы.',
     },
     patents: {
-      title: 'Проверенные патентные записи',
-      description: 'Патентные материалы будут добавляться только при наличии проверяемой записи и первичного источника. Сейчас записи не опубликованы.',
+      title: 'Патент RU 2851956',
+      description: 'Способ рентгеноморфометрической диагностики ламинита у крупного рогатого скота.',
     },
     profileLinkLabel: 'Открыть профиль',
     externalLinkLabel: 'откроется в новой вкладке',
@@ -73,12 +73,12 @@ export const researchPageCopy: Record<Language, ResearchPageCopy> = {
       'Until specific records are published, this section identifies areas of interest without implying completed studies, results, or collaborations.',
     ],
     publications: {
-      title: 'Verified publications related to these themes',
-      description: 'Relevant scientific work will appear here after its bibliographic data has been checked and added to the publications collection.',
+      title: 'Verified publication portfolio',
+      description: 'The portfolio contains two journal articles and six conference publications from 2021, 2024, and 2025.',
     },
     patents: {
-      title: 'Verified patent records',
-      description: 'Patent material will be added only when a verifiable record and primary source are available. No records are currently published.',
+      title: 'Patent RU 2851956',
+      description: 'Method for X-ray Morphometric Diagnosis of Laminitis in Cattle.',
     },
     profileLinkLabel: 'Open profile',
     externalLinkLabel: 'opens in a new tab',
