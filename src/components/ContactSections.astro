@@ -1,0 +1,37 @@
+---
+import type { Language } from '../i18n/config';
+import PageSection from './PageSection.astro';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+
+const headings = {
+  ru: {
+    hero: 'Контакты',
+    email: 'Электронная почта',
+    inquiries: 'Типы запросов',
+    profiles: 'Официальные профили',
+    response: 'Ответ на запрос',
+  },
+  en: {
+    hero: 'Contact',
+    email: 'Email',
+    inquiries: 'Inquiry types',
+    profiles: 'Official profiles',
+    response: 'Response note',
+  },
+} as const satisfies Record<Language, Record<string, string>>;
+
+const copy = headings[lang];
+---
+
+<div class="contact-sections">
+  <PageSection id="contact-overview" title={copy.hero}><slot name="hero" /></PageSection>
+  <PageSection id="contact-email" title={copy.email}><slot name="email" /></PageSection>
+  <PageSection id="inquiry-types" title={copy.inquiries}><slot name="inquiries" /></PageSection>
+  <PageSection id="contact-profiles" title={copy.profiles}><slot name="profiles" /></PageSection>
+  <PageSection id="response-note" title={copy.response}><slot name="response" /></PageSection>
+</div>

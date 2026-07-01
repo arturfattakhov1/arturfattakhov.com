@@ -1,0 +1,63 @@
+---
+import { contactEmail, contactPageCopy } from '../data/contact';
+import { identity } from '../data/identity';
+import type { Language } from '../i18n/config';
+import Card from './Card.astro';
+import ContactSections from './ContactSections.astro';
+import Container from './Container.astro';
+import ProfileCard from './ProfileCard.astro';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const copy = contactPageCopy[lang];
+---
+
+<ContactSections lang={lang}>
+  <Fragment slot="hero">
+    <Container class="section-copy section-copy--lead">
+      <p>{copy.hero}</p>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="email">
+    <Container>
+      <address class="contact-email-block">
+        <p>{copy.emailDescription}</p>
+        <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
+      </address>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="inquiries">
+    <Container>
+      <ul class="card-grid" role="list">
+        {copy.inquiryTypes.map((title) => <li><Card title={title} /></li>)}
+      </ul>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="profiles">
+    <Container>
+      <ul class="card-grid card-grid--profiles" role="list">
+        {identity.profiles.map((profile) => (
+          <li>
+            <ProfileCard
+              profile={profile}
+              linkLabel={copy.profileLinkLabel}
+              externalLinkLabel={copy.externalLinkLabel}
+            />
+          </li>
+        ))}
+      </ul>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="response">
+    <Container class="section-copy">
+      <p>{copy.responseNote}</p>
+    </Container>
+  </Fragment>
+</ContactSections>
