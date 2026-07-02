@@ -2,6 +2,7 @@
 import type { Language } from '../i18n/config';
 import { localizedPath } from '../i18n/config';
 import { ui } from '../i18n/ui';
+import { createBreadcrumbJsonLd } from '../data/structured-data';
 
 interface BreadcrumbItem {
   label: string;
@@ -14,6 +15,7 @@ interface Props {
 }
 
 const { lang, items } = Astro.props;
+const structuredData = createBreadcrumbJsonLd(lang, Astro.url.pathname, items);
 ---
 
 <nav class="breadcrumbs" aria-label={lang === 'ru' ? 'Хлебные крошки' : 'Breadcrumbs'}>
@@ -26,3 +28,5 @@ const { lang, items } = Astro.props;
     ))}
   </ol>
 </nav>
+
+<script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />

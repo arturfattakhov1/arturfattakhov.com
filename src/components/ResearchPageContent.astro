@@ -49,6 +49,7 @@ const patent = publicationRecords.find((record) => record.type === 'patent');
       <div class="button-group">
         <Button href={localizedPath(lang, 'publications')}>{copy.relatedLinks.publications}</Button>
         <Button href={localizedPath(lang, 'profiles')} variant="secondary">{copy.relatedLinks.profiles}</Button>
+        <Button href={localizedPath(lang, 'about')} variant="secondary">{lang === 'ru' ? 'Профессиональный профиль' : 'Professional profile'}</Button>
       </div>
     </Container>
   </Fragment>

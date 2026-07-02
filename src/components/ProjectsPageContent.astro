@@ -60,6 +60,8 @@ const copy = projectsPageCopy[lang];
       <KnowledgeHubNavigation lang={lang} />
       <div class="button-group">
         <Button href={localizedPath(lang, 'publications')}>{copy.publicationsCta}</Button>
+        <Button href={localizedPath(lang, 'research')} variant="secondary">{lang === 'ru' ? 'Исследования' : 'Research'}</Button>
+        <Button href={localizedPath(lang, 'contact')} variant="secondary">{lang === 'ru' ? 'Контакты' : 'Contact'}</Button>
       </div>
     </Container>
   </Fragment>

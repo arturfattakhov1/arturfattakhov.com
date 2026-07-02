@@ -19,6 +19,6 @@ const entries = (await getCollection('projects', ({ data }) => data.lang === lan
   .sort((a, b) => b.data.startYear - a.data.startYear);
 ---
 
-<PageLayout {...content} lang={lang} canonicalPath={localizedPath(lang, 'projects')}>
+<PageLayout {...content} lang={lang} canonicalPath={localizedPath(lang, 'projects')} schemaType="WebPage">
   <ProjectsPageContent lang={lang} entries={entries} />
 </PageLayout>

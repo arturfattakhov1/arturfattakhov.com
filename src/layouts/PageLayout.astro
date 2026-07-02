@@ -1,5 +1,7 @@
 ---
 import Breadcrumbs from '../components/Breadcrumbs.astro';
+import PageStructuredData from '../components/PageStructuredData.astro';
+import type { PageSchemaType, SchemaListItem } from '../data/structured-data';
 import type { Language } from '../i18n/config';
 import BaseLayout from './BaseLayout.astro';
 
@@ -10,6 +12,8 @@ interface Props {
   canonicalPath: string;
   showBreadcrumbs?: boolean;
   type?: 'profile' | 'article' | 'website';
+  schemaType?: PageSchemaType;
+  schemaItems?: SchemaListItem[];
 }
 
 const {
@@ -19,6 +23,8 @@ const {
   canonicalPath,
   showBreadcrumbs = true,
   type = 'website',
+  schemaType,
+  schemaItems,
 } = Astro.props;
 ---
 
@@ -32,4 +38,14 @@ const {
       <slot />
     </div>
   </article>
+  {schemaType && (
+    <PageStructuredData
+      type={schemaType}
+      lang={lang}
+      canonicalPath={canonicalPath}
+      title={title}
+      description={description}
+      items={schemaItems}
+    />
+  )}
 </BaseLayout>

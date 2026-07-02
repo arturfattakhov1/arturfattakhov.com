@@ -43,6 +43,9 @@ const copy = contactPageCopy[lang];
         <Button href={localizedPath(lang, 'profiles')} variant="secondary">
           {copy.profilesCta}
         </Button>
+        <Button href={localizedPath(lang, 'about')} variant="secondary">
+          {lang === 'ru' ? 'Профессиональный профиль' : 'Professional profile'}
+        </Button>
       </div>
     </Container>
   </Fragment>

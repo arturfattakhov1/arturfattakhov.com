@@ -1,5 +1,6 @@
 import type { Language } from '../i18n/config';
 import { schemaIds } from './identity';
+import { breadcrumbId, webpageId } from './structured-data';
 
 export type PublicationType = 'journal' | 'conference' | 'patent';
 
@@ -346,44 +347,64 @@ function identifierValues(record: PublicationRecord) {
 
 function authorValues(record: PublicationRecord) {
   return record.authors.map((name, index) => index === record.arturAuthorIndex
-    ? { '@type': 'Person', '@id': schemaIds.person, name }
+    ? { '@id': schemaIds.person }
     : { '@type': 'Person', name });
 }
 
 export function createPublicationJsonLd(record: PublicationRecord, lang: Language, siteUrl: string) {
   const url = `${siteUrl}${publicationPath(lang, record.slug)}`;
+  const pageId = webpageId(publicationPath(lang, record.slug));
+  const publicationId = `${url}#publication`;
   const common = {
-    '@context': 'https://schema.org',
-    '@id': `${url}#publication`,
+    '@id': publicationId,
     name: record.title[lang],
     description: record.abstract[lang],
+    abstract: record.abstract[lang],
     url,
     inLanguage: lang,
     author: authorValues(record),
     identifier: identifierValues(record),
     datePublished: record.type === 'patent' ? record.registrationDate : String(record.year),
     about: record.researchArea[lang],
-    mainEntityOfPage: url,
+    keywords: record.keywords[lang],
+    mainEntityOfPage: { '@id': pageId },
   };
 
-  if (record.type === 'patent') {
-    return {
+  const publication = record.type === 'patent'
+    ? {
       ...common,
       '@type': 'Patent',
+    }
+    : {
+      ...common,
+      '@type': 'ScholarlyArticle',
+      headline: record.title[lang],
+      pagination: record.pages,
+      volumeNumber: record.volume,
+      issueNumber: record.issue,
+      isPartOf: {
+        '@type': 'CreativeWork',
+        name: record.venue,
+      },
+      sameAs: record.doi ? `https://doi.org/${record.doi}` : undefined,
     };
-  }
 
   return {
-    ...common,
-    '@type': 'ScholarlyArticle',
-    headline: record.title[lang],
-    pagination: record.pages,
-    volumeNumber: record.volume,
-    issueNumber: record.issue,
-    isPartOf: {
-      '@type': 'CreativeWork',
-      name: record.venue,
-    },
-    sameAs: record.doi ? `https://doi.org/${record.doi}` : undefined,
+    '@context': 'https://schema.org',
+    '@graph': [
+      publication,
+      {
+        '@type': 'WebPage',
+        '@id': pageId,
+        url,
+        name: record.title[lang],
+        description: record.abstract[lang],
+        inLanguage: lang,
+        isPartOf: { '@id': schemaIds.website },
+        about: { '@id': publicationId },
+        mainEntity: { '@id': publicationId },
+        breadcrumb: { '@id': breadcrumbId(publicationPath(lang, record.slug)) },
+      },
+    ],
   };
 }

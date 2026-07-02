@@ -7,6 +7,15 @@ const domain = 'https://arturfattakhov.com';
 const languages = ['ru', 'en'];
 const routes = ['', 'about', 'research', 'publications', 'projects', 'media', 'blog', 'contact', 'cv', 'profiles', 'uses', 'now', 'knowledge', 'timeline', 'faq', 'privacy', 'terms', 'disclaimer'];
 const legalRoutes = ['privacy', 'terms', 'disclaimer'];
+const pageSchemaTypes = {
+  research: 'AboutPage',
+  publications: 'CollectionPage',
+  projects: 'WebPage',
+  contact: 'ContactPage',
+  profiles: 'CollectionPage',
+  knowledge: 'CollectionPage',
+  timeline: 'CollectionPage',
+};
 const publicationSlugs = [
   'comparative-xray-morphometry-moose-cattle',
   'hoof-capsule-cattle-moose',
@@ -22,6 +31,8 @@ const errors = [];
 const pages = new Map();
 const titlesByLanguage = new Map(languages.map((lang) => [lang, new Set()]));
 const descriptionsByLanguage = new Map(languages.map((lang) => [lang, new Set()]));
+const personSignatures = new Set();
+const websiteSignatures = new Set();
 
 function assert(condition, message) {
   if (!condition) errors.push(message);
@@ -43,6 +54,27 @@ function assertAccessibility(html, relativePath) {
     const text = button[2].replace(/<[^>]+>/g, '').trim();
     assert(Boolean(text) || /\saria-label="[^"]+"/.test(button[1]), `${relativePath}: button missing accessible name`);
   }
+}
+
+function parseJsonLd(html, relativePath) {
+  try {
+    const blocks = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)]
+      .map((match) => JSON.parse(match[1]));
+    assert(blocks.every((block) => block['@context'] === 'https://schema.org'), `${relativePath}: invalid JSON-LD context`);
+    return blocks;
+  } catch {
+    errors.push(`${relativePath}: invalid JSON-LD JSON`);
+    return [];
+  }
+}
+
+function flattenJsonLd(blocks) {
+  return blocks.flatMap((block) => Array.isArray(block['@graph']) ? block['@graph'] : [block]);
+}
+
+function assertUniqueSchemaIds(nodes, relativePath) {
+  const ids = nodes.map((node) => node?.['@id']).filter(Boolean);
+  assert(new Set(ids).size === ids.length, `${relativePath}: duplicate JSON-LD ids`);
 }
 
 for (const lang of languages) {
@@ -81,15 +113,31 @@ for (const lang of languages) {
     const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]);
     assert(new Set(ids).size === ids.length, `${relativePath}: duplicate HTML ids`);
 
-    const jsonLdBlocks = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)].map((match) => JSON.parse(match[1]));
-    assert(jsonLdBlocks.length === 2, `${relativePath}: expected identity and publication JSON-LD blocks`);
-    const publicationSchema = jsonLdBlocks.find((block) => block['@type'] === 'ScholarlyArticle' || block['@type'] === 'Patent');
+    const jsonLdBlocks = parseJsonLd(html, relativePath);
+    const jsonLdNodes = flattenJsonLd(jsonLdBlocks);
+    assert(jsonLdBlocks.length === 3, `${relativePath}: expected identity, publication, and breadcrumb JSON-LD blocks`);
+    const publicationSchema = jsonLdNodes.find((node) => node['@type'] === 'ScholarlyArticle' || node['@type'] === 'Patent');
     const expectedType = slug.endsWith('-patent') ? 'Patent' : 'ScholarlyArticle';
+    const expectedPageId = `${expectedCanonical}#webpage`;
+    const expectedPublicationId = `${expectedCanonical}#publication`;
+    const publicationPage = jsonLdNodes.find((node) => node['@id'] === expectedPageId && node['@type'] === 'WebPage');
+    const breadcrumb = jsonLdNodes.find((node) => node['@id'] === `${expectedCanonical}#breadcrumb` && node['@type'] === 'BreadcrumbList');
+    const personNodes = jsonLdNodes.filter((node) => node['@id'] === `${domain}/#person` && node['@type'] === 'Person');
+    const websiteNodes = jsonLdNodes.filter((node) => node['@id'] === `${domain}/#website` && node['@type'] === 'WebSite');
     assert(publicationSchema?.['@type'] === expectedType, `${relativePath}: incorrect publication schema type`);
-    assert(publicationSchema?.['@id'] === `${expectedCanonical}#publication`, `${relativePath}: incorrect publication schema id`);
-    assert(publicationSchema?.mainEntityOfPage === expectedCanonical, `${relativePath}: incorrect publication mainEntityOfPage`);
-    const schemaIds = jsonLdBlocks.flatMap((block) => block['@graph']?.map((node) => node['@id']) ?? [block['@id']]).filter(Boolean);
-    assert(new Set(schemaIds).size === schemaIds.length, `${relativePath}: duplicate JSON-LD ids`);
+    assert(publicationSchema?.['@id'] === expectedPublicationId, `${relativePath}: incorrect publication schema id`);
+    assert(publicationSchema?.mainEntityOfPage?.['@id'] === expectedPageId, `${relativePath}: incorrect publication mainEntityOfPage`);
+    assert(publicationSchema?.author?.filter((author) => author['@id'] === `${domain}/#person`).length === 1, `${relativePath}: canonical Person author reference missing`);
+    assert(Array.isArray(publicationSchema?.keywords) && publicationSchema.keywords.length > 0, `${relativePath}: publication keywords missing`);
+    assert(publicationPage?.mainEntity?.['@id'] === expectedPublicationId, `${relativePath}: publication WebPage mainEntity missing`);
+    assert(publicationPage?.isPartOf?.['@id'] === `${domain}/#website`, `${relativePath}: publication WebPage website relationship missing`);
+    assert(publicationPage?.breadcrumb?.['@id'] === `${expectedCanonical}#breadcrumb`, `${relativePath}: publication WebPage breadcrumb relationship missing`);
+    assert(breadcrumb?.itemListElement?.length === 3, `${relativePath}: publication BreadcrumbList is incomplete`);
+    assert(personNodes.length === 1, `${relativePath}: expected one canonical Person entity`);
+    assert(websiteNodes.length === 1, `${relativePath}: expected one canonical WebSite entity`);
+    if (personNodes[0]) personSignatures.add(JSON.stringify(personNodes[0]));
+    if (websiteNodes[0]) websiteSignatures.add(JSON.stringify(websiteNodes[0]));
+    assertUniqueSchemaIds(jsonLdNodes, relativePath);
   }
 }
 
@@ -135,31 +183,60 @@ for (const lang of languages) {
     const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]);
     assert(new Set(ids).size === ids.length, `${relativePath}: duplicate HTML ids`);
 
-    const jsonLdText = matchOne(html, /<script type="application\/ld\+json">(.*?)<\/script>/);
-    try {
-      const jsonLd = JSON.parse(jsonLdText ?? '');
-      const graph = jsonLd['@graph'];
-      const person = graph?.find((node) => node['@id'] === `${domain}/#person` && node['@type'] === 'Person');
-      const website = graph?.find((node) => node['@id'] === `${domain}/#website` && node['@type'] === 'WebSite');
-      assert(jsonLd['@context'] === 'https://schema.org', `${relativePath}: invalid JSON-LD context`);
-      assert(Array.isArray(graph), `${relativePath}: JSON-LD graph missing`);
-      assert(Boolean(person), `${relativePath}: Person missing`);
-      assert(Boolean(website), `${relativePath}: WebSite missing`);
-      assert(person?.mainEntityOfPage?.['@id'] === `${domain}/${lang}/about/#profile-page`, `${relativePath}: Person has incorrect mainEntityOfPage`);
-      assert(Array.isArray(person?.sameAs) && person.sameAs.length === 9, `${relativePath}: Person sameAs is incomplete`);
-      assert(new Set(person?.sameAs).size === person?.sameAs?.length, `${relativePath}: Person sameAs contains duplicates`);
-      assert(person?.sameAs?.every((url) => typeof url === 'string' && url.startsWith('https://')), `${relativePath}: Person sameAs contains an invalid URL`);
-      assert(website?.about?.['@id'] === `${domain}/#person`, `${relativePath}: WebSite about relationship missing`);
-      assert(website?.publisher?.['@id'] === `${domain}/#person`, `${relativePath}: WebSite publisher relationship missing`);
-      if (route === 'about') {
-        const profilePage = graph?.find((node) => node['@id'] === `${domain}/${lang}/about/#profile-page` && node['@type'] === 'ProfilePage');
-        assert(Boolean(profilePage), `${relativePath}: ProfilePage missing`);
-        assert(profilePage?.mainEntity?.['@id'] === `${domain}/#person`, `${relativePath}: ProfilePage mainEntity missing`);
-        assert(profilePage?.isPartOf?.['@id'] === `${domain}/#website`, `${relativePath}: ProfilePage isPartOf missing`);
-      }
-    } catch {
-      errors.push(`${relativePath}: invalid JSON-LD JSON`);
+    const jsonLdBlocks = parseJsonLd(html, relativePath);
+    const jsonLdNodes = flattenJsonLd(jsonLdBlocks);
+    const personNodes = jsonLdNodes.filter((node) => node['@id'] === `${domain}/#person` && node['@type'] === 'Person');
+    const websiteNodes = jsonLdNodes.filter((node) => node['@id'] === `${domain}/#website` && node['@type'] === 'WebSite');
+    const person = personNodes[0];
+    const website = websiteNodes[0];
+    assert(personNodes.length === 1, `${relativePath}: expected one canonical Person entity`);
+    assert(websiteNodes.length === 1, `${relativePath}: expected one canonical WebSite entity`);
+    assert(Array.isArray(person?.mainEntityOfPage) && person.mainEntityOfPage.length === 2, `${relativePath}: Person must reference both About pages`);
+    assert(person?.mainEntityOfPage?.some((item) => item['@id'] === `${domain}/ru/about/#profile-page`), `${relativePath}: Person missing ru ProfilePage reference`);
+    assert(person?.mainEntityOfPage?.some((item) => item['@id'] === `${domain}/en/about/#profile-page`), `${relativePath}: Person missing en ProfilePage reference`);
+    assert(Array.isArray(person?.sameAs) && person.sameAs.length === 9, `${relativePath}: Person sameAs is incomplete`);
+    assert(new Set(person?.sameAs).size === person?.sameAs?.length, `${relativePath}: Person sameAs contains duplicates`);
+    assert(person?.sameAs?.every((url) => typeof url === 'string' && url.startsWith('https://')), `${relativePath}: Person sameAs contains an invalid URL`);
+    assert(Array.isArray(person?.knowsAbout) && person.knowsAbout.length >= 8, `${relativePath}: Person knowsAbout is incomplete`);
+    assert(Array.isArray(person?.hasOccupation) && person.hasOccupation.length === 3, `${relativePath}: Person occupations are incomplete`);
+    assert(website?.about?.['@id'] === `${domain}/#person`, `${relativePath}: WebSite about relationship missing`);
+    assert(website?.creator?.['@id'] === `${domain}/#person`, `${relativePath}: WebSite creator relationship missing`);
+    assert(website?.publisher?.['@id'] === `${domain}/#person`, `${relativePath}: WebSite publisher relationship missing`);
+    if (person) personSignatures.add(JSON.stringify(person));
+    if (website) websiteSignatures.add(JSON.stringify(website));
+
+    if (route === 'about') {
+      const profilePage = jsonLdNodes.find((node) => node['@id'] === `${domain}/${lang}/about/#profile-page` && node['@type'] === 'ProfilePage');
+      assert(Boolean(profilePage), `${relativePath}: ProfilePage missing`);
+      assert(profilePage?.mainEntity?.['@id'] === `${domain}/#person`, `${relativePath}: ProfilePage mainEntity missing`);
+      assert(profilePage?.isPartOf?.['@id'] === `${domain}/#website`, `${relativePath}: ProfilePage isPartOf missing`);
+      assert(profilePage?.breadcrumb?.['@id'] === `${expectedCanonical}#breadcrumb`, `${relativePath}: ProfilePage breadcrumb missing`);
     }
+
+    if (route) {
+      const breadcrumb = jsonLdNodes.find((node) => node['@id'] === `${expectedCanonical}#breadcrumb` && node['@type'] === 'BreadcrumbList');
+      assert(breadcrumb?.itemListElement?.length === 2, `${relativePath}: BreadcrumbList is incomplete`);
+      assert(breadcrumb?.itemListElement?.at(-1)?.item === expectedCanonical, `${relativePath}: BreadcrumbList current item is incorrect`);
+    }
+
+    const expectedPageType = pageSchemaTypes[route];
+    if (expectedPageType) {
+      const pageSchema = jsonLdNodes.find((node) => node['@id'] === `${expectedCanonical}#webpage`);
+      assert(pageSchema?.['@type'] === expectedPageType, `${relativePath}: incorrect page-level schema type`);
+      assert(pageSchema?.about?.['@id'] === `${domain}/#person`, `${relativePath}: page-level Person relationship missing`);
+      assert(pageSchema?.isPartOf?.['@id'] === `${domain}/#website`, `${relativePath}: page-level WebSite relationship missing`);
+      assert(pageSchema?.breadcrumb?.['@id'] === `${expectedCanonical}#breadcrumb`, `${relativePath}: page-level breadcrumb relationship missing`);
+
+      if (['publications', 'profiles', 'knowledge', 'timeline'].includes(route)) {
+        const itemList = jsonLdNodes.find((node) => node['@id'] === `${expectedCanonical}#item-list` && node['@type'] === 'ItemList');
+        assert(pageSchema?.mainEntity?.['@id'] === `${expectedCanonical}#item-list`, `${relativePath}: CollectionPage mainEntity missing`);
+        assert(itemList?.numberOfItems > 0 && itemList?.itemListElement?.length === itemList.numberOfItems, `${relativePath}: CollectionPage ItemList is incomplete`);
+      } else {
+        assert(pageSchema?.mainEntity?.['@id'] === `${domain}/#person`, `${relativePath}: page-level mainEntity must reference Person`);
+      }
+    }
+
+    assertUniqueSchemaIds(jsonLdNodes, relativePath);
 
     for (const anchor of html.matchAll(/<a\s+([^>]*target="_blank"[^>]*)>/g)) {
       const attributes = anchor[1];
@@ -168,6 +245,9 @@ for (const lang of languages) {
     }
   }
 }
+
+assert(personSignatures.size === 1, 'conflicting Person entities detected across pages');
+assert(websiteSignatures.size === 1, 'conflicting WebSite entities detected across pages');
 
 const publicationFilterScriptPath = '/scripts/publication-filter.js';
 const publicationFilterScriptUrl = `${publicationFilterScriptPath}?v=3`;
@@ -227,8 +307,8 @@ for (const lang of languages) {
   assert(aboutHtml?.includes(`href="${profilesPath}"`), `${aboutPath}: contextual Profiles link missing`);
   assert(profilesHtml?.includes(`href="${aboutPath}"`), `${profilesPath}: contextual About link missing`);
 
-  const jsonLd = JSON.parse(matchOne(profilesHtml ?? '', /<script type="application\/ld\+json">(.*?)<\/script>/) ?? '{}');
-  const sameAs = jsonLd['@graph']?.find((node) => node['@id'] === `${domain}/#person`)?.sameAs ?? [];
+  const profileNodes = flattenJsonLd(parseJsonLd(profilesHtml ?? '', profilesPath));
+  const sameAs = profileNodes.find((node) => node['@id'] === `${domain}/#person`)?.sameAs ?? [];
   assert(sameAs.every((url) => profilesHtml?.includes(`href="${url.replaceAll('&', '&amp;')}"`)), `${profilesPath}: verified profile link missing from page`);
 
   for (const sourceRoute of ['', 'about', 'research', 'projects', 'profiles', 'contact']) {
@@ -247,6 +327,27 @@ for (const lang of languages) {
   const patentPath = `/${lang}/publications/xray-morphometric-laminitis-cattle-patent/`;
   assert(pages.get(`/${lang}/publications/`)?.includes(`href="${patentPath}"`), `${lang}/publications/: Patent link missing`);
   assert(pages.get(patentPath)?.includes(`href="/${lang}/research/"`), `${patentPath}: Research link missing`);
+
+  const entityLinkExpectations = {
+    about: ['research', 'publications', 'projects', 'profiles', 'contact', 'knowledge', 'timeline'],
+    research: ['about', 'publications', 'profiles', 'knowledge', 'timeline'],
+    publications: ['about', 'research', 'profiles'],
+    projects: ['research', 'publications', 'contact', 'knowledge', 'timeline'],
+    timeline: ['research', 'publications', 'projects', 'knowledge'],
+    knowledge: ['research', 'publications', 'timeline'],
+    profiles: ['about', 'publications', 'contact', 'knowledge', 'timeline'],
+    contact: ['about', 'profiles', 'knowledge', 'timeline'],
+  };
+  for (const [sourceRoute, targetRoutes] of Object.entries(entityLinkExpectations)) {
+    const sourcePath = `/${lang}/${sourceRoute}/`;
+    const sourceHtml = pages.get(sourcePath) ?? '';
+    for (const targetRoute of targetRoutes) {
+      assert(sourceHtml.includes(`href="/${lang}/${targetRoute}/"`), `${sourcePath}: entity link to ${targetRoute} missing`);
+    }
+  }
+  for (const targetRoute of ['publications', 'research', 'knowledge']) {
+    assert(pages.get(patentPath)?.includes(`href="/${lang}/${targetRoute}/"`), `${patentPath}: entity link to ${targetRoute} missing`);
+  }
 
   for (const legalRoute of legalRoutes) {
     const legalPath = `/${lang}/${legalRoute}/`;
@@ -293,12 +394,15 @@ async function sourceFiles(directory) {
   return files;
 }
 
-const forbiddenPattern = new RegExp(['vet', 'uzi', '47'].join('[\\s_-]*'), 'i');
+const forbiddenPatterns = [
+  new RegExp(['vet', 'uzi', '47'].join('[\\s_-]*'), 'i'),
+  new RegExp(['move', 'trus'].join(''), 'i'),
+];
 for (const directoryName of ['src', 'public', 'docs']) {
   const directory = new URL(`${directoryName}/`, root);
   for (const file of await sourceFiles(directory)) {
     const contents = await readFile(file, 'utf8');
-    assert(!forbiddenPattern.test(contents), `${path.relative(fileURLToPath(root), file)}: forbidden name found`);
+    assert(forbiddenPatterns.every((pattern) => !pattern.test(contents)), `${path.relative(fileURLToPath(root), file)}: forbidden name found`);
   }
 }
 

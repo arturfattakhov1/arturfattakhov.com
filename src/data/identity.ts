@@ -10,6 +10,18 @@ export const identity = {
   url: 'https://arturfattakhov.com',
   jobTitle: 'veterinary doctor, researcher, entrepreneur',
   focus: 'AI-enabled home veterinary care for dogs and cats',
+  knowsAbout: [
+    'veterinary medicine',
+    'small animal veterinary medicine',
+    'veterinary ultrasonography',
+    'diagnostic imaging',
+    'radiographic anatomy',
+    'morphometry',
+    'clinical decision support',
+    'artificial intelligence in veterinary medicine',
+    'evidence-based veterinary medicine',
+  ],
+  occupations: ['Veterinarian', 'Researcher', 'Entrepreneur'],
   languages: {
     ru: { name: 'Russian', code: 'ru' },
     en: { name: 'English', code: 'en' },
@@ -42,7 +54,7 @@ export const schemaIds = {
 
 export const identityDescription = `${identity.jobTitle} focused on ${identity.focus}.`;
 
-export function createPersonSchema(lang: Language) {
+export function createPersonSchema() {
   const orcid = identity.profiles.find((profile) => profile.key === 'orcid');
 
   return {
@@ -56,7 +68,11 @@ export function createPersonSchema(lang: Language) {
     sameAs: identity.profiles.map((profile) => profile.url),
     jobTitle: identity.jobTitle,
     description: identityDescription,
-    knowsAbout: [identity.focus],
+    knowsAbout: identity.knowsAbout,
+    hasOccupation: identity.occupations.map((name) => ({
+      '@type': 'Occupation',
+      name,
+    })),
     knowsLanguage: [
       { '@type': 'Language', name: identity.languages.ru.name, alternateName: identity.languages.ru.code },
       { '@type': 'Language', name: identity.languages.en.name, alternateName: identity.languages.en.code },
@@ -67,7 +83,10 @@ export function createPersonSchema(lang: Language) {
       value: '0000-0003-4142-0469',
       url: orcid.url,
     }] : [],
-    mainEntityOfPage: { '@id': schemaIds.profilePage[lang] },
+    mainEntityOfPage: [
+      { '@id': schemaIds.profilePage.ru },
+      { '@id': schemaIds.profilePage.en },
+    ],
   } as const;
 }
 
@@ -80,6 +99,7 @@ export function createWebsiteSchema() {
     alternateName: identity.name.ru,
     inLanguage: [identity.languages.ru.code, identity.languages.en.code],
     about: { '@id': schemaIds.person },
+    creator: { '@id': schemaIds.person },
     publisher: { '@id': schemaIds.person },
   } as const;
 }
@@ -95,12 +115,14 @@ export function createProfilePageSchema(lang: Language) {
       : 'Official About page for Artur Fattakhov.',
     inLanguage: identity.languages[lang].code,
     isPartOf: { '@id': schemaIds.website },
+    about: { '@id': schemaIds.person },
     mainEntity: { '@id': schemaIds.person },
+    breadcrumb: { '@id': `${identity.url}/${lang}/about/#breadcrumb` },
   } as const;
 }
 
 export function createIdentityJsonLd(lang: Language, includeProfilePage = false) {
-  const graph: Array<Record<string, unknown>> = [createPersonSchema(lang), createWebsiteSchema()];
+  const graph: Array<Record<string, unknown>> = [createPersonSchema(), createWebsiteSchema()];
 
   if (includeProfilePage) {
     graph.push(createProfilePageSchema(lang));

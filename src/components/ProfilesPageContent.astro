@@ -69,6 +69,10 @@ const publicProfiles = selectProfiles(['youtube', 'instagram', 'threads', 'faceb
   <Fragment slot="future">
     <Container class="section-copy">
       <p>{copy.futureProfiles}</p>
+      <div class="button-group">
+        <Button href={localizedPath(lang, 'publications')}>{lang === 'ru' ? 'Публикации и патент' : 'Publications and patent'}</Button>
+        <Button href={localizedPath(lang, 'contact')} variant="secondary">{lang === 'ru' ? 'Контакты' : 'Contact'}</Button>
+      </div>
       <KnowledgeHubNavigation lang={lang} />
     </Container>
   </Fragment>

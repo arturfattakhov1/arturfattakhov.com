@@ -25,6 +25,8 @@ const copy = timelinePageCopy[lang];
       <p>{copy.hero}</p>
       <div class="button-group">
         <Button href={localizedPath(lang, 'publications')}>{copy.publicationsCta}</Button>
+        <Button href={localizedPath(lang, 'research')} variant="secondary">{lang === 'ru' ? 'Исследования' : 'Research'}</Button>
+        <Button href={localizedPath(lang, 'projects')} variant="secondary">{lang === 'ru' ? 'Проекты' : 'Projects'}</Button>
       </div>
       <KnowledgeHubNavigation lang={lang} exclude="timeline" />
     </Container>

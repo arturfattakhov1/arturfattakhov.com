@@ -103,6 +103,7 @@ const formatDate = (date: string) => dateFormatter.format(new Date(`${date}T00:0
       <div class="button-group">
         <Button href={localizedPath(lang, 'publications')} variant="secondary">{copy.backToPublications}</Button>
         <Button href={localizedPath(lang, 'research')}>{copy.researchLink}</Button>
+        <Button href={localizedPath(lang, 'knowledge')} variant="secondary">{lang === 'ru' ? 'База знаний' : 'Knowledge Hub'}</Button>
       </div>
     </section>
   </div>

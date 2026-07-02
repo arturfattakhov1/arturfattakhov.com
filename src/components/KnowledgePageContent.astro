@@ -23,6 +23,7 @@ const copy = knowledgePageCopy[lang];
       <p>{copy.hero}</p>
       <div class="button-group">
         <Button href={localizedPath(lang, 'publications')}>{lang === 'ru' ? 'Публикации и патент' : 'Publications and patent'}</Button>
+        <Button href={localizedPath(lang, 'research')} variant="secondary">{lang === 'ru' ? 'Исследования' : 'Research'}</Button>
       </div>
       <KnowledgeHubNavigation lang={lang} exclude="knowledge" />
     </Container>

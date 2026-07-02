@@ -1,0 +1,17 @@
+---
+import { createPageJsonLd, type PageSchemaType, type SchemaListItem } from '../data/structured-data';
+import type { Language } from '../i18n/config';
+
+interface Props {
+  type: PageSchemaType;
+  lang: Language;
+  canonicalPath: string;
+  title: string;
+  description: string;
+  items?: SchemaListItem[];
+}
+
+const structuredData = createPageJsonLd(Astro.props);
+---
+
+<script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />

@@ -1,6 +1,7 @@
 ---
 import PublicationsPageContent from '../../../components/PublicationsPageContent.astro';
 import { collectionPageContent } from '../../../data/pages';
+import { publicationPath, publicationRecords } from '../../../data/publication-records';
 import { languages, localizedPath, type Language } from '../../../i18n/config';
 import PageLayout from '../../../layouts/PageLayout.astro';
 
@@ -14,8 +15,18 @@ interface Props {
 
 const { lang } = Astro.props;
 const content = collectionPageContent.publications[lang];
+const schemaItems = publicationRecords.map((record) => ({
+  name: record.title[lang],
+  url: publicationPath(lang, record.slug),
+}));
 ---
 
-<PageLayout {...content} lang={lang} canonicalPath={localizedPath(lang, 'publications')}>
+<PageLayout
+  {...content}
+  lang={lang}
+  canonicalPath={localizedPath(lang, 'publications')}
+  schemaType="CollectionPage"
+  schemaItems={schemaItems}
+>
   <PublicationsPageContent lang={lang} />
 </PageLayout>
