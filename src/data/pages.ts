@@ -1,7 +1,8 @@
 import type { Language } from '../i18n/config';
 import { identity } from './identity';
+import type { LegalPageSlug } from './legal';
 
-export type StandardPageSlug =
+export type StandardPageSlug = LegalPageSlug
   | 'about'
   | 'research'
   | 'media'
@@ -37,6 +38,9 @@ export const pageContent: Record<Language, Record<StandardPageSlug, PageContent>
     knowledge: { title: 'База знаний', description: 'Профессиональная база знаний Артура Фаттахова о ветеринарной медицине, диагностике, исследованиях и технологиях.' },
     timeline: { title: 'Хронология', description: 'Проверяемая профессиональная хронология Артура Фаттахова: образование, клиническая практика, исследования, публикации и проекты.' },
     faq: { title: 'Вопросы и ответы', description: 'Ответы на основные вопросы о профессиональной деятельности, исследованиях, публикациях и официальных профилях Артура Фаттахова.' },
+    privacy: { title: 'Политика конфиденциальности', description: 'Политика конфиденциальности arturfattakhov.com: технические данные, cookie, внешние ссылки, обращения и права пользователей.' },
+    terms: { title: 'Условия использования', description: 'Краткие условия использования информационных и профессиональных материалов сайта arturfattakhov.com.' },
+    disclaimer: { title: 'Отказ от ответственности', description: 'Границы использования ветеринарной, медицинской и научной информации на сайте arturfattakhov.com.' },
   },
   en: {
     about: { title: 'About', description: 'Professional profile of Artur Fattakhov across veterinary medicine, research, and entrepreneurship.' },
@@ -50,6 +54,9 @@ export const pageContent: Record<Language, Record<StandardPageSlug, PageContent>
     knowledge: { title: 'Knowledge Hub', description: 'Artur Fattakhov’s professional knowledge base on veterinary medicine, diagnostics, research, and technology.' },
     timeline: { title: 'Timeline', description: 'A verifiable professional timeline for Artur Fattakhov covering education, clinical practice, research, publications, and projects.' },
     faq: { title: 'FAQ', description: 'Answers to common questions about Artur Fattakhov’s professional work, research, publications, and official profiles.' },
+    privacy: { title: 'Privacy Policy', description: 'Privacy policy for arturfattakhov.com covering technical data, cookies, external links, contact, and individual rights.' },
+    terms: { title: 'Terms of Use', description: 'Concise terms governing use of informational and professional material on arturfattakhov.com.' },
+    disclaimer: { title: 'Disclaimer', description: 'Limits on the use of veterinary, medical, and scientific information provided by arturfattakhov.com.' },
   },
 };
 

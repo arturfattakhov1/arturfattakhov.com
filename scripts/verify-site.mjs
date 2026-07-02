@@ -5,7 +5,8 @@ import { fileURLToPath } from 'node:url';
 const root = new URL('../', import.meta.url);
 const domain = 'https://arturfattakhov.com';
 const languages = ['ru', 'en'];
-const routes = ['', 'about', 'research', 'publications', 'projects', 'media', 'blog', 'contact', 'cv', 'profiles', 'uses', 'now', 'knowledge', 'timeline', 'faq'];
+const routes = ['', 'about', 'research', 'publications', 'projects', 'media', 'blog', 'contact', 'cv', 'profiles', 'uses', 'now', 'knowledge', 'timeline', 'faq', 'privacy', 'terms', 'disclaimer'];
+const legalRoutes = ['privacy', 'terms', 'disclaimer'];
 const publicationSlugs = [
   'comparative-xray-morphometry-moose-cattle',
   'hoof-capsule-cattle-moose',
@@ -26,6 +27,24 @@ function assert(condition, message) {
   if (!condition) errors.push(message);
 }
 
+function assertAccessibility(html, relativePath) {
+  assert(html.includes('<a class="skip-link" href="#main-content">'), `${relativePath}: skip link missing`);
+  assert(html.includes('<main id="main-content" tabindex="-1">'), `${relativePath}: main skip-link target is not focusable`);
+
+  const headingLevels = [...html.matchAll(/<h([1-6])(?:\s|>)/g)].map((match) => Number(match[1]));
+  assert(headingLevels[0] === 1, `${relativePath}: heading sequence does not start with h1`);
+  assert(headingLevels.every((level, index) => index === 0 || level <= headingLevels[index - 1] + 1), `${relativePath}: heading level is skipped`);
+
+  for (const image of html.matchAll(/<img\b([^>]*)>/g)) {
+    assert(/\salt=(?:"[^"]*"|'[^']*')/.test(image[1]), `${relativePath}: image missing alt attribute`);
+  }
+
+  for (const button of html.matchAll(/<button\b([^>]*)>(.*?)<\/button>/gs)) {
+    const text = button[2].replace(/<[^>]+>/g, '').trim();
+    assert(Boolean(text) || /\saria-label="[^"]+"/.test(button[1]), `${relativePath}: button missing accessible name`);
+  }
+}
+
 for (const lang of languages) {
   for (const slug of publicationSlugs) {
     const relativePath = `${lang}/publications/${slug}/`;
@@ -36,6 +55,7 @@ for (const lang of languages) {
 
     assert(html.includes(`<html lang="${lang}">`), `${relativePath}: incorrect html lang`);
     assert((html.match(/<h1(?:\s|>)/g) ?? []).length === 1, `${relativePath}: expected exactly one h1`);
+    assertAccessibility(html, relativePath);
     assert(html.includes(`<link rel="canonical" href="${expectedCanonical}">`), `${relativePath}: incorrect canonical`);
     assert(html.includes(`<link rel="alternate" hreflang="ru" href="${domain}/ru/${alternatePath}">`), `${relativePath}: missing ru alternate`);
     assert(html.includes(`<link rel="alternate" hreflang="en" href="${domain}/en/${alternatePath}">`), `${relativePath}: missing en alternate`);
@@ -88,6 +108,7 @@ for (const lang of languages) {
 
     assert(html.includes(`<html lang="${lang}">`), `${relativePath}: incorrect html lang`);
     assert((html.match(/<h1(?:\s|>)/g) ?? []).length === 1, `${relativePath}: expected exactly one h1`);
+    assertAccessibility(html, relativePath);
     assert(html.includes(`<link rel="canonical" href="${expectedCanonical}">`), `${relativePath}: incorrect canonical`);
     assert(html.includes(`<link rel="alternate" hreflang="ru" href="${domain}/ru/${alternatePath}">`), `${relativePath}: missing ru alternate`);
     assert(html.includes(`<link rel="alternate" hreflang="en" href="${domain}/en/${alternatePath}">`), `${relativePath}: missing en alternate`);
@@ -175,6 +196,11 @@ const canonicalValues = [...pages.values()].map((html) => matchOne(html, /<link 
 assert(new Set(canonicalValues).size === canonicalValues.length, 'duplicate canonical URLs detected');
 
 for (const [sourcePath, html] of pages) {
+  const lang = sourcePath.split('/').filter(Boolean)[0];
+  for (const legalRoute of legalRoutes) {
+    assert(html.includes(`href="/${lang}/${legalRoute}/"`), `${sourcePath}: footer link to ${legalRoute} missing`);
+  }
+
   for (const match of html.matchAll(/<a\s+[^>]*href="([^"]+)"[^>]*>/g)) {
     const href = match[1].replaceAll('&amp;', '&');
     if (/^(?:mailto:|tel:|javascript:)/.test(href)) continue;
@@ -221,6 +247,13 @@ for (const lang of languages) {
   const patentPath = `/${lang}/publications/xray-morphometric-laminitis-cattle-patent/`;
   assert(pages.get(`/${lang}/publications/`)?.includes(`href="${patentPath}"`), `${lang}/publications/: Patent link missing`);
   assert(pages.get(patentPath)?.includes(`href="/${lang}/research/"`), `${patentPath}: Research link missing`);
+
+  for (const legalRoute of legalRoutes) {
+    const legalPath = `/${lang}/${legalRoute}/`;
+    const legalHtml = pages.get(legalPath) ?? '';
+    assert(legalHtml.includes(`<link rel="canonical" href="${domain}${legalPath}">`), `${legalPath}: legal canonical missing`);
+    assert(legalHtml.includes(`<link rel="alternate" hreflang="${lang}" href="${domain}${legalPath}">`), `${legalPath}: legal hreflang missing`);
+  }
 }
 
 const redirect = await readFile(new URL('dist/index.html', root), 'utf8');

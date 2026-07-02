@@ -1,0 +1,32 @@
+---
+import { legalPageCopy, type LegalPageSlug } from '../data/legal';
+import type { Language } from '../i18n/config';
+import Container from './Container.astro';
+import PageIntro from './PageIntro.astro';
+import PageSection from './PageSection.astro';
+
+interface Props {
+  lang: Language;
+  page: LegalPageSlug;
+}
+
+const { lang, page } = Astro.props;
+const copy = legalPageCopy[lang][page];
+---
+
+<div class="section-stack legal-sections">
+  <PageIntro>
+    <Container class="section-copy section-copy--lead">
+      <p>{copy.introduction}</p>
+    </Container>
+  </PageIntro>
+
+  {copy.sections.map((section) => (
+    <PageSection id={section.id} title={section.title}>
+      <Container class="section-copy legal-copy">
+        {section.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+        {section.email && <p><a href={`mailto:${section.email}`}>{section.email}</a></p>}
+      </Container>
+    </PageSection>
+  ))}
+</div>

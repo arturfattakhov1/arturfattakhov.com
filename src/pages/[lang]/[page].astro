@@ -4,6 +4,7 @@ import ContactPageContent from '../../components/ContactPageContent.astro';
 import CvPageContent from '../../components/CvPageContent.astro';
 import FaqPageContent from '../../components/FaqPageContent.astro';
 import KnowledgePageContent from '../../components/KnowledgePageContent.astro';
+import LegalPageContent from '../../components/LegalPageContent.astro';
 import MediaPageContent from '../../components/MediaPageContent.astro';
 import NowPageContent from '../../components/NowPageContent.astro';
 import ProfilesPageContent from '../../components/ProfilesPageContent.astro';
@@ -11,11 +12,12 @@ import ResearchPageContent from '../../components/ResearchPageContent.astro';
 import TimelinePageContent from '../../components/TimelinePageContent.astro';
 import UsesPageContent from '../../components/UsesPageContent.astro';
 import { pageContent, type StandardPageSlug } from '../../data/pages';
+import type { LegalPageSlug } from '../../data/legal';
 import { languages, localizedPath, type Language } from '../../i18n/config';
 import PageLayout from '../../layouts/PageLayout.astro';
 
 export function getStaticPaths() {
-  const pages: StandardPageSlug[] = ['about', 'research', 'media', 'contact', 'cv', 'profiles', 'uses', 'now', 'knowledge', 'timeline', 'faq'];
+  const pages: StandardPageSlug[] = ['about', 'research', 'media', 'contact', 'cv', 'profiles', 'uses', 'now', 'knowledge', 'timeline', 'faq', 'privacy', 'terms', 'disclaimer'];
   return languages.flatMap((lang) =>
     pages.map((page) => ({ params: { lang, page }, props: { lang, page } })),
   );
@@ -48,4 +50,7 @@ const content = pageContent[lang][page];
   {page === 'knowledge' && <KnowledgePageContent lang={lang} />}
   {page === 'timeline' && <TimelinePageContent lang={lang} />}
   {page === 'faq' && <FaqPageContent lang={lang} />}
+  {(['privacy', 'terms', 'disclaimer'] as StandardPageSlug[]).includes(page) && (
+    <LegalPageContent lang={lang} page={page as LegalPageSlug} />
+  )}
 </PageLayout>

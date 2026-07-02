@@ -43,4 +43,7 @@ export const secondaryNavigation = [
   { slug: 'profiles', label: { ru: 'Профили', en: 'Profiles' } },
   { slug: 'uses', label: { ru: 'Инструменты', en: 'Uses' } },
   { slug: 'now', label: { ru: 'Сейчас', en: 'Now' } },
+  { slug: 'privacy', label: { ru: 'Конфиденциальность', en: 'Privacy' } },
+  { slug: 'terms', label: { ru: 'Условия', en: 'Terms' } },
+  { slug: 'disclaimer', label: { ru: 'Отказ от ответственности', en: 'Disclaimer' } },
 ] as const;
