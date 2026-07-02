@@ -366,6 +366,16 @@ assert(robots.includes('Allow: /'), 'robots.txt does not explicitly allow indexi
 assert(!/^Disallow:\s*\/$/m.test(robots), 'robots.txt blocks the entire site');
 assert(robots.includes(`Sitemap: ${domain}/sitemap-index.xml`), 'robots.txt sitemap missing');
 
+const headers = await readFile(new URL('dist/_headers', root), 'utf8');
+assert(headers.includes('/*'), 'Cloudflare Pages global headers rule missing');
+assert(headers.includes('X-Content-Type-Options: nosniff'), 'nosniff security header missing');
+assert(headers.includes('Referrer-Policy: strict-origin-when-cross-origin'), 'referrer policy missing');
+assert(headers.includes('Permissions-Policy:'), 'permissions policy missing');
+assert(headers.includes('X-Frame-Options: DENY'), 'legacy frame protection missing');
+assert(headers.includes("Content-Security-Policy: default-src 'self';"), 'content security policy missing');
+assert(headers.includes("frame-ancestors 'none'"), 'CSP frame protection missing');
+assert(headers.includes("script-src 'self'"), 'CSP script restriction missing');
+
 const sitemapIndex = await readFile(new URL('dist/sitemap-index.xml', root), 'utf8');
 assert(sitemapIndex.includes(`<loc>${domain}/sitemap-0.xml</loc>`), 'sitemap index does not reference the generated sitemap');
 
