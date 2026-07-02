@@ -6,13 +6,28 @@ const initializePublicationFilters = () => {
     const items = [...portfolio.querySelectorAll('[data-publication-item]')];
     const groups = [...portfolio.querySelectorAll('[data-publication-group]')];
     const status = portfolio.querySelector('[data-publication-status]');
+    const validFilters = new Set(
+      buttons
+        .map((button) => button instanceof HTMLElement ? button.dataset.publicationFilter : undefined)
+        .filter(Boolean),
+    );
 
-    const applyFilter = (filter) => {
+    const applyFilter = (requestedFilter) => {
+      const filter = validFilters.has(requestedFilter) ? requestedFilter : 'all';
+      let visibleCount = 0;
+
       items.forEach((item) => {
         if (!(item instanceof HTMLElement)) return;
         const matches = filter === 'all' || item.dataset.type === filter || item.dataset.year === filter;
         item.hidden = !matches;
+        item.style.display = matches ? '' : 'none';
+        if (matches) visibleCount += 1;
       });
+
+      if (visibleCount === 0 && filter !== 'all') {
+        applyFilter('all');
+        return;
+      }
 
       groups.forEach((group) => {
         const section = group.closest('section');
@@ -21,6 +36,7 @@ const initializePublicationFilters = () => {
         const hasVisibleItems = [...group.querySelectorAll('[data-publication-item]')]
           .some((item) => item instanceof HTMLElement && !item.hidden);
         section.hidden = !hasVisibleItems;
+        section.style.display = hasVisibleItems ? '' : 'none';
       });
 
       buttons.forEach((button) => {
@@ -50,5 +66,9 @@ const initializePublicationFilters = () => {
   });
 };
 
-initializePublicationFilters();
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializePublicationFilters, { once: true });
+} else {
+  initializePublicationFilters();
+}
 document.addEventListener('astro:page-load', initializePublicationFilters);

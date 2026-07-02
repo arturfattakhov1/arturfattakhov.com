@@ -149,9 +149,12 @@ for (const lang of languages) {
 }
 
 const publicationFilterScriptPath = '/scripts/publication-filter.js';
+const publicationFilterScriptUrl = `${publicationFilterScriptPath}?v=3`;
 const publicationFilterScript = await readFile(new URL(`public${publicationFilterScriptPath}`, root), 'utf8');
 assert(publicationFilterScript.includes("button.addEventListener('click'"), 'publication filter click handler missing');
 assert(publicationFilterScript.includes("document.addEventListener('astro:page-load'"), 'publication filter page-load initialization missing');
+assert(publicationFilterScript.includes("item.style.display = matches ? '' : 'none'"), 'publication filter visual hiding missing');
+assert(publicationFilterScript.includes("applyFilter('all')"), 'publication filter empty-result fallback missing');
 
 for (const lang of languages) {
   const indexHtml = pages.get(`/${lang}/publications/`) ?? '';
@@ -163,8 +166,8 @@ for (const lang of languages) {
     assert(indexHtml.includes(`data-publication-filter="${filter}"`), `${lang}/publications/: missing ${filter} filter`);
   }
   assert(
-    new RegExp(`<script(?=[^>]*src="${publicationFilterScriptPath}")(?=[^>]*\\sdefer(?:\\s|>))[^>]*><\\/script>`).test(indexHtml),
-    `${lang}/publications/: external filter script missing`,
+    indexHtml.includes(`<script src="${publicationFilterScriptUrl}" defer></script>`),
+    `${lang}/publications/: versioned external filter script missing`,
   );
 }
 
