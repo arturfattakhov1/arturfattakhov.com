@@ -53,41 +53,4 @@ const filters = ['all', 'journal', 'conference', 'patent', '2021', '2024', '2025
   })}
 </div>
 
-<script is:inline>
-  document.querySelectorAll('[data-publication-portfolio]').forEach((portfolio) => {
-    const buttons = [...portfolio.querySelectorAll('[data-publication-filter]')];
-    const items = [...portfolio.querySelectorAll('[data-publication-item]')];
-    const groups = [...portfolio.querySelectorAll('[data-publication-group]')];
-    const status = portfolio.querySelector('[data-publication-status]');
-
-    const applyFilter = (filter) => {
-      items.forEach((item) => {
-        const matches = filter === 'all' || item.dataset.type === filter || item.dataset.year === filter;
-        item.hidden = !matches;
-      });
-
-      groups.forEach((group) => {
-        const section = group.closest('section');
-        if (section) section.hidden = ![...group.querySelectorAll('[data-publication-item]')].some((item) => !item.hidden);
-      });
-
-      buttons.forEach((button) => {
-        const active = button.dataset.publicationFilter === filter;
-        button.setAttribute('aria-pressed', String(active));
-        button.classList.toggle('button--primary', active);
-        button.classList.toggle('button--secondary', !active);
-      });
-
-      if (status) {
-        const activeButton = buttons.find((button) => button.dataset.publicationFilter === filter);
-        status.textContent = filter === 'all'
-          ? portfolio.dataset.showingAll
-          : `${portfolio.dataset.showingFiltered}: ${activeButton?.textContent?.trim() ?? filter}.`;
-      }
-    };
-
-    buttons.forEach((button) => {
-      button.addEventListener('click', () => applyFilter(button.dataset.publicationFilter ?? 'all'));
-    });
-  });
-</script>
+<script is:inline src="/scripts/publication-filter.js" defer></script>

@@ -148,6 +148,11 @@ for (const lang of languages) {
   }
 }
 
+const publicationFilterScriptPath = '/scripts/publication-filter.js';
+const publicationFilterScript = await readFile(new URL(`public${publicationFilterScriptPath}`, root), 'utf8');
+assert(publicationFilterScript.includes("button.addEventListener('click'"), 'publication filter click handler missing');
+assert(publicationFilterScript.includes("document.addEventListener('astro:page-load'"), 'publication filter page-load initialization missing');
+
 for (const lang of languages) {
   const indexHtml = pages.get(`/${lang}/publications/`) ?? '';
   assert((indexHtml.match(/data-publication-item(?=\s|>)/g) ?? []).length === publicationSlugs.length, `${lang}/publications/: expected nine portfolio cards`);
@@ -157,6 +162,10 @@ for (const lang of languages) {
   for (const filter of ['all', 'journal', 'conference', 'patent', '2021', '2024', '2025']) {
     assert(indexHtml.includes(`data-publication-filter="${filter}"`), `${lang}/publications/: missing ${filter} filter`);
   }
+  assert(
+    new RegExp(`<script(?=[^>]*src="${publicationFilterScriptPath}")(?=[^>]*\\sdefer(?:\\s|>))[^>]*><\\/script>`).test(indexHtml),
+    `${lang}/publications/: external filter script missing`,
+  );
 }
 
 const canonicalValues = [...pages.values()].map((html) => matchOne(html, /<link rel="canonical" href="([^"]+)">/)).filter(Boolean);
