@@ -10,27 +10,19 @@ const { lang } = Astro.props;
 
 const headings = {
   ru: {
-    hero: 'Профессиональный профиль',
-    identity: 'Профессиональные роли',
-    work: 'Текущие направления',
-    research: 'Исследования',
-    knowledge: 'Профессиональная база знаний',
-    publications: 'Публикации',
-    projects: 'Проекты',
-    media: 'Медиа',
-    profiles: 'Официальные профили',
+    proof: 'Проверенная основа',
+    fields: 'Профессиональные направления',
+    scholarly: 'Избранные научные работы',
+    profiles: 'Научные профили',
+    position: 'Профессиональная позиция',
     contact: 'Контакты',
   },
   en: {
-    hero: 'Professional profile',
-    identity: 'Professional roles',
-    work: 'Current areas of work',
-    research: 'Research',
-    knowledge: 'Professional Knowledge Hub',
-    publications: 'Publications',
-    projects: 'Projects',
-    media: 'Media',
-    profiles: 'Official profiles',
+    proof: 'Verified foundation',
+    fields: 'Professional fields',
+    scholarly: 'Selected scholarly work',
+    profiles: 'Research profiles',
+    position: 'Professional position',
     contact: 'Contact',
   },
 } as const satisfies Record<Language, Record<string, string>>;
@@ -38,15 +30,26 @@ const headings = {
 const copy = headings[lang];
 ---
 
-<div class="home-sections">
-  <PageSection id="hero" title={copy.hero}><slot name="hero" /></PageSection>
-  <PageSection id="identity" title={copy.identity}><slot name="identity" /></PageSection>
-  <PageSection id="work" title={copy.work}><slot name="work" /></PageSection>
-  <PageSection id="research" title={copy.research}><slot name="research" /></PageSection>
-  <PageSection id="knowledge-hub" title={copy.knowledge}><slot name="knowledge" /></PageSection>
-  <PageSection id="publications" title={copy.publications}><slot name="publications" /></PageSection>
-  <PageSection id="projects" title={copy.projects}><slot name="projects" /></PageSection>
-  <PageSection id="media" title={copy.media}><slot name="media" /></PageSection>
-  <PageSection id="official-profiles" title={copy.profiles}><slot name="profiles" /></PageSection>
-  <PageSection id="contact" title={copy.contact}><slot name="contact" /></PageSection>
+<div class="home-sections home-sections--v2">
+  <section class="home-opening" id="identity" aria-labelledby="page-title">
+    <slot name="hero" />
+  </section>
+  <PageSection id="verified-foundation" title={copy.proof} class="home-proof" density="compact">
+    <slot name="proof" />
+  </PageSection>
+  <PageSection id="professional-fields" title={copy.fields} class="home-fields" density="open">
+    <slot name="fields" />
+  </PageSection>
+  <PageSection id="selected-work" title={copy.scholarly} class="home-scholarly" density="open">
+    <slot name="scholarly" />
+  </PageSection>
+  <PageSection id="research-profiles" title={copy.profiles} class="home-profiles" density="editorial">
+    <slot name="profiles" />
+  </PageSection>
+  <PageSection id="professional-position" title={copy.position} class="home-position" density="open">
+    <slot name="position" />
+  </PageSection>
+  <PageSection id="contact" title={copy.contact} class="home-contact" density="editorial">
+    <slot name="contact" />
+  </PageSection>
 </div>

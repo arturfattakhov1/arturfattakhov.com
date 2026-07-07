@@ -1,15 +1,13 @@
 ---
+import { Image } from 'astro:assets';
+import portrait from '../../assets/images/artur-fattakhov-homepage.jpg';
 import Button from '../../components/Button.astro';
-import Card from '../../components/Card.astro';
-import CollectionPlaceholder from '../../components/CollectionPlaceholder.astro';
 import Container from '../../components/Container.astro';
 import HomeSections from '../../components/HomeSections.astro';
-import LinkCard from '../../components/LinkCard.astro';
-import KnowledgeHubNavigation from '../../components/KnowledgeHubNavigation.astro';
-import ProfileCard from '../../components/ProfileCard.astro';
 import { homePageCopy } from '../../data/home';
 import { identity } from '../../data/identity';
 import { homeContent } from '../../data/pages';
+import { publicationPath, publicationRecords } from '../../data/publication-records';
 import { languages, localizedPath, type Language } from '../../i18n/config';
 import PageLayout from '../../layouts/PageLayout.astro';
 
@@ -21,9 +19,25 @@ interface Props {
   lang: Language;
 }
 
-const { lang } = Astro.props;
+const { lang } = Astro.props as Props;
 const content = homeContent[lang];
 const copy = homePageCopy[lang];
+const featuredSlugs = [
+  'comparative-xray-morphometry-moose-cattle',
+  'hoof-capsule-cattle-moose',
+  'xray-morphometric-laminitis-cattle-patent',
+] as const;
+const featuredRecords = featuredSlugs.map((slug) => {
+  const record = publicationRecords.find((item) => item.slug === slug);
+  if (!record) throw new Error(`Missing verified homepage publication record: ${slug}`);
+  return record;
+});
+const profileKeys = ['orcid', 'googleScholar', 'researchGate', 'webOfScience'] as const;
+const featuredProfiles = profileKeys.map((key) => {
+  const profile = identity.profiles.find((item) => item.key === key);
+  if (!profile) throw new Error(`Missing verified homepage profile: ${key}`);
+  return profile;
+});
 ---
 
 <PageLayout
@@ -35,99 +49,139 @@ const copy = homePageCopy[lang];
 >
   <HomeSections lang={lang}>
     <Fragment slot="hero">
-      <Container class="home-hero">
-        <p class="home-hero__subtitle">{copy.hero.subtitle}</p>
-        <div class="button-group">
-          <Button href={localizedPath(lang, 'about')}>{copy.hero.primaryCta}</Button>
-          <Button href={localizedPath(lang, 'contact')} variant="secondary">{copy.hero.secondaryCta}</Button>
+      <Container class="home-identity">
+        <div class="home-identity__copy">
+          <ul class="home-roles" role="list">
+            {copy.hero.roles.map((role) => <li>{role}</li>)}
+          </ul>
+          <p class="home-thesis">{copy.hero.thesis}</p>
+          <p class="home-context">{copy.hero.context}</p>
+          <div class="button-group">
+            <Button href={localizedPath(lang, 'about')}>{copy.hero.primaryCta}</Button>
+            <Button href={localizedPath(lang, 'research')} variant="secondary">{copy.hero.secondaryCta}</Button>
+          </div>
         </div>
+        <figure class="home-portrait">
+          <Image
+            src={portrait}
+            alt={copy.hero.portraitAlt}
+            width={portrait.width}
+            height={portrait.height}
+            widths={[480, 720, 960, 1085]}
+            sizes="(max-width: 48rem) calc(100vw - 1.5rem), (max-width: 64rem) 44vw, 34rem"
+            format="webp"
+            quality={85}
+            loading="eager"
+            decoding="async"
+            fetchpriority="high"
+          />
+        </figure>
       </Container>
     </Fragment>
 
-    <Fragment slot="identity">
+    <Fragment slot="proof">
       <Container>
-        <ul class="card-grid" role="list">
-          {copy.identity.map((item) => <li><Card {...item} /></li>)}
-        </ul>
+        <dl class="home-proof-list">
+          {copy.proof.map((item) => (
+            <div>
+              <dt>{item.title}</dt>
+              <dd>{item.description}</dd>
+            </div>
+          ))}
+        </dl>
       </Container>
     </Fragment>
 
-    <Fragment slot="work">
+    <Fragment slot="fields">
       <Container>
-        <ul class="card-grid" role="list">
-          {copy.work.map((item) => <li><Card {...item} /></li>)}
-        </ul>
-      </Container>
-    </Fragment>
-
-    <Fragment slot="research">
-      <Container>
-        <ul class="card-grid card-grid--three" role="list">
-          {copy.research.map((item) => (
+        <p class="home-section-lead">{copy.fields.introduction}</p>
+        <ol class="home-field-list">
+          {copy.fields.items.map((item, index) => (
             <li>
-              <LinkCard
-                title={item.title}
-                href={localizedPath(lang, item.path)}
-                linkLabel={copy.linkLabel}
-              />
+              <span class="home-field-list__index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+              <div>
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+                <a class="home-text-link" href={localizedPath(lang, item.path)}>
+                  {item.linkLabel}<span aria-hidden="true"> →</span>
+                </a>
+              </div>
             </li>
           ))}
-        </ul>
+        </ol>
       </Container>
     </Fragment>
 
-    <Fragment slot="knowledge">
-      <Container class="section-copy">
-        <p>{copy.knowledgeHub}</p>
-        <KnowledgeHubNavigation lang={lang} />
-      </Container>
-    </Fragment>
-
-    <Fragment slot="publications">
+    <Fragment slot="scholarly">
       <Container>
-        <LinkCard
-          title={copy.publications.title}
-          description={copy.publications.description}
-          href={localizedPath(lang, 'publications')}
-          linkLabel={copy.linkLabel}
-        />
-      </Container>
-    </Fragment>
-
-    <Fragment slot="projects">
-      <Container>
-        <CollectionPlaceholder collection="projects" title={copy.projects.title} description={copy.projects.description} />
-      </Container>
-    </Fragment>
-
-    <Fragment slot="media">
-      <Container>
-        <ul class="card-grid" role="list">
-          {copy.media.map((title) => <li><Card title={title} status={copy.placeholderLabel} /></li>)}
-        </ul>
+        <p class="home-section-lead">{copy.scholarly.introduction}</p>
+        <ol class="home-record-list">
+          {featuredRecords.map((record) => (
+            <li>
+              <p class="home-record-list__type">
+                {record.type === 'patent' ? copy.scholarly.recordType.patent : copy.scholarly.recordType.journal}
+                <span aria-hidden="true"> · </span>{record.year}
+              </p>
+              <h3>
+                <a href={publicationPath(lang, record.slug)}>{record.title[lang]}</a>
+              </h3>
+              <p class="home-record-list__meta">
+                {record.patentNumber ?? record.venue}
+                {record.doi && <><span aria-hidden="true"> · </span>DOI {record.doi}</>}
+              </p>
+              <a class="home-text-link" href={publicationPath(lang, record.slug)}>
+                {copy.scholarly.openRecord}<span aria-hidden="true"> →</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+        <a class="home-section-link" href={localizedPath(lang, 'publications')}>
+          {copy.scholarly.allRecords}<span aria-hidden="true"> →</span>
+        </a>
       </Container>
     </Fragment>
 
     <Fragment slot="profiles">
       <Container>
-        <ul class="card-grid card-grid--profiles" role="list">
-          {identity.profiles.map((profile) => (
+        <p class="home-section-lead">{copy.profiles.introduction}</p>
+        <ul class="home-profile-list" role="list">
+          {featuredProfiles.map((profile) => (
             <li>
-              <ProfileCard
-                profile={profile}
-                linkLabel={copy.profileLinkLabel}
-                externalLinkLabel={copy.externalLinkLabel}
-              />
+              <a
+                href={profile.url}
+                target="_blank"
+                rel="me noopener noreferrer"
+                aria-label={`${copy.profiles.openProfile}: ${profile.name} (${copy.profiles.externalLinkLabel})`}
+              >
+                <span>{profile.name}</span><span aria-hidden="true">↗</span>
+              </a>
             </li>
           ))}
         </ul>
+        <a class="home-section-link" href={localizedPath(lang, 'profiles')}>
+          {copy.profiles.allProfiles}<span aria-hidden="true"> →</span>
+        </a>
+        <nav class="home-reference-nav" aria-label={copy.profiles.referenceLabel}>
+          <span>{copy.profiles.referenceLabel}</span>
+          <ul role="list">
+            {copy.profiles.references.map((item) => (
+              <li><a href={localizedPath(lang, item.path)}>{item.label}</a></li>
+            ))}
+          </ul>
+        </nav>
+      </Container>
+    </Fragment>
+
+    <Fragment slot="position">
+      <Container size="reading" class="home-position-copy">
+        {copy.position.map((paragraph) => <p>{paragraph}</p>)}
       </Container>
     </Fragment>
 
     <Fragment slot="contact">
-      <Container class="contact-panel">
+      <Container class="home-contact-close">
         <p>{copy.contact.description}</p>
-        <Button href={localizedPath(lang, 'contact')}>{copy.contact.cta}</Button>
+        <Button href={localizedPath(lang, 'contact')} variant="secondary">{copy.contact.cta}</Button>
       </Container>
     </Fragment>
   </HomeSections>
