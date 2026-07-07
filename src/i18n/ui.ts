@@ -9,6 +9,12 @@ export const ui = {
     languageLabel: 'Выбор языка',
     primaryNavigation: 'Основная навигация',
     footerNavigation: 'Дополнительная навигация',
+    footerRole: 'Ветеринарный врач, исследователь и предприниматель.',
+    footerCore: 'Основные разделы',
+    footerVerification: 'Подтверждённые профили',
+    footerReference: 'Справочная информация',
+    footerLanguage: 'Язык',
+    externalLinkLabel: 'откроется в новой вкладке',
     readMore: 'Читать далее',
     published: 'Опубликовано',
     updated: 'Обновлено',
@@ -21,6 +27,12 @@ export const ui = {
     languageLabel: 'Language selection',
     primaryNavigation: 'Primary navigation',
     footerNavigation: 'Secondary navigation',
+    footerRole: 'Veterinarian, researcher and entrepreneur.',
+    footerCore: 'Core sections',
+    footerVerification: 'Verified profiles',
+    footerReference: 'Reference',
+    footerLanguage: 'Language',
+    externalLinkLabel: 'opens in a new tab',
     readMore: 'Read more',
     published: 'Published',
     updated: 'Updated',
@@ -34,15 +46,16 @@ export const primaryNavigation = [
   { slug: 'publications', label: { ru: 'Публикации', en: 'Publications' } },
   { slug: 'projects', label: { ru: 'Проекты', en: 'Projects' } },
   { slug: 'media', label: { ru: 'Медиа', en: 'Media' } },
-  { slug: 'blog', label: { ru: 'Блог', en: 'Blog' } },
+  { slug: 'contact', label: { ru: 'Контакты', en: 'Contact' } },
 ] as const;
 
-export const secondaryNavigation = [
-  { slug: 'contact', label: { ru: 'Контакты', en: 'Contact' } },
+export const footerCoreNavigation = [
+  ...primaryNavigation,
   { slug: 'cv', label: { ru: 'CV', en: 'CV' } },
-  { slug: 'profiles', label: { ru: 'Профили', en: 'Profiles' } },
-  { slug: 'uses', label: { ru: 'Инструменты', en: 'Uses' } },
-  { slug: 'now', label: { ru: 'Сейчас', en: 'Now' } },
+] as const;
+
+export const footerReferenceNavigation = [
+  { slug: 'blog', label: { ru: 'Блог', en: 'Blog' } },
   { slug: 'privacy', label: { ru: 'Конфиденциальность', en: 'Privacy' } },
   { slug: 'terms', label: { ru: 'Условия', en: 'Terms' } },
   { slug: 'disclaimer', label: { ru: 'Отказ от ответственности', en: 'Disclaimer' } },

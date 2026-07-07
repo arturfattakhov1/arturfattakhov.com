@@ -1,22 +1,66 @@
 ---
 import type { Language } from '../i18n/config';
 import { localizedPath } from '../i18n/config';
-import { secondaryNavigation, ui } from '../i18n/ui';
+import { identity } from '../data/identity';
+import { footerCoreNavigation, footerReferenceNavigation, ui } from '../i18n/ui';
 
 interface Props {
   lang: Language;
 }
 
 const { lang } = Astro.props;
+const verifiedProfileKeys = new Set(['orcid', 'googleScholar', 'webOfScience', 'researchGate', 'github']);
+const verifiedProfiles = identity.profiles.filter((profile) => verifiedProfileKeys.has(profile.key));
 ---
 
 <footer class="site-footer">
-  <nav aria-label={ui[lang].footerNavigation}>
-    <ul>
-      {secondaryNavigation.map((item) => (
-        <li><a href={localizedPath(lang, item.slug)}>{item.label[lang]}</a></li>
-      ))}
-    </ul>
-  </nav>
-  <small>© {new Date().getFullYear()} {ui[lang].siteName}</small>
+  <div class="site-footer__inner">
+    <div class="site-footer__identity">
+      <a class="site-footer__name" href={localizedPath(lang)}>{ui[lang].siteName}</a>
+      <p>{ui[lang].footerRole}</p>
+    </div>
+    <div class="site-footer__groups">
+      <nav aria-labelledby={`footer-core-${lang}`}>
+        <h2 id={`footer-core-${lang}`}>{ui[lang].footerCore}</h2>
+        <ul>
+          {footerCoreNavigation.map((item) => (
+            <li><a href={localizedPath(lang, item.slug)}>{item.label[lang]}</a></li>
+          ))}
+        </ul>
+      </nav>
+      <nav aria-labelledby={`footer-verification-${lang}`}>
+        <h2 id={`footer-verification-${lang}`}>{ui[lang].footerVerification}</h2>
+        <ul>
+          {verifiedProfiles.map((profile) => (
+            <li>
+              <a
+                href={profile.url}
+                target="_blank"
+                rel="me noopener noreferrer"
+                aria-label={`${profile.name} (${ui[lang].externalLinkLabel})`}
+              >
+                {profile.name}<span aria-hidden="true"> ↗</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+      <nav aria-labelledby={`footer-reference-${lang}`}>
+        <h2 id={`footer-reference-${lang}`}>{ui[lang].footerReference}</h2>
+        <ul>
+          {footerReferenceNavigation.map((item) => (
+            <li><a href={localizedPath(lang, item.slug)}>{item.label[lang]}</a></li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+    <div class="site-footer__meta">
+      <nav class="site-footer__languages" aria-label={ui[lang].footerLanguage}>
+        <a href={localizedPath('ru')} lang="ru" hreflang="ru" aria-current={lang === 'ru' ? 'page' : undefined}>RU</a>
+        <span aria-hidden="true">/</span>
+        <a href={localizedPath('en')} lang="en" hreflang="en" aria-current={lang === 'en' ? 'page' : undefined}>EN</a>
+      </nav>
+      <small>© {new Date().getFullYear()} {ui[lang].siteName}</small>
+    </div>
+  </div>
 </footer>

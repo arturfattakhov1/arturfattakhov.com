@@ -3,12 +3,14 @@ interface Props {
   title: string;
   description?: string;
   status?: string;
+  class?: string;
+  variant?: 'default' | 'quiet';
 }
 
-const { title, description, status } = Astro.props;
+const { title, description, status, class: className, variant = 'default' } = Astro.props;
 ---
 
-<article class="card">
+<article class:list={['card', `card--${variant}`, className]}>
   <h3>{title}</h3>
   {description && <p>{description}</p>}
   {status && <p class="card-status">{status}</p>}

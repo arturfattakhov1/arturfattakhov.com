@@ -15,9 +15,11 @@ const { lang, currentPath } = Astro.props;
 
 <a class="skip-link" href="#main-content">{ui[lang].skipToContent}</a>
 <header class="site-header">
-  <div class="header-bar">
-    <a class="brand" href={localizedPath(lang)}>{ui[lang].siteName}</a>
-    <LanguageSwitcher lang={lang} currentPath={currentPath} />
+  <div class="site-header__inner">
+    <div class="header-bar">
+      <a class="brand" href={localizedPath(lang)}>{ui[lang].siteName}</a>
+      <LanguageSwitcher lang={lang} currentPath={currentPath} />
+    </div>
+    <Navigation lang={lang} currentPath={currentPath} />
   </div>
-  <Navigation lang={lang} currentPath={currentPath} />
 </header>

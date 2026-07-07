@@ -12,7 +12,7 @@ const { lang, currentPath } = Astro.props;
 ---
 
 <nav class="primary-navigation" aria-label={ui[lang].primaryNavigation}>
-  <ul>
+  <ul class="primary-navigation__list">
     {primaryNavigation.map((item) => {
       const href = localizedPath(lang, item.slug);
       const active = currentPath.startsWith(href);
