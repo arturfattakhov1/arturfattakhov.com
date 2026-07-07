@@ -1,5 +1,5 @@
 {
-  "name": "artur-fattakhov-website",
+  "name": "arturfattakhov",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -11,6 +11,7 @@
     "dev": "astro dev",
     "check": "astro check",
     "build": "astro build",
+    "deploy": "wrangler deploy --assets ./dist",
     "verify": "npm run check && npm run build && node scripts/verify-site.mjs",
     "preview": "astro preview",
     "astro": "astro"
@@ -21,7 +22,8 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "wrangler": "4.107.0"
   },
   "overrides": {
     "yaml": "^2.9.0"
