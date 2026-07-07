@@ -1,15 +1,11 @@
 ---
 import { aboutPageCopy } from '../data/about';
-import { identity } from '../data/identity';
+import { publicationPath, publicationRecords } from '../data/publication-records';
 import type { Language } from '../i18n/config';
+import { localizedPath } from '../i18n/config';
 import AboutSections from './AboutSections.astro';
 import Button from './Button.astro';
-import CollectionPlaceholder from './CollectionPlaceholder.astro';
 import Container from './Container.astro';
-import KnowledgeHubNavigation from './KnowledgeHubNavigation.astro';
-import LinkCard from './LinkCard.astro';
-import ProfileCard from './ProfileCard.astro';
-import { localizedPath } from '../i18n/config';
 
 interface Props {
   lang: Language;
@@ -17,101 +13,128 @@ interface Props {
 
 const { lang } = Astro.props;
 const copy = aboutPageCopy[lang];
-type ProfileKey = (typeof identity.profiles)[number]['key'];
-const profilesByKey = new Map(identity.profiles.map((profile) => [profile.key, profile] as const));
-const profileKeys: ProfileKey[] = ['orcid', 'googleScholar', 'researchGate', 'webOfScience', 'github'];
-const selectedProfiles = profileKeys
-  .map((key) => profilesByKey.get(key))
-  .filter((profile) => profile !== undefined);
+const researchRecordSlugs = [
+  'comparative-xray-morphometry-moose-cattle',
+  'hoof-capsule-cattle-moose',
+  'xray-morphometric-laminitis-cattle-patent',
+] as const;
+const researchRecords = researchRecordSlugs
+  .map((slug) => publicationRecords.find((record) => record.slug === slug))
+  .filter((record) => record !== undefined);
 ---
 
 <AboutSections lang={lang}>
-  <Fragment slot="hero">
-    <Container class="about-copy about-copy--lead">
-      <p>{copy.hero}</p>
-    </Container>
-  </Fragment>
-
-  <Fragment slot="biography">
-    <Container class="about-copy">
-      {copy.biography.map((paragraph) => <p>{paragraph}</p>)}
-    </Container>
-  </Fragment>
-
-  <Fragment slot="expertise">
-    <Container class="about-copy">
-      <p>{copy.expertiseIntroduction}</p>
-      <ul>
-        {copy.expertise.map((item) => <li>{item}</li>)}
+  <Fragment slot="opening">
+    <Container class="about-opening" size="reading">
+      <p class="about-opening__name">{copy.opening.name}</p>
+      <ul class="about-role-list" role="list">
+        {copy.opening.roles.map((role) => <li>{role}</li>)}
       </ul>
+      <p class="about-opening__thesis">{copy.opening.thesis}</p>
+      <p class="about-opening__introduction">{copy.opening.introduction}</p>
+      <Button href={localizedPath(lang, 'research')} variant="secondary">{copy.opening.researchLink}</Button>
     </Container>
   </Fragment>
 
-  <Fragment slot="current-work">
-    <Container class="about-copy">
-      {copy.currentWork.map((paragraph) => <p>{paragraph}</p>)}
-    </Container>
-  </Fragment>
-
-  <Fragment slot="research">
-    <Container class="about-copy">
-      {copy.research.map((paragraph) => <p>{paragraph}</p>)}
-      <div class="button-group">
-        <Button href={localizedPath(lang, 'research')}>{lang === 'ru' ? 'Исследовательские направления' : 'Research directions'}</Button>
-      </div>
-      <KnowledgeHubNavigation lang={lang} />
-    </Container>
-  </Fragment>
-
-  <Fragment slot="projects">
-    <Container>
-      <CollectionPlaceholder collection="projects" {...copy.placeholders.projects} />
-      <div class="button-group">
-        <Button href={localizedPath(lang, 'projects')} variant="secondary">{lang === 'ru' ? 'Профессиональные проекты' : 'Professional projects'}</Button>
-      </div>
+  <Fragment slot="system">
+    <Container size="reading">
+      <p class="about-section-lead">{copy.professionalSystem.introduction}</p>
+      <ol class="about-system-list">
+        {copy.professionalSystem.areas.map((area, index) => (
+          <li>
+            <span class="about-list-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+            <div>
+              <h3>{area.title}</h3>
+              <p>{area.description}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
     </Container>
   </Fragment>
 
   <Fragment slot="education">
-    <Container>
-      <CollectionPlaceholder collection="about-education" {...copy.placeholders.education} />
-    </Container>
-  </Fragment>
-
-  <Fragment slot="profiles">
-    <Container>
-      <ul class="card-grid" role="list">
-        {selectedProfiles.map((profile) => (
-          <li><ProfileCard profile={profile} linkLabel={copy.profileLinkLabel} externalLinkLabel={copy.externalLinkLabel} /></li>
+    <Container size="reading">
+      <p class="about-section-lead">{copy.education.introduction}</p>
+      <ol class="about-education-list">
+        {copy.education.records.map((record) => (
+          <li>
+            <p class="about-education-list__year">{record.year}</p>
+            <div>
+              <h3>{record.institution}</h3>
+              <dl>
+                <div>
+                  <dt>{record.qualificationLabel}</dt>
+                  <dd>{record.qualification}</dd>
+                </div>
+                <div>
+                  <dt>{record.completionLabel}</dt>
+                  <dd>{record.year}</dd>
+                </div>
+              </dl>
+            </div>
+          </li>
         ))}
-      </ul>
-      <div class="button-group">
-        <Button href={localizedPath(lang, 'profiles')} variant="secondary">{copy.profileHubCta}</Button>
+      </ol>
+      <p class="about-supporting-copy">{copy.education.conclusion}</p>
+      <nav class="about-context-links" aria-label={lang === 'ru' ? 'Подробности об образовании' : 'Education details'}>
+        <a href={localizedPath(lang, 'cv')}>{copy.education.cvLink}</a>
+        <a href={localizedPath(lang, 'timeline')}>{copy.education.timelineLink}</a>
+      </nav>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="research">
+    <Container size="reading">
+      <p class="about-section-lead">{copy.researchPath.introduction}</p>
+      <ol class="about-research-records">
+        {researchRecords.map((record) => (
+          <li>
+            <p class="about-record-type">{record.type === 'patent' ? copy.researchPath.patentLabel : copy.researchPath.articleLabel}</p>
+            <h3><a href={publicationPath(lang, record.slug)}>{record.title[lang]}</a></h3>
+            <p class="about-record-meta">{record.year}{record.patentNumber ? ` · ${record.patentNumber}` : record.doi ? ` · DOI ${record.doi}` : ''}</p>
+            <a class="about-record-link" href={publicationPath(lang, record.slug)}>{copy.researchPath.recordLink}</a>
+          </li>
+        ))}
+      </ol>
+      <p class="about-supporting-copy">{copy.researchPath.conclusion}</p>
+      <nav class="about-context-links" aria-label={lang === 'ru' ? 'Связанные исследовательские разделы' : 'Related research sections'}>
+        <a href={localizedPath(lang, 'research')}>{copy.researchPath.researchLink}</a>
+        <a href={localizedPath(lang, 'publications')}>{copy.researchPath.publicationsLink}</a>
+      </nav>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="principles">
+    <Container size="reading">
+      <p class="about-section-lead">{copy.principles.introduction}</p>
+      <dl class="about-principles-list">
+        {copy.principles.items.map((item) => (
+          <div>
+            <dt>{item.title}</dt>
+            <dd>{item.description}</dd>
+          </div>
+        ))}
+      </dl>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="direction">
+    <Container class="about-direction" size="reading">
+      <div class="about-direction__copy">
+        {copy.direction.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
       </div>
-    </Container>
-  </Fragment>
-
-  <Fragment slot="publications">
-    <Container>
-      <LinkCard
-        title={copy.placeholders.publications.title}
-        description={copy.placeholders.publications.description}
-        href={localizedPath(lang, 'publications')}
-        linkLabel={copy.publicationsCta}
-      />
-    </Container>
-  </Fragment>
-
-  <Fragment slot="media">
-    <Container>
-      <CollectionPlaceholder collection="media" {...copy.placeholders.media} />
-    </Container>
-  </Fragment>
-
-  <Fragment slot="contact">
-    <Container class="contact-panel">
-      <p>{copy.contact.description}</p>
-      <Button href={localizedPath(lang, 'contact')}>{copy.contact.cta}</Button>
+      <nav class="about-direction__links" aria-label={copy.direction.linksLabel}>
+        <p>{copy.direction.linksLabel}</p>
+        <ul role="list">
+          <li><a href={localizedPath(lang, 'research')}>{copy.direction.links.research}</a></li>
+          <li><a href={localizedPath(lang, 'publications')}>{copy.direction.links.publications}</a></li>
+          <li><a href={localizedPath(lang, 'knowledge')}>{copy.direction.links.knowledge}</a></li>
+          <li><a href={localizedPath(lang, 'faq')}>{copy.direction.links.faq}</a></li>
+          <li><a href={localizedPath(lang, 'profiles')}>{copy.direction.links.profiles}</a></li>
+          <li><a href={localizedPath(lang, 'contact')}>{copy.direction.links.contact}</a></li>
+        </ul>
+      </nav>
     </Container>
   </Fragment>
 </AboutSections>

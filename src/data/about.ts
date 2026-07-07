@@ -1,102 +1,234 @@
 import type { Language } from '../i18n/config';
 
 interface AboutPageCopy {
-  hero: string;
-  biography: string[];
-  expertiseIntroduction: string;
-  expertise: string[];
-  currentWork: string[];
-  research: string[];
-  placeholders: {
-    projects: { title: string; description: string };
-    education: { title: string; description: string };
-    publications: { title: string; description: string };
-    media: { title: string; description: string };
+  opening: {
+    name: string;
+    roles: string[];
+    thesis: string;
+    introduction: string;
+    researchLink: string;
   };
-  profileLinkLabel: string;
-  externalLinkLabel: string;
-  profileHubCta: string;
-  publicationsCta: string;
-  contact: { description: string; cta: string };
+  professionalSystem: {
+    introduction: string;
+    areas: Array<{ title: string; description: string }>;
+  };
+  education: {
+    introduction: string;
+    records: Array<{
+      institution: string;
+      qualificationLabel: string;
+      qualification: string;
+      completionLabel: string;
+      year: string;
+    }>;
+    conclusion: string;
+    cvLink: string;
+    timelineLink: string;
+  };
+  researchPath: {
+    introduction: string;
+    conclusion: string;
+    articleLabel: string;
+    patentLabel: string;
+    recordLink: string;
+    researchLink: string;
+    publicationsLink: string;
+  };
+  principles: {
+    introduction: string;
+    items: Array<{ title: string; description: string }>;
+  };
+  direction: {
+    paragraphs: string[];
+    linksLabel: string;
+    links: {
+      research: string;
+      publications: string;
+      knowledge: string;
+      faq: string;
+      profiles: string;
+      contact: string;
+    };
+  };
 }
 
 export const aboutPageCopy: Record<Language, AboutPageCopy> = {
   ru: {
-    hero: 'Я Артур Фаттахов — ветеринарный врач, специалист по ультразвуковой диагностике, исследователь и предприниматель.',
-    biography: [
-      'Моя профессиональная работа связана с ветеринарной медициной собак и кошек. В клинической практике меня особенно интересуют диагностическая визуализация, ультразвуковое исследование и последовательное клиническое мышление.',
-      'Я рассматриваю диагностику как процесс, в котором результаты визуализации должны оцениваться вместе с анамнезом, клиническими признаками и другими доступными данными. Такой подход помогает формулировать вопросы точнее и принимать более обоснованные решения.',
-      'Как исследователь, я изучаю направления на пересечении ветеринарной медицины, анатомии, морфометрии, диагностических методов и цифровых технологий. Как предприниматель, я являюсь основателем выездной ветеринарной службы для собак и кошек.',
-      'Этот сайт служит единым источником проверенной информации о моей профессиональной деятельности, исследовательских интересах, публикациях и официальных профилях.',
-    ],
-    expertiseIntroduction: 'Мой профессиональный фокус:',
-    expertise: [
-      'ветеринарная медицина собак и кошек и организация последовательного клинического процесса;',
-      'ультразвуковая диагностика и интерпретация результатов в клиническом контексте;',
-      'диагностическая визуализация, рентгенографическая анатомия и морфометрия;',
-      'доказательная ветеринарная медицина и критическая оценка источников;',
-      'клиническое мышление и поддержка принятия врачебных решений;',
-      'ветеринарная помощь на дому и стандартизация рабочих процессов;',
-      'искусственный интеллект и цифровые инструменты в ветеринарной медицине.',
-    ],
-    currentWork: [
-      'Моя текущая работа объединяет клиническую ветеринарную практику, ультразвуковую диагностику, развитие помощи на дому и исследовательские задачи.',
-      'В предпринимательской работе я сосредоточен на выездной ветеринарной службе для собак и кошек. Основное внимание уделяю понятным рабочим процессам, качеству клинических решений и ответственному применению технологий.',
-    ],
-    research: [
-      'Мои долгосрочные исследовательские интересы включают ветеринарную медицину, диагностическую визуализацию, ультразвуковое исследование, рентгенографическую анатомию, морфометрию и клиническую поддержку принятия решений.',
-      'Отдельное направление интереса — применение искусственного интеллекта в ветеринарной медицине: качество исходных данных, проверяемость результатов, ограничения моделей и роль врача в окончательном решении.',
-      'Я открыт к международному научному взаимодействию по темам, где цели, методы и вклад участников могут быть определены прозрачно. Научная коммуникация для меня означает точное изложение методов и результатов без преувеличений и публикацию только проверенных сведений.',
-    ],
-    placeholders: {
-      projects: { title: 'Проверенные проектные записи', description: 'Проектные страницы будут добавляться после подтверждения публичного названия, цели, статуса и моей роли.' },
-      education: { title: 'Проверенные сведения об образовании', description: 'Данные об образовании будут опубликованы после сверки с первичными документами.' },
-      publications: { title: 'Публикации и патент', description: 'Портфолио содержит две журнальные статьи, шесть публикаций в материалах конференций и один патент с проверенными библиографическими данными.' },
-      media: { title: 'Проверенные медиа-материалы', description: 'Интервью, лекции и другие материалы будут добавляться только со ссылкой на исходную публикацию.' },
+    opening: {
+      name: 'Артур Фаттахов',
+      roles: ['Ветеринарный врач', 'Специалист визуальной диагностики', 'Исследователь', 'Предприниматель'],
+      thesis: 'Ветеринарная медицина, визуальная диагностика и исследования, направленные на более точное понимание здоровья животных.',
+      introduction: 'Профессиональная работа Артура Фаттахова объединяет клиническую ветеринарную медицину, визуальную диагностику и исследования. Эти направления дополняют друг друга в наблюдении, интерпретации данных и принятии ответственных клинических решений.',
+      researchLink: 'Перейти к исследованиям',
     },
-    profileLinkLabel: 'Открыть профиль',
-    externalLinkLabel: 'откроется в новой вкладке',
-    profileHubCta: 'Все официальные профили',
-    publicationsCta: 'Открыть портфолио публикаций',
-    contact: { description: 'Для профессиональных, исследовательских, образовательных и медиа-запросов используйте официальную страницу контактов.', cta: 'Перейти к контактам' },
+    professionalSystem: {
+      introduction: 'Клиническая практика задаёт вопросы, визуальная диагностика помогает уточнять наблюдаемую картину, а исследовательская работа позволяет рассматривать методы и данные системно.',
+      areas: [
+        {
+          title: 'Клиническая ветеринарная медицина',
+          description: 'Работа с собаками и кошками требует учитывать анамнез, клинические признаки и доступные диагностические данные как единый контекст.',
+        },
+        {
+          title: 'Визуальная диагностика',
+          description: 'Результаты ультразвуковых и рентгенографических исследований рассматриваются не изолированно, а в связи с клиническим вопросом и другими сведениями о пациенте.',
+        },
+        {
+          title: 'Исследования',
+          description: 'Анатомия, морфометрия и диагностические методы формируют область, в которой клиническое наблюдение связано с проверяемыми данными и точным описанием результатов.',
+        },
+      ],
+    },
+    education: {
+      introduction: 'Профессиональное образование последовательно соединило подготовку ветеринарного врача с завершённой квалификацией в области исследовательской и преподавательской работы.',
+      records: [
+        {
+          institution: 'СПбГУВМ',
+          qualificationLabel: 'Квалификация',
+          qualification: '«Ветеринарный врач»',
+          completionLabel: 'Год завершения',
+          year: '2021',
+        },
+        {
+          institution: 'МГАВМиБ имени К. И. Скрябина',
+          qualificationLabel: 'Квалификация',
+          qualification: '«Исследователь. Преподаватель-исследователь»',
+          completionLabel: 'Год завершения',
+          year: '2024',
+        },
+      ],
+      conclusion: 'Подробная хронология вынесена в отдельные справочные разделы, чтобы эта страница сохраняла формат профессионального профиля.',
+      cvLink: 'Открыть CV',
+      timelineLink: 'Открыть хронологию',
+    },
+    researchPath: {
+      introduction: 'Исследовательский путь представлен работами по сравнительной анатомии, микроморфологии и рентгеноморфометрии дистального отдела конечностей крупного рогатого скота и лося. Проверяемыми результатами этого направления служат две научные публикации и зарегистрированный патент.',
+      conclusion: 'Полные библиографические сведения, авторский состав и идентификаторы доступны на отдельных страницах записей.',
+      articleLabel: 'Научная публикация',
+      patentLabel: 'Патент',
+      recordLink: 'Открыть запись',
+      researchLink: 'Исследовательские направления',
+      publicationsLink: 'Все публикации',
+    },
+    principles: {
+      introduction: 'Связь практики и исследований выражается в требованиях к тому, как формулируются вопросы, оцениваются данные и сообщаются результаты.',
+      items: [
+        {
+          title: 'Диагностический контекст',
+          description: 'Данные визуализации оцениваются вместе с анамнезом, клиническими признаками и другими доступными сведениями.',
+        },
+        {
+          title: 'Проверяемость',
+          description: 'Профессиональные выводы должны опираться на доступные данные, а границы этих данных — оставаться явными.',
+        },
+        {
+          title: 'Точная коммуникация',
+          description: 'Методы и результаты требуют ясного описания без преувеличений и подмены фактов предположениями.',
+        },
+      ],
+    },
+    direction: {
+      paragraphs: [
+        'Текущее профессиональное направление сохраняет связь клинической ветеринарной практики, визуальной диагностики и исследовательской работы.',
+        'Этот сайт собирает проверенные сведения о публикациях, исследовательских интересах и официальном профессиональном присутствии, а также служит прямой точкой контакта.',
+      ],
+      linksLabel: 'Связанные разделы',
+      links: {
+        research: 'Исследования',
+        publications: 'Публикации',
+        knowledge: 'База знаний',
+        faq: 'Вопросы и ответы',
+        profiles: 'Официальные профили',
+        contact: 'Контакты',
+      },
+    },
   },
   en: {
-    hero: 'I am Artur Fattakhov — a veterinarian, veterinary ultrasound specialist, researcher, and entrepreneur.',
-    biography: [
-      'My professional work is centred on veterinary medicine for dogs and cats. Within clinical practice, I have a particular interest in diagnostic imaging, ultrasonography, and structured clinical reasoning.',
-      'I approach diagnostics as a process in which imaging findings should be interpreted alongside history, clinical signs, and other available evidence. This helps define clinical questions more precisely and supports better-reasoned decisions.',
-      'As a researcher, I explore areas connecting veterinary medicine, anatomy, morphometry, diagnostic methods, and digital technologies. As an entrepreneur, I am the founder of a home veterinary service for dogs and cats.',
-      'This website is the central source for verified information about my professional work, research interests, publications, and official profiles.',
-    ],
-    expertiseIntroduction: 'My professional focus includes:',
-    expertise: [
-      'veterinary medicine for dogs and cats and structured clinical workflows;',
-      'veterinary ultrasonography and interpretation in clinical context;',
-      'diagnostic imaging, radiographic anatomy, and morphometry;',
-      'evidence-based veterinary medicine and critical appraisal of sources;',
-      'clinical reasoning and decision support;',
-      'home veterinary care and workflow standardisation;',
-      'artificial intelligence and digital tools in veterinary medicine.',
-    ],
-    currentWork: [
-      'My current work connects clinical veterinary practice, ultrasonography, the development of home veterinary care, and research questions.',
-      'In my entrepreneurial work, I focus on a home veterinary service for dogs and cats. The priorities are clear workflows, the quality of clinical decisions, and the responsible use of technology.',
-    ],
-    research: [
-      'My long-term research interests include veterinary medicine, diagnostic imaging, ultrasonography, radiographic anatomy, morphometry, and clinical decision support.',
-      'A separate area of interest is artificial intelligence in veterinary medicine, including input-data quality, result validation, model limitations, and the veterinarian’s role in final decisions.',
-      'I am open to international scientific collaboration where aims, methods, and individual contributions can be defined transparently. For me, scientific communication means describing methods and results accurately, without exaggeration, and publishing only verified information.',
-    ],
-    placeholders: {
-      projects: { title: 'Verified project records', description: 'Project pages will be added after the public name, purpose, status, and my role have been confirmed.' },
-      education: { title: 'Verified education records', description: 'Education details will be published after they have been checked against primary documents.' },
-      publications: { title: 'Publications and patent', description: 'The portfolio contains two journal articles, six conference publications, and one patent with verified bibliographic details.' },
-      media: { title: 'Verified media material', description: 'Interviews, lectures, and other material will be added only with a link to the original publication.' },
+    opening: {
+      name: 'Artur Fattakhov',
+      roles: ['Veterinary Doctor', 'Diagnostic Imaging Specialist', 'Researcher', 'Entrepreneur'],
+      thesis: 'Veterinary medicine, diagnostic imaging and research focused on a more precise understanding of animal health.',
+      introduction: 'Artur Fattakhov’s professional work connects clinical veterinary medicine, diagnostic imaging, and research. These areas complement one another in observation, interpretation of evidence, and responsible clinical decision-making.',
+      researchLink: 'Explore the research',
     },
-    profileLinkLabel: 'Open profile',
-    externalLinkLabel: 'opens in a new tab',
-    profileHubCta: 'All official profiles',
-    publicationsCta: 'Open publication portfolio',
-    contact: { description: 'Use the official contact page for professional, research, educational, and media inquiries.', cta: 'Go to contact page' },
+    professionalSystem: {
+      introduction: 'Clinical practice defines the questions, diagnostic imaging helps clarify what is observed, and research provides a systematic way to examine methods and evidence.',
+      areas: [
+        {
+          title: 'Clinical veterinary medicine',
+          description: 'Work with dogs and cats requires history, clinical signs, and available diagnostic evidence to be considered as one context.',
+        },
+        {
+          title: 'Diagnostic imaging',
+          description: 'Ultrasonographic and radiographic findings are interpreted in relation to the clinical question and the other information available about the patient.',
+        },
+        {
+          title: 'Research',
+          description: 'Anatomy, morphometry, and diagnostic methods form an area where clinical observation is connected with verifiable evidence and precise reporting.',
+        },
+      ],
+    },
+    education: {
+      introduction: 'Professional education progressed from veterinary medical training to a completed qualification in research and teaching.',
+      records: [
+        {
+          institution: 'Saint Petersburg State University of Veterinary Medicine',
+          qualificationLabel: 'Qualification',
+          qualification: 'Veterinary Doctor',
+          completionLabel: 'Graduated',
+          year: '2021',
+        },
+        {
+          institution: 'Moscow State Academy of Veterinary Medicine and Biotechnology named after K. I. Skryabin',
+          qualificationLabel: 'Qualification',
+          qualification: 'Qualification in research and teaching',
+          completionLabel: 'Completed',
+          year: '2024',
+        },
+      ],
+      conclusion: 'Detailed chronology is kept in separate reference sections so this page can remain a focused professional profile.',
+      cvLink: 'View CV',
+      timelineLink: 'View timeline',
+    },
+    researchPath: {
+      introduction: 'The research path is represented by work in comparative anatomy, micromorphology, and X-ray morphometry of distal limb structures in cattle and moose. Two scientific publications and a registered patent provide the verified record of this direction.',
+      conclusion: 'Full bibliographic details, authorship, and identifiers are available on the individual record pages.',
+      articleLabel: 'Scientific publication',
+      patentLabel: 'Patent',
+      recordLink: 'Open record',
+      researchLink: 'Research directions',
+      publicationsLink: 'All publications',
+    },
+    principles: {
+      introduction: 'The connection between practice and research is reflected in how questions are framed, evidence is assessed, and results are communicated.',
+      items: [
+        {
+          title: 'Diagnostic context',
+          description: 'Imaging findings are considered alongside history, clinical signs, and other available evidence.',
+        },
+        {
+          title: 'Verifiability',
+          description: 'Professional conclusions should be grounded in available evidence, with the limits of that evidence kept explicit.',
+        },
+        {
+          title: 'Precise communication',
+          description: 'Methods and results require clear reporting without exaggeration or the substitution of assumptions for facts.',
+        },
+      ],
+    },
+    direction: {
+      paragraphs: [
+        'The current professional direction maintains the connection between clinical veterinary practice, diagnostic imaging, and research.',
+        'This website brings together verified publications, research interests, and official professional profiles, while providing a direct contact route.',
+      ],
+      linksLabel: 'Related sections',
+      links: {
+        research: 'Research',
+        publications: 'Publications',
+        knowledge: 'Knowledge',
+        faq: 'FAQ',
+        profiles: 'Official profiles',
+        contact: 'Contact',
+      },
+    },
   },
 };

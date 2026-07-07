@@ -10,46 +10,31 @@ const { lang } = Astro.props;
 
 const headings = {
   ru: {
-    hero: 'Профессиональный профиль',
-    biography: 'Биография',
-    expertise: 'Профессиональные направления',
-    currentWork: 'Текущая работа',
-    research: 'Исследования',
-    projects: 'Проекты',
-    education: 'Образование',
-    profiles: 'Профессиональные профили',
-    publications: 'Публикации',
-    media: 'Медиа',
-    contact: 'Контакты',
+    opening: 'Профессиональная позиция',
+    system: 'Единая профессиональная система',
+    education: 'Образование и развитие',
+    research: 'Исследовательский путь',
+    principles: 'Принципы работы',
+    direction: 'Текущее направление',
   },
   en: {
-    hero: 'Professional profile',
-    biography: 'Biography',
-    expertise: 'Professional areas',
-    currentWork: 'Current work',
-    research: 'Research',
-    projects: 'Projects',
-    education: 'Education',
-    profiles: 'Professional profiles',
-    publications: 'Publications',
-    media: 'Media',
-    contact: 'Contact',
+    opening: 'Professional position',
+    system: 'One professional system',
+    education: 'Education and development',
+    research: 'Research path',
+    principles: 'Professional principles',
+    direction: 'Current direction',
   },
 } as const satisfies Record<Language, Record<string, string>>;
 
 const copy = headings[lang];
 ---
 
-<div class="section-stack about-sections">
-  <PageSection id="hero" title={copy.hero}><slot name="hero" /></PageSection>
-  <PageSection id="biography" title={copy.biography}><slot name="biography" /></PageSection>
-  <PageSection id="areas-of-expertise" title={copy.expertise}><slot name="expertise" /></PageSection>
-  <PageSection id="current-work" title={copy.currentWork}><slot name="current-work" /></PageSection>
-  <PageSection id="research" title={copy.research}><slot name="research" /></PageSection>
-  <PageSection id="projects" title={copy.projects}><slot name="projects" /></PageSection>
-  <PageSection id="education" title={copy.education}><slot name="education" /></PageSection>
-  <PageSection id="professional-profiles" title={copy.profiles}><slot name="profiles" /></PageSection>
-  <PageSection id="publications" title={copy.publications}><slot name="publications" /></PageSection>
-  <PageSection id="media" title={copy.media}><slot name="media" /></PageSection>
-  <PageSection id="contact" title={copy.contact}><slot name="contact" /></PageSection>
+<div class="section-stack about-sections about-sections--v2">
+  <PageSection id="professional-position" title={copy.opening} density="open"><slot name="opening" /></PageSection>
+  <PageSection id="professional-system" title={copy.system}><slot name="system" /></PageSection>
+  <PageSection id="education-and-development" title={copy.education}><slot name="education" /></PageSection>
+  <PageSection id="research-path" title={copy.research}><slot name="research" /></PageSection>
+  <PageSection id="professional-principles" title={copy.principles}><slot name="principles" /></PageSection>
+  <PageSection id="current-direction" title={copy.direction} density="open"><slot name="direction" /></PageSection>
 </div>
