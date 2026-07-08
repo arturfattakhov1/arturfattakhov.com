@@ -1,5 +1,5 @@
 ---
-import { publicationRecords, type PublicationType } from '../data/publication-records';
+import { publicationRecords } from '../data/publication-records';
 import { publicationsPageCopy } from '../data/publications';
 import type { Language } from '../i18n/config';
 import Container from './Container.astro';
@@ -12,45 +12,40 @@ interface Props {
 
 const { lang } = Astro.props;
 const copy = publicationsPageCopy[lang];
-const types: PublicationType[] = ['journal', 'conference', 'patent'];
 const filters = ['all', 'journal', 'conference', 'patent', '2021', '2024', '2025'] as const;
 ---
 
 <div data-publication-portfolio data-showing-all={copy.showingAll} data-showing-filtered={copy.showingFiltered}>
-  <PageSection id="publication-filters" title={copy.filtersTitle}>
+  <PageSection id="publication-archive" title={copy.archive.title}>
     <Container>
-      <div class="button-group" role="group" aria-label={copy.filterLabel}>
-        {filters.map((filter) => (
-          <button
-            class:list={['button', filter === 'all' ? 'button--primary' : 'button--secondary']}
-            type="button"
-            data-publication-filter={filter}
-            aria-pressed={filter === 'all' ? 'true' : 'false'}
-          >
-            {copy.filters[filter]}
-          </button>
-        ))}
+      <div class="publication-section-intro">
+        <p>{copy.archive.intro}</p>
       </div>
-      <p class="entry-meta" data-publication-status aria-live="polite">{copy.showingAll}</p>
+      <div class="publication-archive-controls" aria-labelledby="publication-archive-filter-heading">
+        <p id="publication-archive-filter-heading" class="eyebrow">{copy.archive.filtersTitle}</p>
+        <div class="button-group" role="group" aria-label={copy.filterLabel}>
+          {filters.map((filter) => (
+            <button
+              class:list={['button', filter === 'all' ? 'button--primary' : 'button--secondary']}
+              type="button"
+              data-publication-filter={filter}
+              aria-pressed={filter === 'all' ? 'true' : 'false'}
+            >
+              {copy.filters[filter]}
+            </button>
+          ))}
+        </div>
+        <p class="entry-meta" data-publication-status aria-live="polite">{copy.showingAll}</p>
+      </div>
+      <ol class="publication-archive-list" data-publication-group="archive">
+        {publicationRecords.map((record) => (
+          <li data-publication-item data-type={record.type} data-year={record.year}>
+            <PublicationCard record={record} lang={lang} />
+          </li>
+        ))}
+      </ol>
     </Container>
   </PageSection>
-
-  {types.map((type) => {
-    const records = publicationRecords.filter((record) => record.type === type);
-    return (
-      <PageSection id={`${type}-publications`} title={copy.groups[type]}>
-        <Container>
-          <ul class="card-grid" role="list" data-publication-group={type}>
-            {records.map((record) => (
-              <li data-publication-item data-type={record.type} data-year={record.year}>
-                <PublicationCard record={record} lang={lang} />
-              </li>
-            ))}
-          </ul>
-        </Container>
-      </PageSection>
-    );
-  })}
 </div>
 
 <script is:inline src="/scripts/publication-filter.js?v=3" defer></script>

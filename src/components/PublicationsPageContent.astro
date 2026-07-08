@@ -1,5 +1,6 @@
 ---
 import { identity } from '../data/identity';
+import { publicationPath, publicationRecords } from '../data/publication-records';
 import { publicationsPageCopy } from '../data/publications';
 import type { Language } from '../i18n/config';
 import { localizedPath } from '../i18n/config';
@@ -7,7 +8,6 @@ import Button from './Button.astro';
 import Container from './Container.astro';
 import PageIntro from './PageIntro.astro';
 import PageSection from './PageSection.astro';
-import ProfileCard from './ProfileCard.astro';
 import PublicationPortfolio from './PublicationPortfolio.astro';
 
 type ProfileKey = (typeof identity.profiles)[number]['key'];
@@ -23,34 +23,79 @@ const identifierKeys: ProfileKey[] = ['googleScholar', 'orcid', 'researchGate', 
 const identifierProfiles = identifierKeys
   .map((key) => profilesByKey.get(key))
   .filter((profile) => profile !== undefined);
+const featuredSlugs = [
+  'comparative-xray-morphometry-moose-cattle',
+  'hoof-capsule-cattle-moose',
+  'xray-morphometric-laminitis-cattle-patent',
+];
+const featuredRecords = featuredSlugs
+  .map((slug) => publicationRecords.find((record) => record.slug === slug))
+  .filter((record) => record !== undefined);
 ---
 
-<div class="section-stack publications-sections">
+<div class="section-stack publications-sections publications-sections--v2">
   <PageIntro>
-    <Container class="section-copy section-copy--lead">
-      <p>{copy.hero}</p>
+    <Container class="publication-opening">
+      <p class="eyebrow">{copy.opening.title}</p>
+      <div class="publication-opening__grid">
+        <p class="publication-opening__lead">{copy.opening.lead}</p>
+        <div class="publication-opening__context">
+          <p>{copy.opening.context}</p>
+          <p class="entry-meta">{copy.hero}</p>
+          <Button href={localizedPath(lang, 'research')} variant="secondary">{copy.opening.researchLink}</Button>
+        </div>
+      </div>
     </Container>
   </PageIntro>
+
+  <PageSection id="selected-publications" title={copy.featured.title}>
+    <Container>
+      <div class="publication-section-intro">
+        <p>{copy.featured.intro}</p>
+      </div>
+      <ol class="publication-featured-list">
+        {featuredRecords.map((record) => (
+          <li>
+            <article class="publication-featured-record">
+              <p class="publication-record-meta">
+                <span>{copy.typeLabels[record.type]}</span>
+                <span>{record.year}</span>
+              </p>
+              <h3>
+                <a href={publicationPath(lang, record.slug)}>{record.title[lang]}</a>
+              </h3>
+              <p>{copy.featured.records[record.slug]}</p>
+              <a class="text-link" href={publicationPath(lang, record.slug)}>
+                {copy.viewRecord}<span aria-hidden="true"> →</span>
+              </a>
+            </article>
+          </li>
+        ))}
+      </ol>
+    </Container>
+  </PageSection>
 
   <PublicationPortfolio lang={lang} />
 
   <PageSection id="publication-identifiers" title={copy.identifiersTitle}>
     <Container>
-      <ul class="card-grid" role="list">
+      <div class="publication-section-intro">
+        <p>{copy.identifiersIntro}</p>
+      </div>
+      <ul class="publication-profile-list" role="list">
         {identifierProfiles.map((profile) => (
           <li>
-            <ProfileCard
-              profile={profile}
-              linkLabel={copy.profileLinkLabel}
-              externalLinkLabel={copy.externalLinkLabel}
-            />
+            <a href={profile.url} target="_blank" rel="me noopener noreferrer">
+              <span>{profile.name}</span>
+              <span>{copy.profileLinkLabel}<span class="sr-only">, {copy.externalLinkLabel}</span></span>
+            </a>
           </li>
         ))}
       </ul>
       <div class="button-group">
         <Button href={localizedPath(lang, 'research')}>{copy.relatedLinks.research}</Button>
         <Button href={localizedPath(lang, 'profiles')} variant="secondary">{copy.relatedLinks.profiles}</Button>
-        <Button href={localizedPath(lang, 'about')} variant="secondary">{lang === 'ru' ? 'Об авторе' : 'About the author'}</Button>
+        <Button href={localizedPath(lang, 'about')} variant="secondary">{copy.relatedLinks.about}</Button>
       </div>
     </Container>
   </PageSection>

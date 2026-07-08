@@ -10,14 +10,18 @@ interface Props {
 
 const { record, lang } = Astro.props;
 const copy = publicationsPageCopy[lang];
+const badges = [
+  record.doi ? `DOI ${record.doi}` : undefined,
+  record.edn ? `EDN ${record.edn}` : undefined,
+  record.patentNumber ? `${copy.typeLabels.patent} ${record.patentNumber}` : undefined,
+].filter((badge) => badge !== undefined);
 ---
 
-<ul class="publication-badges" role="list" aria-label={lang === 'ru' ? 'Библиографические признаки' : 'Bibliographic attributes'}>
-  <li>{copy.typeLabels[record.type]}</li>
-  <li>{record.year}</li>
-  {record.doi && <li>DOI {record.doi}</li>}
-  {record.edn && <li>EDN {record.edn}</li>}
-</ul>
+{badges.length > 0 && (
+  <ul class="publication-badges" role="list" aria-label={lang === 'ru' ? 'Идентификаторы записи' : 'Record identifiers'}>
+    {badges.map((badge) => <li>{badge}</li>)}
+  </ul>
+)}
 
 <style>
   .publication-badges {
@@ -25,18 +29,19 @@ const copy = publicationsPageCopy[lang];
     flex-wrap: wrap;
     gap: 0.4rem;
     padding: 0;
-    margin: 0 0 1rem;
+    margin: 0;
     list-style: none;
   }
 
   .publication-badges li {
-    padding: 0.25rem 0.5rem;
-    color: var(--accent-dark);
-    font-size: 0.75rem;
-    font-weight: 700;
+    padding: 0.25rem 0.55rem;
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 650;
     letter-spacing: 0.02em;
-    background: var(--surface);
-    border: 1px solid var(--line-strong);
+    background: transparent;
+    border: 1px solid var(--line);
     border-radius: 999px;
+    overflow-wrap: anywhere;
   }
 </style>

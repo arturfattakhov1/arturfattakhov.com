@@ -35,75 +35,220 @@ const formatDate = (date: string) => dateFormatter.format(new Date(`${date}T00:0
 />
 
 <article class="article publication-detail">
-  <header class="article-header">
-    <p class="eyebrow">{pageCopy.typeLabels[record.type]}</p>
+  <header class="article-header publication-detail__header">
+    <a class="text-link" href={localizedPath(lang, 'publications')}>
+      {copy.backToPublications}<span aria-hidden="true"> →</span>
+    </a>
+    <p class="eyebrow">{copy.recordOpening}</p>
     <h1>{record.title[lang]}</h1>
-    <p class="lead">{record.abstract[lang]}</p>
+    <p class="lead">{record.researchArea[lang]}</p>
+    <p class="publication-record-meta">
+      <span>{pageCopy.typeLabels[record.type]}</span>
+      <span>{record.year}</span>
+      {record.patentNumber && <span>{record.patentNumber}</span>}
+    </p>
     <PublicationBadges record={record} lang={lang} />
   </header>
 
   <div class="prose">
-    <section aria-labelledby="bibliographic-record-heading">
-      <h2 id="bibliographic-record-heading">{copy.bibliographicRecord}</h2>
-      <p><strong>{copy.authors}:</strong> {record.authors.join(', ')}</p>
-      <p><strong>{copy.type}:</strong> {pageCopy.typeLabels[record.type]}</p>
-      <p><strong>{copy.venue}:</strong> {record.venue}</p>
-      <p><strong>{copy.year}:</strong> {record.year}</p>
-      {record.volume && <p><strong>{copy.volume}:</strong> {record.volume}</p>}
-      {record.issue && <p><strong>{copy.issue}:</strong> {record.issue}</p>}
-      {record.pages && <p><strong>{copy.pages}:</strong> {record.pages}</p>}
-      {record.location && <p><strong>{copy.location}:</strong> {record.location[lang]}</p>}
-      {record.eventDate && <p><strong>{copy.eventDate}:</strong> {record.eventDate[lang]}</p>}
-      {record.publisher && <p><strong>{copy.publisher}:</strong> {record.publisher}</p>}
-      {record.doi && <p><strong>DOI:</strong> <a href={`https://doi.org/${record.doi}`} target="_blank" rel="noopener noreferrer">{record.doi}</a></p>}
-      {record.edn && <p><strong>EDN:</strong> {record.edn}</p>}
-      {record.orcid && <p><strong>ORCID:</strong> <a href={`https://orcid.org/${record.orcid}`} target="_blank" rel="me noopener noreferrer">{record.orcid}</a></p>}
-      {record.patentNumber && <p><strong>{copy.patentNumber}:</strong> {record.patentNumber}</p>}
-      {record.applicationNumber && <p><strong>{copy.applicationNumber}:</strong> {record.applicationNumber}</p>}
-      {record.patentHolder && <p><strong>{copy.patentHolder}:</strong> {record.patentHolder}</p>}
-      {record.priorityDate && <p><strong>{copy.priorityDate}:</strong> <time datetime={record.priorityDate}>{formatDate(record.priorityDate)}</time></p>}
-      {record.registrationDate && <p><strong>{copy.registrationDate}:</strong> <time datetime={record.registrationDate}>{formatDate(record.registrationDate)}</time></p>}
-      {record.expirationDate && <p><strong>{copy.expirationDate}:</strong> <time datetime={record.expirationDate}>{formatDate(record.expirationDate)}</time></p>}
-      {record.dates?.map((date) => <p><strong>{date.label[lang]}:</strong> <time datetime={date.value}>{formatDate(date.value)}</time></p>)}
-      {record.notes && <p><strong>{copy.notes}:</strong> {record.notes[lang]}</p>}
+    <section aria-labelledby="subject-context-heading">
+      <h2 id="subject-context-heading">{copy.subjectAndRelevance}</h2>
+      <dl class="publication-detail-dl">
+        <div>
+          <dt>{copy.abstract}</dt>
+          <dd>{record.abstract[lang]}</dd>
+        </div>
+        <div>
+          <dt>{copy.researchArea}</dt>
+          <dd>{record.researchArea[lang]}</dd>
+        </div>
+        <div>
+          <dt>{copy.methods}</dt>
+          <dd>{record.methods[lang]}</dd>
+        </div>
+        <div>
+          <dt>{copy.keyFindings}</dt>
+          <dd>{record.keyFindings[lang]}</dd>
+        </div>
+        <div>
+          <dt>{copy.practicalSignificance}</dt>
+          <dd>{record.practicalSignificance[lang]}</dd>
+        </div>
+        <div>
+          <dt>{copy.keywords}</dt>
+          <dd>{record.keywords[lang].join(' · ')}</dd>
+        </div>
+      </dl>
     </section>
 
-    <section aria-labelledby="abstract-heading">
-      <h2 id="abstract-heading">{copy.abstract}</h2>
-      <p>{record.abstract[lang]}</p>
+    <section aria-labelledby="formal-record-heading">
+      <h2 id="formal-record-heading">{copy.formalRecord}</h2>
+      <dl class="publication-detail-dl publication-detail-dl--formal">
+        <div>
+          <dt>{copy.authors}</dt>
+          <dd>{record.authors.join(', ')}</dd>
+        </div>
+        <div>
+          <dt>{copy.type}</dt>
+          <dd>{pageCopy.typeLabels[record.type]}</dd>
+        </div>
+        <div>
+          <dt>{copy.venue}</dt>
+          <dd>{record.venue}</dd>
+        </div>
+        <div>
+          <dt>{copy.year}</dt>
+          <dd>{record.year}</dd>
+        </div>
+        {record.volume && (
+          <div>
+            <dt>{copy.volume}</dt>
+            <dd>{record.volume}</dd>
+          </div>
+        )}
+        {record.issue && (
+          <div>
+            <dt>{copy.issue}</dt>
+            <dd>{record.issue}</dd>
+          </div>
+        )}
+        {record.pages && (
+          <div>
+            <dt>{copy.pages}</dt>
+            <dd>{record.pages}</dd>
+          </div>
+        )}
+        {record.location && (
+          <div>
+            <dt>{copy.location}</dt>
+            <dd>{record.location[lang]}</dd>
+          </div>
+        )}
+        {record.eventDate && (
+          <div>
+            <dt>{copy.eventDate}</dt>
+            <dd>{record.eventDate[lang]}</dd>
+          </div>
+        )}
+        {record.publisher && (
+          <div>
+            <dt>{copy.publisher}</dt>
+            <dd>{record.publisher}</dd>
+          </div>
+        )}
+        {record.doi && (
+          <div>
+            <dt>DOI</dt>
+            <dd>{record.doi}</dd>
+          </div>
+        )}
+        {record.edn && (
+          <div>
+            <dt>EDN</dt>
+            <dd>{record.edn}</dd>
+          </div>
+        )}
+        {record.orcid && (
+          <div>
+            <dt>ORCID</dt>
+            <dd>{record.orcid}</dd>
+          </div>
+        )}
+        {record.patentNumber && (
+          <div>
+            <dt>{copy.patentNumber}</dt>
+            <dd>{record.patentNumber}</dd>
+          </div>
+        )}
+        {record.applicationNumber && (
+          <div>
+            <dt>{copy.applicationNumber}</dt>
+            <dd>{record.applicationNumber}</dd>
+          </div>
+        )}
+        {record.patentHolder && (
+          <div>
+            <dt>{copy.patentHolder}</dt>
+            <dd>{record.patentHolder}</dd>
+          </div>
+        )}
+        {record.priorityDate && (
+          <div>
+            <dt>{copy.priorityDate}</dt>
+            <dd><time datetime={record.priorityDate}>{formatDate(record.priorityDate)}</time></dd>
+          </div>
+        )}
+        {record.registrationDate && (
+          <div>
+            <dt>{copy.registrationDate}</dt>
+            <dd><time datetime={record.registrationDate}>{formatDate(record.registrationDate)}</time></dd>
+          </div>
+        )}
+        {record.expirationDate && (
+          <div>
+            <dt>{copy.expirationDate}</dt>
+            <dd><time datetime={record.expirationDate}>{formatDate(record.expirationDate)}</time></dd>
+          </div>
+        )}
+        {record.dates?.map((date) => (
+          <div>
+            <dt>{date.label[lang]}</dt>
+            <dd><time datetime={date.value}>{formatDate(date.value)}</time></dd>
+          </div>
+        ))}
+        {record.notes && (
+          <div>
+            <dt>{copy.notes}</dt>
+            <dd>{record.notes[lang]}</dd>
+          </div>
+        )}
+      </dl>
     </section>
 
-    <section aria-labelledby="keywords-heading">
-      <h2 id="keywords-heading">{copy.keywords}</h2>
-      <p>{record.keywords[lang].join(' · ')}</p>
+    <section aria-labelledby="verification-heading">
+      <h2 id="verification-heading">{copy.verification}</h2>
+      {(record.doi || record.orcid || record.edn || record.patentNumber) ? (
+        <ul class="publication-verification-list" role="list">
+          {record.doi && (
+            <li>
+              <span>DOI</span>
+              <a href={`https://doi.org/${record.doi}`} target="_blank" rel="noopener noreferrer">
+                {copy.externalDoi}<span class="sr-only">: {record.doi}</span>
+              </a>
+            </li>
+          )}
+          {record.orcid && (
+            <li>
+              <span>ORCID</span>
+              <a href={`https://orcid.org/${record.orcid}`} target="_blank" rel="me noopener noreferrer">
+                {copy.externalOrcid}<span class="sr-only">: {record.orcid}</span>
+              </a>
+            </li>
+          )}
+          {record.edn && (
+            <li>
+              <span>EDN</span>
+              <span>{record.edn}</span>
+            </li>
+          )}
+          {record.patentNumber && (
+            <li>
+              <span>{copy.patentNumber}</span>
+              <span>{record.patentNumber}</span>
+            </li>
+          )}
+        </ul>
+      ) : (
+        <p>{copy.noExternalIdentifier}</p>
+      )}
     </section>
 
-    <section aria-labelledby="research-area-heading">
-      <h2 id="research-area-heading">{copy.researchArea}</h2>
-      <p>{record.researchArea[lang]}</p>
-    </section>
-
-    <section aria-labelledby="methods-heading">
-      <h2 id="methods-heading">{copy.methods}</h2>
-      <p>{record.methods[lang]}</p>
-    </section>
-
-    <section aria-labelledby="findings-heading">
-      <h2 id="findings-heading">{copy.keyFindings}</h2>
-      <p>{record.keyFindings[lang]}</p>
-    </section>
-
-    <section aria-labelledby="significance-heading">
-      <h2 id="significance-heading">{copy.practicalSignificance}</h2>
-      <p>{record.practicalSignificance[lang]}</p>
-    </section>
-
-    <section aria-labelledby="related-pages-heading">
-      <h2 id="related-pages-heading">{copy.relatedPages}</h2>
+    <section aria-labelledby="related-context-heading">
+      <h2 id="related-context-heading">{copy.relatedContext}</h2>
       <div class="button-group">
-        <Button href={localizedPath(lang, 'publications')} variant="secondary">{copy.backToPublications}</Button>
+        <Button href={localizedPath(lang, 'publications')} variant="secondary">{copy.publicationsLink}</Button>
         <Button href={localizedPath(lang, 'research')}>{copy.researchLink}</Button>
-        <Button href={localizedPath(lang, 'knowledge')} variant="secondary">{lang === 'ru' ? 'База знаний' : 'Knowledge Hub'}</Button>
+        <Button href={localizedPath(lang, 'knowledge')} variant="secondary">{copy.knowledgeLink}</Button>
       </div>
     </section>
   </div>
