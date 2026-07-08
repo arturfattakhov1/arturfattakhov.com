@@ -4,8 +4,6 @@ import { projectsPageCopy } from '../data/remaining-pages';
 import type { Language } from '../i18n/config';
 import { localizedPath } from '../i18n/config';
 import Button from './Button.astro';
-import Card from './Card.astro';
-import CollectionPlaceholder from './CollectionPlaceholder.astro';
 import Container from './Container.astro';
 import KnowledgeHubNavigation from './KnowledgeHubNavigation.astro';
 import ProjectsSections from './ProjectsSections.astro';
@@ -15,53 +13,87 @@ interface Props {
   entries: CollectionEntry<'projects'>[];
 }
 
-const { lang, entries } = Astro.props;
+const { lang } = Astro.props;
 const copy = projectsPageCopy[lang];
 ---
 
 <ProjectsSections lang={lang}>
   <Fragment slot="hero">
-    <Container class="section-copy section-copy--lead"><p>{copy.hero}</p></Container>
-  </Fragment>
-
-  <Fragment slot="focus">
-    <Container class="section-copy"><p>{copy.focus}</p></Container>
-  </Fragment>
-
-  <Fragment slot="projects">
-    <Container>
-      {entries.length > 0 ? (
-        <ol class="entry-list project-list">
-          {entries.map((entry) => (
-            <li>
-              <article>
-                <p class="entry-meta">{entry.data.startYear} — {copy.statusLabels[entry.data.status]}</p>
-                <h3>
-                  {entry.data.url ? (
-                    <a href={entry.data.url} target="_blank" rel="noopener noreferrer">{entry.data.title}</a>
-                  ) : entry.data.title}
-                </h3>
-                <p>{entry.data.description}</p>
-              </article>
-            </li>
-          ))}
-        </ol>
-      ) : (
-        <CollectionPlaceholder collection="projects" title={copy.placeholder.title} description={copy.placeholder.description} />
-      )}
+    <Container class="project-opening">
+      <p class="eyebrow">{copy.opening.eyebrow}</p>
+      <p class="project-opening__lead">{copy.opening.lead}</p>
+      <p class="project-opening__context">{copy.opening.context}</p>
     </Container>
   </Fragment>
 
-  <Fragment slot="future">
+  <Fragment slot="project">
     <Container>
-      <ul class="card-grid card-grid--three" role="list">
-        {copy.futureStructure.map((item) => <li><Card {...item} /></li>)}
-      </ul>
-      <KnowledgeHubNavigation lang={lang} />
-      <div class="button-group">
-        <Button href={localizedPath(lang, 'publications')}>{copy.publicationsCta}</Button>
-        <Button href={localizedPath(lang, 'research')} variant="secondary">{lang === 'ru' ? 'Исследования' : 'Research'}</Button>
-        <Button href={localizedPath(lang, 'contact')} variant="secondary">{lang === 'ru' ? 'Контакты' : 'Contact'}</Button>
+      <article class="project-profile">
+        <p class="project-profile__label">{copy.project.label}</p>
+        <h3>{copy.project.subject}</h3>
+        <dl class="project-profile__meta">
+          <div>
+            <dt>{copy.project.statusLabel}</dt>
+            <dd>{copy.project.status}</dd>
+          </div>
+          <div>
+            <dt>{copy.project.roleLabel}</dt>
+            <dd>{copy.project.role}</dd>
+          </div>
+        </dl>
+        <p class="project-profile__description">{copy.project.description}</p>
+        <div class="project-profile__model">
+          <h4>{copy.project.modelTitle}</h4>
+          <p>{copy.project.model}</p>
+        </div>
+      </article>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="development">
+    <Container>
+      <p class="project-section-lead">{copy.development.lead}</p>
+      <ol class="project-development-list">
+        {copy.development.items.map((item, index) => (
+          <li>
+            <span class="project-list-index">{String(index + 1).padStart(2, '0')}</span>
+            <div>
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="principles">
+    <Container>
+      <p class="project-section-lead">{copy.principles.lead}</p>
+      <dl class="project-principles-list">
+        {copy.principles.items.map((item) => (
+          <div>
+            <dt>{item.title}</dt>
+            <dd>{item.description}</dd>
+          </div>
+        ))}
+      </dl>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="position">
+    <Container>
+      <p class="project-position__lead">{copy.currentPosition.lead}</p>
+      <div class="project-position__links">
+        <p>{copy.currentPosition.routesLabel}</p>
+        <div class="button-group">
+          <Button href={localizedPath(lang, 'about')}>{copy.currentPosition.routes.about}</Button>
+          <Button href={localizedPath(lang, 'contact')} variant="secondary">{copy.currentPosition.routes.contact}</Button>
+          <Button href={localizedPath(lang, 'research')} variant="secondary">{copy.currentPosition.routes.research}</Button>
+        </div>
+      </div>
+      <div class="project-reference-links">
+        <KnowledgeHubNavigation lang={lang} />
       </div>
     </Container>
   </Fragment>

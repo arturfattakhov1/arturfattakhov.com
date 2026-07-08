@@ -2,34 +2,94 @@ import type { Language } from '../i18n/config';
 
 export const projectsPageCopy = {
   ru: {
-    hero: 'Раздел описывает текущую профессиональную работу, будущие инициативы и долгосрочные направления развития. Здесь не публикуются названия или результаты проектов без подтверждённых данных.',
-    focus: 'Текущая предпринимательская работа связана с развитием выездной ветеринарной службы для собак и кошек. В центре внимания находятся организация помощи на дому, понятные клинические процессы, последовательность решений и ответственное использование цифровых инструментов.',
-    placeholder: {
-      title: 'Будущие инициативы будут описываться отдельно',
-      description: 'Карточка появится только после проверки публичного названия, цели, статуса, роли Артура Фаттахова и доступных первичных ссылок. Идеи и направления не будут представлены как действующие проекты.',
+    opening: {
+      eyebrow: 'Проекты',
+      lead: 'На этой странице представлен один проект в разработке, связанный с ветеринарной помощью на дому для кошек и собак.',
+      context: 'Раздел фиксирует только проверенное направление работы. Проект пока не имеет публичного названия, находится на ранней стадии и описывается здесь без коммерческих обещаний, сроков перехода к публичной работе или операционных заявлений.',
     },
-    futureStructure: [
-      { title: 'Непрерывность ветеринарной помощи', description: 'Долгосрочный ориентир — более последовательный путь пациента от первичного обращения до наблюдения и повторной оценки.' },
-      { title: 'Качество клинических процессов', description: 'Развитие понятных и воспроизводимых рабочих подходов без подмены профессионального суждения.' },
-      { title: 'Ответственное применение технологий', description: 'Использование цифровых инструментов и искусственного интеллекта только там, где их роль и ограничения можно объяснить и проверить.' },
-    ],
-    statusLabels: { active: 'Активный проект', completed: 'Завершён', paused: 'Приостановлен' },
-    publicationsCta: 'Связанные публикации и патент',
+    project: {
+      label: 'Проект в разработке',
+      subject: 'Ветеринарная служба на дому для кошек и собак',
+      statusLabel: 'Статус',
+      status: 'Ранняя стадия разработки',
+      roleLabel: 'Роль',
+      role: 'Основатель',
+      description: 'Ветеринарная служба на дому для кошек и собак, разрабатываемая по модели controlled marketplace. Проект находится на ранней стадии: формируются базовые подходы к медицинской документации, сбору анамнеза и структуре клинического осмотра.',
+      modelTitle: 'Предполагаемая модель',
+      model: 'Controlled marketplace рассматривается как проектируемая система, в которой помощь может быть организована через стандартизированные процессы, единые ожидания к качеству, понятные рабочие документы и контролируемую структуру взаимодействия с ветеринарными специалистами.',
+    },
+    development: {
+      lead: 'Сейчас существуют только ранние рабочие материалы. Они не являются финальными формами, утверждёнными стандартами или внедрёнными процессами.',
+      items: [
+        { title: 'Сбор анамнеза', description: 'Подготавливается предварительная структура вопросов и данных, которые могут быть важны перед домашним ветеринарным визитом.' },
+        { title: 'Клинический осмотр', description: 'Формируется ранняя структура описания осмотра, чтобы будущая документация была последовательной и понятной.' },
+        { title: 'Медицинская документация', description: 'Разрабатываются черновые подходы к записи клинической информации без утверждения финального формата.' },
+        { title: 'Принципы стандартизации', description: 'Определяются базовые принципы, которые в дальнейшем могут поддерживать согласованность процессов помощи.' },
+      ],
+    },
+    principles: {
+      lead: 'Планируемое направление строится вокруг осторожного развития процессов, а не вокруг заявления о публичной доступности.',
+      items: [
+        { title: 'Помощь на дому', description: 'Предмет проекта — ветеринарная помощь кошкам и собакам в домашних условиях.' },
+        { title: 'Документирование', description: 'В центре подготовки находятся анамнез, осмотр и структура медицинской записи.' },
+        { title: 'Клиническая ответственность', description: 'Клиническое решение остаётся ответственностью ветеринарного врача.' },
+        { title: 'Цифровые процессы', description: 'В дальнейшем могут рассматриваться цифровые инструменты и ИИ для поддержки административных и документальных процессов.' },
+      ],
+    },
+    currentPosition: {
+      lead: 'Проект остаётся направлением в разработке. На этой странице не предлагаются заявка на обслуживание, форма записи, дата начала работы или описание состава специалистов.',
+      routesLabel: 'Связанные разделы',
+      routes: {
+        about: 'Профессиональный профиль',
+        contact: 'Контактная страница',
+        research: 'Исследовательский контекст',
+      },
+    },
   },
   en: {
-    hero: 'This section describes current professional work, future initiatives, and long-term directions. Project names or outcomes are not published without verified supporting information.',
-    focus: 'Current entrepreneurial work concerns the development of a home veterinary service for dogs and cats. The focus is on the organisation of care at home, clear clinical workflows, consistent decision-making, and responsible use of digital tools.',
-    placeholder: {
-      title: 'Future initiatives will be documented separately',
-      description: 'A project card will appear only after its public name, purpose, status, Artur Fattakhov’s role, and available primary links have been verified. Ideas and directions will not be presented as active projects.',
+    opening: {
+      eyebrow: 'Projects',
+      lead: 'This page presents one project in development connected with veterinary house-call care for cats and dogs.',
+      context: 'The section records only the verified direction of work. The project does not yet have a public name, remains at an early development stage, and is described here without commercial promises, dates for public availability, or operational claims.',
     },
-    futureStructure: [
-      { title: 'Continuity of veterinary care', description: 'The long-term direction is a more consistent patient pathway from initial contact to follow-up and reassessment.' },
-      { title: 'Quality of clinical processes', description: 'Developing clear and reproducible working approaches without replacing professional judgement.' },
-      { title: 'Responsible use of technology', description: 'Using digital tools and artificial intelligence only where their role and limitations can be explained and evaluated.' },
-    ],
-    statusLabels: { active: 'Active project', completed: 'Completed', paused: 'Paused' },
-    publicationsCta: 'Related publications and patent',
+    project: {
+      label: 'Project in development',
+      subject: 'Veterinary house-call service for cats and dogs',
+      statusLabel: 'Status',
+      status: 'Early development stage',
+      roleLabel: 'Role',
+      role: 'Founder',
+      description: 'A veterinary house-call service for cats and dogs being developed around a controlled marketplace model. The project is at an early stage, with foundational work focused on medical documentation, anamnesis structure, and clinical examination structure.',
+      modelTitle: 'Intended model',
+      model: 'Controlled marketplace is considered as a planned system in which care may be organized through standardized processes, shared quality expectations, clear working documents, and a controlled structure for collaboration with veterinary professionals.',
+    },
+    development: {
+      lead: 'Only early working materials currently exist. They are not final forms, approved standards, or implemented workflows.',
+      items: [
+        { title: 'Anamnesis collection', description: 'A preliminary structure is being prepared for questions and data that may be relevant before a veterinary house call.' },
+        { title: 'Clinical examination', description: 'An early examination structure is being shaped so future documentation can remain consistent and readable.' },
+        { title: 'Medical documentation', description: 'Draft approaches to recording clinical information are being developed without presenting a final format.' },
+        { title: 'Standardization principles', description: 'Foundational principles are being defined to later support consistency of care processes.' },
+      ],
+    },
+    principles: {
+      lead: 'The development direction is built around cautious process design, not around a claim of public availability.',
+      items: [
+        { title: 'House-call care', description: 'The subject of the project is veterinary care for cats and dogs at home.' },
+        { title: 'Documentation', description: 'Preparation is focused on anamnesis, examination, and medical record structure.' },
+        { title: 'Clinical responsibility', description: 'Veterinary clinical judgment remains the responsibility of the veterinarian.' },
+        { title: 'Digital processes', description: 'Digital tools and AI may later be considered to support administrative and documentation processes.' },
+      ],
+    },
+    currentPosition: {
+      lead: 'The project remains a development direction. This page does not offer a service request, booking form, date for public availability, or description of the professionals involved.',
+      routesLabel: 'Related sections',
+      routes: {
+        about: 'Professional profile',
+        contact: 'Contact page',
+        research: 'Research context',
+      },
+    },
   },
 } as const satisfies Record<Language, Record<string, unknown>>;
 

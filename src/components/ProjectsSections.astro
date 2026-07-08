@@ -6,15 +6,26 @@ import PageSection from './PageSection.astro';
 interface Props { lang: Language; }
 const { lang } = Astro.props;
 const headings = {
-  ru: { focus: 'Текущая работа', projects: 'Будущие инициативы', future: 'Долгосрочное направление' },
-  en: { focus: 'Current work', projects: 'Future initiatives', future: 'Long-term direction' },
+  ru: {
+    project: 'Единственный проект',
+    development: 'Что существует сейчас',
+    principles: 'Предполагаемые принципы',
+    position: 'Текущая позиция',
+  },
+  en: {
+    project: 'The single project',
+    development: 'What currently exists',
+    principles: 'Intended principles',
+    position: 'Current position',
+  },
 } as const satisfies Record<Language, Record<string, string>>;
 const copy = headings[lang];
 ---
 
-<div class="section-stack projects-sections">
+<div class="section-stack projects-sections projects-sections--v2">
   <PageIntro><slot name="hero" /></PageIntro>
-  <PageSection id="project-focus" title={copy.focus}><slot name="focus" /></PageSection>
-  <PageSection id="project-cards" title={copy.projects}><slot name="projects" /></PageSection>
-  <PageSection id="future-project-structure" title={copy.future}><slot name="future" /></PageSection>
+  <PageSection id="project-profile" title={copy.project}><slot name="project" /></PageSection>
+  <PageSection id="project-development" title={copy.development}><slot name="development" /></PageSection>
+  <PageSection id="project-principles" title={copy.principles}><slot name="principles" /></PageSection>
+  <PageSection id="project-position" title={copy.position}><slot name="position" /></PageSection>
 </div>
