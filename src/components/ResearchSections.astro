@@ -11,32 +11,44 @@ const { lang } = Astro.props;
 
 const headings = {
   ru: {
-    interests: 'Исследовательские интересы',
-    currentResearch: 'Текущие исследования',
-    publications: 'Публикации',
-    patents: 'Патенты',
-    profiles: 'Академические профили',
-    futureDirections: 'Будущие направления',
+    question: 'Исследовательский вопрос',
+    focus: 'Фокус исследования',
+    approach: 'Материал и подход',
+    outputs: 'Проверенные научные результаты',
+    practice: 'Связь с профессиональной практикой',
+    profiles: 'Полная запись и профили',
   },
   en: {
-    interests: 'Research Interests',
-    currentResearch: 'Current Research',
-    publications: 'Publications',
-    patents: 'Patents',
-    profiles: 'Academic Profiles',
-    futureDirections: 'Future Directions',
+    question: 'Research question',
+    focus: 'Research focus',
+    approach: 'Material and approach',
+    outputs: 'Verified scholarly outputs',
+    practice: 'Research and professional practice',
+    profiles: 'Complete record and profiles',
   },
 } as const satisfies Record<Language, Record<string, string>>;
 
 const copy = headings[lang];
 ---
 
-<div class="section-stack research-sections">
-  <PageIntro><slot name="hero" /></PageIntro>
-  <PageSection id="research-interests" title={copy.interests}><slot name="interests" /></PageSection>
-  <PageSection id="current-research" title={copy.currentResearch}><slot name="current-research" /></PageSection>
-  <PageSection id="research-publications" title={copy.publications}><slot name="publications" /></PageSection>
-  <PageSection id="research-patents" title={copy.patents}><slot name="patents" /></PageSection>
-  <PageSection id="academic-profiles" title={copy.profiles}><slot name="profiles" /></PageSection>
-  <PageSection id="future-directions" title={copy.futureDirections}><slot name="future-directions" /></PageSection>
+<div class="section-stack research-sections research-sections--v2">
+  <PageIntro class="research-opening"><slot name="opening" /></PageIntro>
+  <PageSection id="research-question" title={copy.question} class="research-question" density="open">
+    <slot name="question" />
+  </PageSection>
+  <PageSection id="research-focus" title={copy.focus} class="research-focus" density="editorial">
+    <slot name="focus" />
+  </PageSection>
+  <PageSection id="material-and-approach" title={copy.approach} class="research-approach" density="editorial">
+    <slot name="approach" />
+  </PageSection>
+  <PageSection id="scholarly-outputs" title={copy.outputs} class="research-outputs" density="open">
+    <slot name="outputs" />
+  </PageSection>
+  <PageSection id="research-and-practice" title={copy.practice} class="research-practice" density="editorial">
+    <slot name="practice" />
+  </PageSection>
+  <PageSection id="complete-record" title={copy.profiles} class="research-profiles" density="editorial">
+    <slot name="profiles" />
+  </PageSection>
 </div>
