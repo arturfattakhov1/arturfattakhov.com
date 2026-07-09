@@ -6,16 +6,26 @@ import PageSection from './PageSection.astro';
 interface Props { lang: Language; }
 const { lang } = Astro.props;
 const headings = {
-  ru: { interviews: 'Интервью', articles: 'Статьи', videos: 'Видео', podcasts: 'Подкасты' },
-  en: { interviews: 'Interviews', articles: 'Articles', videos: 'Videos', podcasts: 'Podcasts' },
+  ru: {
+    interview: 'Избранное интервью',
+    coverage: 'Освещение научного проекта',
+    owned: 'Авторские медиа',
+    context: 'Профессиональный контекст',
+  },
+  en: {
+    interview: 'Featured interview',
+    coverage: 'Scientific project coverage',
+    owned: 'Owned media',
+    context: 'Professional context',
+  },
 } as const satisfies Record<Language, Record<string, string>>;
 const copy = headings[lang];
 ---
 
-<div class="section-stack media-sections">
+<div class="section-stack media-sections media-sections--v2">
   <PageIntro><slot name="hero" /></PageIntro>
-  <PageSection id="media-interviews" title={copy.interviews}><slot name="interviews" /></PageSection>
-  <PageSection id="media-articles" title={copy.articles}><slot name="articles" /></PageSection>
-  <PageSection id="media-videos" title={copy.videos}><slot name="videos" /></PageSection>
-  <PageSection id="media-podcasts" title={copy.podcasts}><slot name="podcasts" /></PageSection>
+  <PageSection id="featured-interview" title={copy.interview} density="editorial"><slot name="interview" /></PageSection>
+  <PageSection id="scientific-project-coverage" title={copy.coverage} density="editorial"><slot name="coverage" /></PageSection>
+  <PageSection id="owned-media" title={copy.owned} density="editorial"><slot name="owned" /></PageSection>
+  <PageSection id="media-context" title={copy.context} density="editorial"><slot name="context" /></PageSection>
 </div>

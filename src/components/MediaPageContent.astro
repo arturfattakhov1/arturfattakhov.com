@@ -1,36 +1,150 @@
 ---
 import { mediaPageCopy } from '../data/remaining-pages';
+import { identity } from '../data/identity';
 import type { Language } from '../i18n/config';
 import { localizedPath } from '../i18n/config';
 import Button from './Button.astro';
-import CollectionPlaceholder from './CollectionPlaceholder.astro';
 import Container from './Container.astro';
 import MediaSections from './MediaSections.astro';
 
 interface Props { lang: Language; }
 const { lang } = Astro.props;
 const copy = mediaPageCopy[lang];
+const youtube = identity.profiles.find((profile) => profile.key === 'youtube');
 ---
 
 <MediaSections lang={lang}>
   <Fragment slot="hero">
-    <Container class="section-copy section-copy--lead">
-      <p>{copy.hero}</p>
+    <Container class="media-opening">
+      <p class="eyebrow">{copy.opening.eyebrow}</p>
+      <p class="media-opening__lead">{copy.opening.lead}</p>
+      <p class="media-opening__context">{copy.opening.context}</p>
       <div class="button-group">
-        <Button href={localizedPath(lang, 'contact')} variant="secondary">{copy.contactCta}</Button>
+        <Button href={localizedPath(lang, 'contact')} variant="secondary">{copy.opening.contactCta}</Button>
       </div>
     </Container>
   </Fragment>
-  <Fragment slot="interviews">
-    <Container><CollectionPlaceholder collection="media-interviews" {...copy.placeholders.interviews} /></Container>
+
+  <Fragment slot="interview">
+    <Container>
+      <article class="media-featured-record">
+        <div class="media-record-heading">
+          <p class="media-record-type">{copy.featuredInterview.type}</p>
+          <h3>{copy.featuredInterview.title}</h3>
+        </div>
+        <dl class="media-record-meta">
+          {copy.featuredInterview.meta.map((item) => (
+            <div>
+              <dt>{item.label}</dt>
+              <dd>{item.value}</dd>
+            </div>
+          ))}
+        </dl>
+        <p class="media-record-description">{copy.featuredInterview.description}</p>
+        <a class="media-record-link" href={copy.featuredInterview.url} target="_blank" rel="noopener noreferrer">
+          {copy.featuredInterview.linkLabel}<span aria-hidden="true"> →</span>
+        </a>
+      </article>
+    </Container>
   </Fragment>
-  <Fragment slot="articles">
-    <Container><CollectionPlaceholder collection="media-articles" {...copy.placeholders.articles} /></Container>
+
+  <Fragment slot="coverage">
+    <Container>
+      <div class="media-coverage-intro">
+        <p>{copy.scientificCoverage.introduction}</p>
+        <p>{copy.scientificCoverage.role}</p>
+      </div>
+
+      <article class="media-primary-coverage">
+        <div class="media-record-heading">
+          <p class="media-record-type">{copy.scientificCoverage.primary.type}</p>
+          <h3>{copy.scientificCoverage.primary.title}</h3>
+        </div>
+        <p class="media-record-subtitle">{copy.scientificCoverage.primary.subtitle}</p>
+        <dl class="media-record-meta">
+          {copy.scientificCoverage.primary.meta.map((item) => (
+            <div>
+              <dt>{item.label}</dt>
+              <dd>{item.value}</dd>
+            </div>
+          ))}
+        </dl>
+        <p class="media-record-description">{copy.scientificCoverage.primary.description}</p>
+        <a class="media-record-link" href={copy.scientificCoverage.primary.url} target="_blank" rel="noopener noreferrer">
+          {copy.scientificCoverage.primary.linkLabel}<span aria-hidden="true"> →</span>
+        </a>
+      </article>
+
+      <div class="media-related-coverage" aria-labelledby="related-coverage-title">
+        <h3 id="related-coverage-title">{copy.scientificCoverage.relatedTitle}</h3>
+        <ol class="media-related-list">
+          {copy.scientificCoverage.related.map((record) => (
+            <li>
+              <article>
+                <p class="media-record-type">{record.type}</p>
+                <h4>{record.title}</h4>
+                <p class="media-record-description">{record.description}</p>
+                <dl class="media-related-meta">
+                  {record.meta.map((item) => (
+                    <div>
+                      <dt>{item.label}</dt>
+                      <dd>{item.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <a class="media-record-link" href={record.url} target="_blank" rel="noopener noreferrer">
+                  {record.linkLabel}<span aria-hidden="true"> →</span>
+                </a>
+              </article>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </Container>
   </Fragment>
-  <Fragment slot="videos">
-    <Container><CollectionPlaceholder collection="media-videos" {...copy.placeholders.videos} /></Container>
+
+  <Fragment slot="owned">
+    <Container>
+      <p class="media-section-lead">{copy.ownedMedia.introduction}</p>
+      <ol class="media-owned-list">
+        {youtube && (
+          <li>
+            <article>
+              <p class="media-record-type">{copy.ownedMedia.youtube.platform}</p>
+              <h3>{copy.ownedMedia.youtube.title}</h3>
+              <p>{copy.ownedMedia.youtube.description}</p>
+              <a class="media-record-link" href={youtube.url} target="_blank" rel="me noopener noreferrer">
+                {copy.ownedMedia.openChannel}<span aria-hidden="true"> →</span>
+              </a>
+            </article>
+          </li>
+        )}
+        <li>
+          <article>
+            <p class="media-record-type">{copy.ownedMedia.dzen.platform}</p>
+            <h3>{copy.ownedMedia.dzen.title}</h3>
+            <p>{copy.ownedMedia.dzen.description}</p>
+            <a class="media-record-link" href={copy.ownedMedia.dzen.url} target="_blank" rel="me noopener noreferrer">
+              {copy.ownedMedia.openChannel}<span aria-hidden="true"> →</span>
+            </a>
+          </article>
+        </li>
+      </ol>
+    </Container>
   </Fragment>
-  <Fragment slot="podcasts">
-    <Container><CollectionPlaceholder collection="media-podcasts" {...copy.placeholders.podcasts} /></Container>
+
+  <Fragment slot="context">
+    <Container>
+      <p class="media-section-lead">{copy.context.lead}</p>
+      <nav class="media-context-links" aria-label={copy.context.linksLabel}>
+        <p>{copy.context.linksLabel}</p>
+        <ul>
+          <li><a href={localizedPath(lang, 'about')}>{copy.context.links.about}</a></li>
+          <li><a href={localizedPath(lang, 'research')}>{copy.context.links.research}</a></li>
+          <li><a href={localizedPath(lang, 'publications')}>{copy.context.links.publications}</a></li>
+          <li><a href={localizedPath(lang, 'contact')}>{copy.context.links.contact}</a></li>
+        </ul>
+      </nav>
+    </Container>
   </Fragment>
 </MediaSections>
