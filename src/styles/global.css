@@ -449,6 +449,12 @@ h1 {
   margin-top: var(--space-4);
 }
 
+.page:has(.legal-sections) > .page-header h1 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
 .about-copy {
   max-width: var(--reading-column);
   color: var(--text-soft);
@@ -3485,6 +3491,10 @@ h1 {
 
   .page--home > .page-header {
     margin-bottom: var(--space-8);
+  }
+
+  .page:has(.legal-sections--privacy) > .page-header h1 {
+    font-size: clamp(1.85rem, 9.3vw, var(--font-page-title));
   }
 
   .home-opening {
