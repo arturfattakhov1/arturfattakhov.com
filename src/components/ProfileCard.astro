@@ -1,27 +1,50 @@
 ---
 import { identity } from '../data/identity';
-import Card from './Card.astro';
 
 type IdentityProfile = (typeof identity.profiles)[number];
 
 interface Props {
   profile: IdentityProfile;
-  linkLabel: string;
+  role: string;
+  description: string;
+  openLabel: string;
   externalLinkLabel: string;
-  description?: string;
+  identifier?: string;
+  identifierLabel?: string;
+  variant?: 'featured' | 'standard';
 }
 
-const { profile, linkLabel, externalLinkLabel, description } = Astro.props;
+const {
+  profile,
+  role,
+  description,
+  openLabel,
+  externalLinkLabel,
+  identifier,
+  identifierLabel,
+  variant = 'standard',
+} = Astro.props;
 ---
 
-<Card title={profile.name} description={description}>
+<article class:list={['profile-record', `profile-record--${variant}`]}>
+  <div class="profile-record__identity">
+    <p class="profile-record__role">{role}</p>
+    <h3>{profile.name}</h3>
+    {identifier && (
+      <p class="profile-record__identifier">
+        {identifierLabel && <span>{identifierLabel}</span>}
+        <strong>{identifier}</strong>
+      </p>
+    )}
+  </div>
+  <p class="profile-record__description">{description}</p>
   <a
-    class="profile-card-link"
+    class="profile-record__link"
     href={profile.url}
     target="_blank"
     rel="me noopener noreferrer"
-    aria-label={`${linkLabel}: ${profile.name} (${externalLinkLabel})`}
+    aria-label={`${openLabel} ${profile.name} (${externalLinkLabel})`}
   >
-    {linkLabel}<span aria-hidden="true"> ↗</span>
+    {openLabel} {profile.name}<span aria-hidden="true"> ↗</span>
   </a>
-</Card>
+</article>

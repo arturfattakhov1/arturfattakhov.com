@@ -1,5 +1,6 @@
 ---
 import type { Language } from '../i18n/config';
+import { profilesPageCopy } from '../data/profiles';
 import PageIntro from './PageIntro.astro';
 import PageSection from './PageSection.astro';
 
@@ -8,29 +9,13 @@ interface Props {
 }
 
 const { lang } = Astro.props;
-
-const headings = {
-  ru: {
-    research: 'Научные профили и идентификаторы',
-    professional: 'Профессиональные профили',
-    public: 'Публичные профили',
-    future: 'Проверка новых профилей',
-  },
-  en: {
-    research: 'Research profiles and identifiers',
-    professional: 'Professional profiles',
-    public: 'Public profiles',
-    future: 'Verification of new profiles',
-  },
-} as const satisfies Record<Language, Record<string, string>>;
-
-const copy = headings[lang];
+const copy = profilesPageCopy[lang];
 ---
 
-<div class="section-stack profiles-sections">
-  <PageIntro><slot name="hero" /></PageIntro>
-  <PageSection id="research-identifiers" title={copy.research}><slot name="research" /></PageSection>
-  <PageSection id="professional-profiles" title={copy.professional}><slot name="professional" /></PageSection>
-  <PageSection id="public-profiles" title={copy.public}><slot name="public" /></PageSection>
-  <PageSection id="future-profiles" title={copy.future}><slot name="future" /></PageSection>
+<div class="section-stack profiles-sections profiles-sections--v2">
+  <PageIntro class="profiles-opening"><slot name="opening" /></PageIntro>
+  <PageSection id="research-identity" title={copy.groups.research.title}><slot name="research" /></PageSection>
+  <PageSection id="professional-presence" title={copy.groups.professional.title}><slot name="professional" /></PageSection>
+  <PageSection id="publishing-channels" title={copy.groups.publishing.title}><slot name="publishing" /></PageSection>
+  <PageSection id="profile-verification" title={copy.verification.title}><slot name="verification" /></PageSection>
 </div>
