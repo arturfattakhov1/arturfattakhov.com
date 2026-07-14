@@ -67,6 +67,7 @@ if (page === 'profiles') {
   type={page === 'about' ? 'profile' : 'website'}
   schemaType={schemaType}
   schemaItems={schemaItems}
+  showVerifiedProfiles={page !== 'contact'}
 >
   {page === 'about' && <AboutPageContent lang={lang} />}
   {page === 'research' && <ResearchPageContent lang={lang} />}

@@ -1,14 +1,9 @@
 ---
-import { contactEmail, contactPageCopy } from '../data/contact';
-import { identity } from '../data/identity';
+import { contactFormEndpoint, contactPageCopy } from '../data/contact';
 import type { Language } from '../i18n/config';
 import { localizedPath } from '../i18n/config';
-import Button from './Button.astro';
-import Card from './Card.astro';
 import ContactSections from './ContactSections.astro';
 import Container from './Container.astro';
-import KnowledgeHubNavigation from './KnowledgeHubNavigation.astro';
-import ProfileCard from './ProfileCard.astro';
 
 interface Props {
   lang: Language;
@@ -16,60 +11,116 @@ interface Props {
 
 const { lang } = Astro.props;
 const copy = contactPageCopy[lang];
+const fieldId = (name: string) => `contact-${lang}-${name}`;
 ---
 
-<ContactSections lang={lang}>
+<ContactSections formTitle={copy.formTitle}>
   <Fragment slot="hero">
-    <Container class="section-copy section-copy--lead">
-      <p>{copy.hero}</p>
+    <Container size="reading" class="contact-opening__copy">
+      <p>{copy.introduction}</p>
     </Container>
   </Fragment>
 
-  <Fragment slot="email">
-    <Container>
-      <address class="contact-email-block">
-        <p>{copy.emailDescription}</p>
-        <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
-      </address>
-    </Container>
-  </Fragment>
-
-  <Fragment slot="inquiries">
-    <Container>
-      <ul class="card-grid" role="list">
-        {copy.inquiryTypes.map((item) => <li><Card {...item} /></li>)}
-      </ul>
-      <div class="button-group">
-        <Button href={localizedPath(lang, 'profiles')} variant="secondary">
-          {copy.profilesCta}
-        </Button>
-        <Button href={localizedPath(lang, 'about')} variant="secondary">
-          {lang === 'ru' ? 'Профессиональный профиль' : 'Professional profile'}
-        </Button>
-      </div>
-    </Container>
-  </Fragment>
-
-  <Fragment slot="profiles">
-    <Container>
-      <ul class="card-grid card-grid--profiles" role="list">
-        {identity.profiles.map((profile) => (
-          <li>
-            <ProfileCard
-              profile={profile}
-              linkLabel={copy.profileLinkLabel}
-              externalLinkLabel={copy.externalLinkLabel}
+  <Fragment slot="form">
+    <Container size="wide" class="contact-form-wrap">
+      <form
+        class="contact-form"
+        action={contactFormEndpoint}
+        method="POST"
+        accept-charset="UTF-8"
+        data-contact-form
+        data-required-message={copy.requiredError}
+        data-email-message={copy.emailError}
+        data-success-message={copy.success}
+        data-error-message={copy.error}
+      >
+        <div class="contact-form__name-row">
+          <div class="contact-form__field">
+            <label for={fieldId('first-name')}>{copy.fields.firstName.label}</label>
+            <input
+              id={fieldId('first-name')}
+              name="firstName"
+              type="text"
+              autocomplete="given-name"
+              maxlength="80"
+              required
             />
-          </li>
-        ))}
-      </ul>
-    </Container>
-  </Fragment>
+          </div>
 
-  <Fragment slot="response">
-    <Container class="section-copy">
-      <p>{copy.responseNote}</p>
-      <KnowledgeHubNavigation lang={lang} />
+          <div class="contact-form__field">
+            <label for={fieldId('last-name')}>{copy.fields.lastName.label}</label>
+            <input
+              id={fieldId('last-name')}
+              name="lastName"
+              type="text"
+              autocomplete="family-name"
+              maxlength="80"
+            />
+          </div>
+        </div>
+
+        <div class="contact-form__field">
+          <label for={fieldId('email')}>{copy.fields.email.label}</label>
+          <input
+            id={fieldId('email')}
+            name="email"
+            type="email"
+            inputmode="email"
+            autocomplete="email"
+            maxlength="254"
+            required
+          />
+        </div>
+
+        <div class="contact-form__field">
+          <label for={fieldId('message')}>{copy.fields.message.label}</label>
+          <textarea
+            id={fieldId('message')}
+            name="message"
+            placeholder={copy.fields.message.placeholder}
+            maxlength="5000"
+            rows="9"
+            required
+          ></textarea>
+        </div>
+
+        <div class="contact-form__honeypot" aria-hidden="true">
+          <label for={fieldId('gotcha')}>{copy.honeypotLabel}</label>
+          <input
+            id={fieldId('gotcha')}
+            name="_gotcha"
+            type="text"
+            autocomplete="off"
+            tabindex="-1"
+          />
+        </div>
+
+        <input type="hidden" name="subject" value="New message from arturfattakhov.com" />
+
+        <button
+          class="button button--primary contact-form__submit"
+          type="submit"
+          data-idle-label={copy.submit}
+          data-submitting-label={copy.submitting}
+        >
+          {copy.submit}
+        </button>
+
+        <p
+          class="contact-form__status"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          tabindex="-1"
+          data-contact-status
+        ></p>
+
+        <p class="contact-form__privacy">
+          {copy.privacy.beforeLink}<a href={localizedPath(lang, 'privacy')}>{copy.privacy.link}</a>{copy.privacy.afterLink}
+        </p>
+      </form>
     </Container>
   </Fragment>
 </ContactSections>
+
+<script is:inline src="/scripts/contact-form.js" defer></script>

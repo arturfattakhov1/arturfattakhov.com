@@ -14,6 +14,7 @@ interface Props {
   type?: 'profile' | 'article' | 'website';
   schemaType?: PageSchemaType;
   schemaItems?: SchemaListItem[];
+  showVerifiedProfiles?: boolean;
 }
 
 const {
@@ -25,10 +26,18 @@ const {
   type = 'website',
   schemaType,
   schemaItems,
+  showVerifiedProfiles = true,
 } = Astro.props;
 ---
 
-<BaseLayout title={title} description={description} lang={lang} canonicalPath={canonicalPath} type={type}>
+<BaseLayout
+  title={title}
+  description={description}
+  lang={lang}
+  canonicalPath={canonicalPath}
+  type={type}
+  showVerifiedProfiles={showVerifiedProfiles}
+>
   {showBreadcrumbs && <Breadcrumbs lang={lang} items={[{ label: title }]} />}
   <article class:list={['page', { 'page--home': !showBreadcrumbs }]}>
     <header class="page-header">

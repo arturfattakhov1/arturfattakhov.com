@@ -6,9 +6,10 @@ import { footerCoreNavigation, footerReferenceNavigation, ui } from '../i18n/ui'
 
 interface Props {
   lang: Language;
+  showVerifiedProfiles?: boolean;
 }
 
-const { lang } = Astro.props;
+const { lang, showVerifiedProfiles = true } = Astro.props;
 const verifiedProfileKeys = new Set(['orcid', 'googleScholar', 'webOfScience', 'researchGate', 'github']);
 const verifiedProfiles = identity.profiles.filter((profile) => verifiedProfileKeys.has(profile.key));
 ---
@@ -19,7 +20,7 @@ const verifiedProfiles = identity.profiles.filter((profile) => verifiedProfileKe
       <a class="site-footer__name" href={localizedPath(lang)}>{ui[lang].siteName}</a>
       <p>{ui[lang].footerRole}</p>
     </div>
-    <div class="site-footer__groups">
+    <div class:list={['site-footer__groups', { 'site-footer__groups--compact': !showVerifiedProfiles }]}>
       <nav aria-labelledby={`footer-core-${lang}`}>
         <h2 id={`footer-core-${lang}`}>{ui[lang].footerCore}</h2>
         <ul>
@@ -28,23 +29,25 @@ const verifiedProfiles = identity.profiles.filter((profile) => verifiedProfileKe
           ))}
         </ul>
       </nav>
-      <nav aria-labelledby={`footer-verification-${lang}`}>
-        <h2 id={`footer-verification-${lang}`}>{ui[lang].footerVerification}</h2>
-        <ul>
-          {verifiedProfiles.map((profile) => (
-            <li>
-              <a
-                href={profile.url}
-                target="_blank"
-                rel="me noopener noreferrer"
-                aria-label={`${profile.name} (${ui[lang].externalLinkLabel})`}
-              >
-                {profile.name}<span aria-hidden="true"> ↗</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      {showVerifiedProfiles && (
+        <nav aria-labelledby={`footer-verification-${lang}`}>
+          <h2 id={`footer-verification-${lang}`}>{ui[lang].footerVerification}</h2>
+          <ul>
+            {verifiedProfiles.map((profile) => (
+              <li>
+                <a
+                  href={profile.url}
+                  target="_blank"
+                  rel="me noopener noreferrer"
+                  aria-label={`${profile.name} (${ui[lang].externalLinkLabel})`}
+                >
+                  {profile.name}<span aria-hidden="true"> ↗</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
       <nav aria-labelledby={`footer-reference-${lang}`}>
         <h2 id={`footer-reference-${lang}`}>{ui[lang].footerReference}</h2>
         <ul>

@@ -25,7 +25,6 @@ const copy = legalPageCopy[lang][page];
     <PageSection id={section.id} title={section.title}>
       <Container class="section-copy legal-copy">
         {section.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
-        {section.email && <p><a href={`mailto:${section.email}`}>{section.email}</a></p>}
       </Container>
     </PageSection>
   ))}

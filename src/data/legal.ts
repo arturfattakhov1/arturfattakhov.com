@@ -6,15 +6,12 @@ interface LegalSection {
   id: string;
   title: string;
   paragraphs: string[];
-  email?: string;
 }
 
 interface LegalPageCopy {
   introduction: string;
   sections: LegalSection[];
 }
-
-const contactEmail = 'arturfattakhov1@gmail.com';
 
 export const legalPageCopy: Record<Language, Record<LegalPageSlug, LegalPageCopy>> = {
   ru: {
@@ -25,7 +22,7 @@ export const legalPageCopy: Record<Language, Record<LegalPageSlug, LegalPageCopy
           id: 'data-and-analytics',
           title: 'Данные и аналитика',
           paragraphs: [
-            'Сайт не требует регистрации и не содержит формы для сбора персональных данных. При загрузке страниц хостинг-провайдер может обрабатывать технические сведения, включая IP-адрес, тип устройства, время запроса и запрошенный URL. Такие данные используются для доставки сайта, обеспечения безопасности и анализа общей посещаемости.',
+            'Сайт не требует регистрации. При загрузке страниц хостинг-провайдер может обрабатывать технические сведения, включая IP-адрес, тип устройства, время запроса и запрошенный URL. Такие данные используются для доставки сайта, обеспечения безопасности и анализа общей посещаемости.',
             'На сайте не используется рекламное профилирование. Если в дальнейшем будет подключена отдельная аналитика, она должна использовать минимально необходимые данные; для технологий, требующих согласия, оно будет запрошено заранее.',
           ],
         },
@@ -38,11 +35,11 @@ export const legalPageCopy: Record<Language, Record<LegalPageSlug, LegalPageCopy
         },
         {
           id: 'contact',
-          title: 'Связь',
+          title: 'Контактная форма',
           paragraphs: [
-            'Артур Фаттахов является ответственным за обработку данных сайта в пределах его контроля. При обращении по электронной почте обрабатываются адрес отправителя и сведения, добровольно включённые в сообщение. Они используются только для ответа и ведения связанной переписки и не должны содержать лишние медицинские или иные чувствительные данные.',
+            'При отправке контактной формы обрабатываются имя, фамилия, email и текст сообщения. Эти данные используются для получения обращения, ответа на него и ведения связанной переписки.',
+            'Техническая передача и обработка формы выполняется через Formspree. Не следует отправлять через форму медицинские, финансовые или другие чувствительные данные. Данные формы не используются для рассылки без отдельного согласия.',
           ],
-          email: contactEmail,
         },
         {
           id: 'external-links',
@@ -63,9 +60,8 @@ export const legalPageCopy: Record<Language, Record<LegalPageSlug, LegalPageCopy
           title: 'Права пользователя',
           paragraphs: [
             'В пределах применимого законодательства можно запросить доступ, исправление или удаление персональных данных, ограничение обработки, переносимость данных либо возразить против обработки. Если обработка основана на согласии, его можно отозвать. Также можно обратиться в компетентный надзорный орган.',
-            'Запросы по вопросам конфиденциальности направляются по указанному ниже адресу. Для защиты данных может потребоваться разумное подтверждение личности.',
+            'Запросы по вопросам конфиденциальности можно направить через контактную форму сайта. Для защиты данных может потребоваться разумное подтверждение личности.',
           ],
-          email: contactEmail,
         },
       ],
     },
@@ -152,7 +148,7 @@ export const legalPageCopy: Record<Language, Record<LegalPageSlug, LegalPageCopy
           id: 'data-and-analytics',
           title: 'Data and analytics',
           paragraphs: [
-            'The website does not require registration and does not contain a personal-data collection form. When pages are requested, the hosting provider may process technical information such as IP address, device type, request time, and requested URL. This information is used to deliver the website, maintain security, and understand aggregate traffic.',
+            'The website does not require registration. When pages are requested, the hosting provider may process technical information such as IP address, device type, request time, and requested URL. This information is used to deliver the website, maintain security, and understand aggregate traffic.',
             'The website does not use advertising profiling. If a dedicated analytics service is introduced in the future, it must use the minimum data necessary; consent will be requested in advance where a technology requires it.',
           ],
         },
@@ -165,11 +161,11 @@ export const legalPageCopy: Record<Language, Record<LegalPageSlug, LegalPageCopy
         },
         {
           id: 'contact',
-          title: 'Contact',
+          title: 'Contact form',
           paragraphs: [
-            'Artur Fattakhov is the controller for website data processed under his control. When someone makes contact by email, the sender’s address and information voluntarily included in the message are processed. They are used only to respond and manage related correspondence. Messages should not contain unnecessary medical or other sensitive information.',
+            'When the contact form is submitted, the first name, last name, email address, and message text are processed. This information is used to receive and respond to the inquiry and to manage related correspondence.',
+            'The form is technically transmitted and processed through Formspree. Medical, financial, or other sensitive information should not be submitted through the form. Form data is not used for mailing lists without separate consent.',
           ],
-          email: contactEmail,
         },
         {
           id: 'external-links',
@@ -190,9 +186,8 @@ export const legalPageCopy: Record<Language, Record<LegalPageSlug, LegalPageCopy
           title: 'Individual rights',
           paragraphs: [
             'Subject to applicable law, individuals may request access, correction, deletion, restriction, or portability of their personal data, or object to its processing. Where processing relies on consent, consent may be withdrawn. Individuals may also complain to a competent supervisory authority.',
-            'Privacy requests can be sent to the address below. Reasonable identity verification may be required to protect personal data.',
+            'Privacy requests can be submitted through the website contact form. Reasonable identity verification may be required to protect personal data.',
           ],
-          email: contactEmail,
         },
       ],
     },

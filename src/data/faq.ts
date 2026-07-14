@@ -59,7 +59,7 @@ export const faqPageCopy: Record<Language, FaqPageCopy> = {
         items: [
           { question: 'Зачем нужна профессиональная хронология?', answer: 'Она позволит связать проверенные этапы образования, клинической практики, исследований, публикаций и проектов без неподтверждённых дат.' },
           { question: 'Где находятся официальные профили?', answer: 'Подтверждённые научные, профессиональные и публичные ссылки собраны на странице «Профили» и берутся из единого источника данных сайта.' },
-          { question: 'Как медиа могут связаться с Артуром Фаттаховым?', answer: 'На странице «Контакты» указана официальная электронная почта и перечень информации, которую желательно включить в медиа-запрос.' },
+          { question: 'Как медиа могут связаться с Артуром Фаттаховым?', answer: 'На странице «Контакты» доступна форма для профессиональных и медиа-запросов.' },
           { question: 'Как поддерживается актуальность сайта?', answer: 'Новые сведения добавляются после проверки, а страницы обновляются, когда появляются подтверждённые изменения или первичные источники.' },
           { question: 'На каких языках доступен сайт?', answer: 'Основные страницы доступны на русском и английском языках с отдельными каноническими адресами для каждой версии.' },
         ],
@@ -108,7 +108,7 @@ export const faqPageCopy: Record<Language, FaqPageCopy> = {
         items: [
           { question: 'Why is there a professional timeline?', answer: 'It will connect verified milestones in education, clinical practice, research, publications, and projects without using unconfirmed dates.' },
           { question: 'Where are the official profiles?', answer: 'Verified research, professional, and public links are collected on the Profiles page and drawn from the website’s single identity-data source.' },
-          { question: 'How can media contact Artur Fattakhov?', answer: 'The Contact page provides the official email address and explains what information should be included in a media inquiry.' },
+          { question: 'How can media contact Artur Fattakhov?', answer: 'The Contact page provides a form for professional and media inquiries.' },
           { question: 'How is this website maintained?', answer: 'New information is added after review, and pages are updated when verified changes or primary sources become available.' },
           { question: 'Which languages are available?', answer: 'The main pages are available in Russian and English, with separate canonical URLs for each language version.' },
         ],

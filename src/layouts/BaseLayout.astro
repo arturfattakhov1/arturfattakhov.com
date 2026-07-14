@@ -13,6 +13,7 @@ interface Props {
   type?: 'profile' | 'article' | 'website';
   publishedTime?: Date;
   modifiedTime?: Date;
+  showVerifiedProfiles?: boolean;
 }
 
 const {
@@ -23,6 +24,7 @@ const {
   type,
   publishedTime,
   modifiedTime,
+  showVerifiedProfiles = true,
 } = Astro.props;
 ---
 
@@ -49,7 +51,7 @@ const {
       <main id="main-content" tabindex="-1">
         <slot />
       </main>
-      <Footer lang={lang} />
+      <Footer lang={lang} showVerifiedProfiles={showVerifiedProfiles} />
     </div>
   </body>
 </html>

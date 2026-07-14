@@ -257,6 +257,41 @@ assert(publicationFilterScript.includes("document.addEventListener('astro:page-l
 assert(publicationFilterScript.includes("item.style.display = matches ? '' : 'none'"), 'publication filter visual hiding missing');
 assert(publicationFilterScript.includes("applyFilter('all')"), 'publication filter empty-result fallback missing');
 
+const contactFormScriptPath = '/scripts/contact-form.js';
+const contactFormScript = await readFile(new URL(`public${contactFormScriptPath}`, root), 'utf8');
+assert(contactFormScript.includes("fetch(form.action"), 'contact form fetch enhancement missing');
+assert(contactFormScript.includes("headers: { Accept: 'application/json' }"), 'contact form JSON response header missing');
+assert(contactFormScript.includes("if (submitting) return"), 'contact form duplicate-submit protection missing');
+assert(contactFormScript.includes("form.reset()"), 'contact form success reset missing');
+assert(contactFormScript.includes("field.value.trim() === ''"), 'contact form whitespace validation missing');
+assert(contactFormScript.includes("document.addEventListener('astro:page-load'"), 'contact form page-load initialization missing');
+
+const privateRecipient = ['arturfattakhov1', 'gmail.com'].join('@');
+for (const lang of languages) {
+  const contactPath = `/${lang}/contact/`;
+  const contactHtml = pages.get(contactPath) ?? '';
+  const contactMain = matchOne(contactHtml, /<main\b[^>]*>([\s\S]*?)<\/main>/) ?? '';
+
+  assert((contactMain.match(/<form\b/g) ?? []).length === 1, `${contactPath}: expected exactly one contact form`);
+  assert(contactMain.includes(`action="https://formspree.io/f/xgogvvao"`), `${contactPath}: Formspree action missing`);
+  assert(contactMain.includes('method="POST"'), `${contactPath}: POST method missing`);
+  assert((contactMain.match(/name="email"/g) ?? []).length === 1, `${contactPath}: expected exactly one email field`);
+  for (const name of ['firstName', 'lastName', 'email', 'message', '_gotcha', 'subject']) {
+    assert(contactMain.includes(`name="${name}"`), `${contactPath}: ${name} field missing`);
+  }
+  assert(contactMain.includes('name="firstName" type="text" autocomplete="given-name" maxlength="80" required'), `${contactPath}: first-name field contract is incorrect`);
+  assert(contactMain.includes('name="email" type="email" inputmode="email" autocomplete="email" maxlength="254" required'), `${contactPath}: email field contract is incorrect`);
+  assert(contactMain.includes('name="message"'), `${contactPath}: message field missing`);
+  assert(contactMain.includes('maxlength="5000"'), `${contactPath}: message length limit missing`);
+  assert(contactMain.includes('name="_gotcha" type="text" autocomplete="off" tabindex="-1"'), `${contactPath}: honeypot contract is incorrect`);
+  assert(contactMain.includes(`href="/${lang}/privacy/"`), `${contactPath}: localized privacy link missing`);
+  assert(contactHtml.includes(`<script src="${contactFormScriptPath}" defer></script>`), `${contactPath}: local form script missing`);
+  assert(!contactMain.includes('mailto:'), `${contactPath}: mailto link must not appear in contact content`);
+  assert(!/(?:tel:|telegram|whatsapp|t\.me\/|vk\.com\/)/i.test(contactMain), `${contactPath}: additional contact channel found`);
+  assert(!contactHtml.includes('target="_blank"'), `${contactPath}: external profile link found`);
+  assert(!contactHtml.includes(privateRecipient), `${contactPath}: private recipient address exposed`);
+}
+
 for (const lang of languages) {
   const indexHtml = pages.get(`/${lang}/publications/`) ?? '';
   assert((indexHtml.match(/data-publication-item(?=\s|>)/g) ?? []).length === publicationSlugs.length, `${lang}/publications/: expected nine portfolio cards`);
@@ -311,7 +346,7 @@ for (const lang of languages) {
   const sameAs = profileNodes.find((node) => node['@id'] === `${domain}/#person`)?.sameAs ?? [];
   assert(sameAs.every((url) => profilesHtml?.includes(`href="${url.replaceAll('&', '&amp;')}"`)), `${profilesPath}: verified profile link missing from page`);
 
-  for (const sourceRoute of ['', 'about', 'research', 'projects', 'profiles', 'contact']) {
+  for (const sourceRoute of ['', 'about', 'research', 'projects', 'profiles']) {
     const sourcePath = sourceRoute ? `/${lang}/${sourceRoute}/` : `/${lang}/`;
     const sourceHtml = pages.get(sourcePath);
     for (const hubRoute of ['knowledge', 'timeline', 'faq']) {
@@ -336,7 +371,7 @@ for (const lang of languages) {
     timeline: ['research', 'publications', 'projects', 'knowledge'],
     knowledge: ['research', 'publications', 'timeline'],
     profiles: ['about', 'publications', 'contact', 'knowledge', 'timeline'],
-    contact: ['about', 'profiles', 'knowledge', 'timeline'],
+    contact: ['privacy'],
   };
   for (const [sourceRoute, targetRoutes] of Object.entries(entityLinkExpectations)) {
     const sourcePath = `/${lang}/${sourceRoute}/`;
@@ -360,6 +395,10 @@ for (const lang of languages) {
 const redirect = await readFile(new URL('dist/index.html', root), 'utf8');
 assert(redirect.includes('url=/ru/'), 'root redirect does not target /ru/');
 
+const redirects = await readFile(new URL('dist/_redirects', root), 'utf8');
+assert(redirects.includes('/contact /ru/contact/ 301'), '/contact redirect missing');
+assert(redirects.includes('/contact/ /ru/contact/ 301'), '/contact/ redirect missing');
+
 const robots = await readFile(new URL('dist/robots.txt', root), 'utf8');
 assert(robots.includes('User-agent: *'), 'robots.txt user agent missing');
 assert(robots.includes('Allow: /'), 'robots.txt does not explicitly allow indexing');
@@ -375,6 +414,8 @@ assert(headers.includes('X-Frame-Options: DENY'), 'legacy frame protection missi
 assert(headers.includes("Content-Security-Policy: default-src 'self';"), 'content security policy missing');
 assert(headers.includes("frame-ancestors 'none'"), 'CSP frame protection missing');
 assert(headers.includes("script-src 'self'"), 'CSP script restriction missing');
+assert(headers.includes("form-action 'self' https://formspree.io"), 'CSP Formspree form-action permission missing');
+assert(headers.includes("connect-src 'self' https://formspree.io"), 'CSP Formspree connect-src permission missing');
 
 const sitemapIndex = await readFile(new URL('dist/sitemap-index.xml', root), 'utf8');
 assert(sitemapIndex.includes(`<loc>${domain}/sitemap-0.xml</loc>`), 'sitemap index does not reference the generated sitemap');
@@ -413,6 +454,7 @@ for (const directoryName of ['src', 'public', 'docs']) {
   for (const file of await sourceFiles(directory)) {
     const contents = await readFile(file, 'utf8');
     assert(forbiddenPatterns.every((pattern) => !pattern.test(contents)), `${path.relative(fileURLToPath(root), file)}: forbidden name found`);
+    assert(!contents.includes(privateRecipient), `${path.relative(fileURLToPath(root), file)}: private recipient address found`);
   }
 }
 
