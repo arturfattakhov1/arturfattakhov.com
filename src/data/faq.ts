@@ -1,118 +1,496 @@
 import type { Language } from '../i18n/config';
+import { localizedPath } from '../i18n/config';
+import { aboutPageCopy } from './about';
+import { contactPageCopy } from './contact';
+import { cvPageCopy } from './cv';
+import { identity, schemaIds } from './identity';
+import { collectionPageContent, pageContent } from './pages';
+import { publicationPath, publicationRecords } from './publication-records';
+import { projectsPageCopy } from './remaining-pages';
+import { researchPageCopy } from './research';
+import { breadcrumbId, webpageId } from './structured-data';
 
-interface FaqItem {
-  question: string;
-  answer: string;
+type LocalizedText = Readonly<Record<Language, string>>;
+
+export type FaqGroupId =
+  | 'professional-profile'
+  | 'veterinary-practice'
+  | 'research-publications'
+  | 'projects-site-contact';
+
+export type FaqQuestionId =
+  | 'who-is-artur'
+  | 'professional-system'
+  | 'education'
+  | 'professional-experience'
+  | 'veterinary-patients'
+  | 'diagnostic-imaging-qualification'
+  | 'imaging-context'
+  | 'medical-information'
+  | 'research-focus'
+  | 'publication-record'
+  | 'patent-record'
+  | 'research-profiles'
+  | 'project-status'
+  | 'website-sections'
+  | 'timeline-purpose'
+  | 'professional-contact';
+
+export type FaqSource =
+  | 'about:identity'
+  | 'about:professional-system'
+  | 'about:diagnostic-context'
+  | 'contact:form'
+  | 'cv:education'
+  | 'cv:experience'
+  | 'cv:qualification'
+  | 'identity:profiles'
+  | 'legal:disclaimer'
+  | 'pages:routes'
+  | 'projects:record'
+  | 'publications:records'
+  | 'publications:patent'
+  | 'research:focus'
+  | 'timeline:records';
+
+interface FaqLink {
+  href: string;
+  label: string;
 }
 
-interface FaqGroup {
-  id: string;
+export interface FaqItem {
+  id: FaqQuestionId;
+  question: string;
+  answer: string;
+  sources: readonly FaqSource[];
+  link?: FaqLink;
+  defaultOpen?: boolean;
+}
+
+export interface FaqGroup {
+  id: FaqGroupId;
   title: string;
-  items: FaqItem[];
+  introduction: string;
+  items: readonly FaqItem[];
+}
+
+interface FaqItemDefinition {
+  id: FaqQuestionId;
+  question: LocalizedText;
+  answer: (lang: Language) => string;
+  sources: readonly FaqSource[];
+  link?: (lang: Language) => FaqLink;
+  defaultOpen?: boolean;
+}
+
+interface FaqGroupDefinition {
+  id: FaqGroupId;
+  title: LocalizedText;
+  introduction: LocalizedText;
+  items: readonly FaqItemDefinition[];
 }
 
 interface FaqPageCopy {
-  hero: string;
-  groups: FaqGroup[];
+  opening: {
+    eyebrow: string;
+    lead: string;
+    context: string;
+  };
+  topicsLabel: string;
+  groups: readonly FaqGroup[];
+  related: {
+    title: string;
+    introduction: string;
+    label: string;
+    links: readonly FaqLink[];
+  };
 }
 
-export const faqPageCopy: Record<Language, FaqPageCopy> = {
-  ru: {
-    hero: 'Ответы ниже кратко объясняют профессиональный профиль Артура Фаттахова, тематику сайта, принципы публикации информации и способы связи. Они основаны только на проверенных сведениях, доступных на этом сайте.',
-    groups: [
+function requireRecord<T extends { id: string }>(records: readonly T[], id: T['id'], source: string): T {
+  const record = records.find((candidate) => candidate.id === id);
+  if (!record) throw new Error(`Missing verified FAQ source: ${source}:${String(id)}`);
+  return record;
+}
+
+const patentCandidate = publicationRecords.find((record) => record.type === 'patent');
+if (!patentCandidate?.patentNumber) throw new Error('FAQ requires one verified patent record with a patent number.');
+const patentRecord = patentCandidate;
+
+const publicationCounts = {
+  journal: publicationRecords.filter((record) => record.type === 'journal').length,
+  conference: publicationRecords.filter((record) => record.type === 'conference').length,
+  patent: publicationRecords.filter((record) => record.type === 'patent').length,
+} as const;
+
+function pageLink(route: string, labels: LocalizedText): (lang: Language) => FaqLink {
+  return (lang) => ({ href: localizedPath(lang, route), label: labels[lang] });
+}
+
+function educationAnswer(lang: Language): string {
+  const records = cvPageCopy[lang].education.records;
+  const veterinary = requireRecord(records, 'veterinary-doctor', 'cv:education');
+  const research = requireRecord(records, 'research-teaching', 'cv:education');
+
+  return lang === 'ru'
+    ? `${veterinary.organization}: квалификация «${veterinary.qualification}», завершение в ${veterinary.year} году. ${research.organization}: квалификация «${research.qualification}». ${research.note} Это завершённая квалификация, а не учёная степень.`
+    : `${veterinary.organization}: ${veterinary.qualification}, completed in ${veterinary.year}. ${research.organization}: ${research.qualification}. ${research.note} It is recorded as a completed qualification, not a scientific degree.`;
+}
+
+function experienceAnswer(lang: Language): string {
+  const records = cvPageCopy[lang].experience.records;
+  const practice = requireRecord(records, 'private-practice', 'cv:experience');
+  const analyst = requireRecord(records, 'sechenov-analyst', 'cv:experience');
+  const regulatory = requireRecord(records, 'aspect-research-regulatory', 'cv:experience');
+
+  return lang === 'ru'
+    ? `В CV представлены три типа опыта: «${practice.organization}»; официальная должность «${analyst.role}» — «${analyst.secondaryOrganization}»; исследовательская и регуляторная работа — «${regulatory.organization} / ${regulatory.secondaryOrganization}». Полные периоды и функции приведены в CV.`
+    : `Verified records include ${practice.organization}, the official role of ${analyst.role} at ${analyst.secondaryOrganization}, and research and regulatory experience at ${regulatory.organization} / ${regulatory.secondaryOrganization}. Full periods and functions are listed in the CV.`;
+}
+
+function practiceAnswer(lang: Language): string {
+  const practice = requireRecord(cvPageCopy[lang].experience.records, 'private-practice', 'cv:experience');
+  const responsibilities = practice.responsibilities.slice(0, 4).join(lang === 'ru' ? ', ' : ', ');
+
+  return lang === 'ru'
+    ? `${practice.description} В записи указаны следующие профессиональные функции: ${responsibilities}.`
+    : `${practice.description} Professional functions include ${responsibilities}.`;
+}
+
+function qualificationAnswer(lang: Language): string {
+  const qualification = requireRecord(cvPageCopy[lang].qualifications.primary, 'diagnostic-imaging-course', 'cv:qualification');
+  const certificate = qualification.certificate
+    ? lang === 'ru' ? ` Документ: ${qualification.certificate}.` : ` Certificate: ${qualification.certificate}.`
+    : '';
+
+  return lang === 'ru'
+    ? `${qualification.title} пройден в период ${qualification.period}. Организация: ${qualification.organization}.${certificate}`
+    : `${qualification.title} was completed during ${qualification.period}. Provider: ${qualification.organization}.${certificate}`;
+}
+
+function publicationsAnswer(lang: Language): string {
+  return lang === 'ru'
+    ? `Проверенный архив уже содержит ${publicationCounts.journal} журнальные статьи и ${publicationCounts.conference} конференционных публикаций или тезисов. Для каждой записи доступны библиографические сведения и ссылка на источник, если она подтверждена.`
+    : `The verified archive already contains ${publicationCounts.journal} journal articles and ${publicationCounts.conference} conference publications or abstracts. Each record provides bibliographic details and a source link when one has been verified.`;
+}
+
+function patentAnswer(lang: Language): string {
+  return lang === 'ru'
+    ? `В ${patentRecord.year} году зарегистрирован патент Российской Федерации ${patentRecord.patentNumber} «${patentRecord.title.ru}». Запись не заявляет внедрение, коммерциализацию или международную патентную защиту.`
+    : `Russian Federation patent ${patentRecord.patentNumber}, “${patentRecord.title.en},” was registered in ${patentRecord.year}. The record does not claim implementation, commercialization, or international patent protection.`;
+}
+
+function profileAnswer(lang: Language): string {
+  const researchProfileKeys = new Set(['orcid', 'googleScholar', 'researchGate', 'webOfScience']);
+  const profiles = identity.profiles
+    .filter((profile) => researchProfileKeys.has(profile.key))
+    .map((profile) => profile.name)
+    .join(', ');
+
+  return lang === 'ru'
+    ? `Авторство и библиографические записи представлены в разделе «Публикации». На странице «Профессиональные профили» собраны подтверждённые исследовательские идентификаторы и профили: ${profiles}.`
+    : `Authorship and bibliographic records are presented in Publications. Professional Profiles collects the verified research identifiers and profiles: ${profiles}.`;
+}
+
+function projectAnswer(lang: Language): string {
+  const project = projectsPageCopy[lang].project;
+
+  return lang === 'ru'
+    ? `На странице «Проекты» представлен один безымянный проект: ${project.subject.toLowerCase()}. Статус — ${project.status.toLowerCase()}, роль Артура — ${project.role.toLowerCase()}. Предполагаемая модель — controlled marketplace; существуют только ранние материалы по анамнезу, клиническому осмотру и медицинской документации.`
+    : `Projects presents one unnamed project: ${project.subject.toLowerCase()}. Its status is ${project.status.toLowerCase()}, and Artur’s role is ${project.role}. The intended model is a controlled marketplace; only early materials for anamnesis, clinical examination, and medical documentation exist.`;
+}
+
+function websiteSectionsAnswer(lang: Language): string {
+  const standard = pageContent[lang];
+  const sections = [
+    standard.about.title,
+    standard.research.title,
+    collectionPageContent.publications[lang].title,
+    collectionPageContent.projects[lang].title,
+    standard.media.title,
+    standard.cv.title,
+    standard.contact.title,
+    standard.profiles.title,
+    standard.timeline.title,
+    standard.faq.title,
+  ].join(', ');
+
+  return lang === 'ru'
+    ? `Сайт уже содержит разделы: ${sections}. Они доступны сейчас и отвечают за разные типы подтверждённой информации.`
+    : `The website already contains these sections: ${sections}. They are currently available and present distinct types of verified information.`;
+}
+
+const faqGroupDefinitions: readonly FaqGroupDefinition[] = [
+  {
+    id: 'professional-profile',
+    title: { ru: 'Профессиональный профиль', en: 'Professional profile' },
+    introduction: {
+      ru: 'Роли, образование и подтверждённый опыт.',
+      en: 'Roles, education, and verified experience.',
+    },
+    items: [
       {
-        id: 'identity-and-work',
-        title: 'Профессиональный профиль',
-        items: [
-          { question: 'Кто такой Артур Фаттахов?', answer: 'Артур Фаттахов — ветеринарный врач, специалист по ультразвуковой диагностике, исследователь и предприниматель.' },
-          { question: 'В каких областях он работает?', answer: 'Основные области — ветеринарная медицина собак и кошек, диагностическая визуализация, ультразвуковая диагностика, исследования, помощь на дому и применение цифровых инструментов.' },
-          { question: 'С какими животными связана его ветеринарная работа?', answer: 'Профессиональный профиль этого сайта относится к ветеринарной помощи собакам и кошкам.' },
-          { question: 'Какую роль играет ультразвуковая диагностика?', answer: 'Ультразвуковая диагностика является одним из основных профессиональных и исследовательских интересов Артура Фаттахова.' },
-          { question: 'Какое предпринимательское направление представлено на сайте?', answer: 'Артур Фаттахов является основателем выездной ветеринарной службы для собак и кошек. Непроверенные названия, показатели и результаты здесь не публикуются.' },
-        ],
+        id: 'who-is-artur',
+        question: { ru: 'Кто такой Артур Фаттахов?', en: 'Who is Artur Fattakhov?' },
+        answer: (lang) => {
+          const roles = aboutPageCopy[lang].opening.roles.map((role) => lang === 'ru' ? `${role[0].toLowerCase()}${role.slice(1)}` : role);
+          return `${aboutPageCopy[lang].opening.name} — ${roles.join(', ')}.`;
+        },
+        sources: ['about:identity'],
+        link: pageLink('about', { ru: 'Открыть профессиональный профиль', en: 'Open the professional profile' }),
       },
       {
-        id: 'research-and-publications',
-        title: 'Исследования и публикации',
-        items: [
-          { question: 'Каковы его исследовательские интересы?', answer: 'К ним относятся ветеринарная медицина, диагностическая визуализация, ультразвуковое исследование, рентгенографическая анатомия, морфометрия, клиническая поддержка решений и искусственный интеллект.' },
-          { question: 'Где будут доступны публикации?', answer: 'Проверенные библиографические записи будут размещаться в разделе «Публикации». Официальные академические профили собраны на странице «Профили».' },
-          { question: 'Почему на сайте нет списка неподтверждённых работ?', answer: 'Публикация добавляется только после проверки авторства, выходных данных, DOI или другой устойчивой ссылки на первоисточник.' },
-          { question: 'Публикуются ли здесь показатели цитирования?', answer: 'Непроверенные и быстро меняющиеся показатели цитирования на сайте не публикуются.' },
-          { question: 'Как исследователям предложить сотрудничество?', answer: 'Следует использовать страницу «Контакты» и описать исследовательский вопрос, методы, предполагаемый вклад участников и ожидаемый результат.' },
-        ],
+        id: 'professional-system',
+        question: {
+          ru: 'Как связаны клиническая практика, визуальная диагностика и исследования?',
+          en: 'How are clinical practice, diagnostic imaging, and research connected?',
+        },
+        answer: (lang) => aboutPageCopy[lang].professionalSystem.introduction,
+        sources: ['about:professional-system'],
+        link: pageLink('research', { ru: 'Перейти к исследованиям', en: 'Open Research' }),
       },
       {
-        id: 'knowledge-and-technology',
-        title: 'База знаний и технологии',
-        items: [
-          { question: 'Какие темы охватывает этот сайт?', answer: 'Сайт охватывает профессиональный профиль, ветеринарную медицину, диагностическую визуализацию, исследования, публикации, проекты, технологии и официальные внешние профили.' },
-          { question: 'Для чего создан раздел «База знаний»?', answer: 'Он предназначен для кратких проверенных вводных материалов и будущих ссылок на более подробный профессиональный контент.' },
-          { question: 'Как рассматривается искусственный интеллект в ветеринарной медицине?', answer: 'Как инструмент, возможная польза которого должна оцениваться вместе с качеством данных, проверкой результата, известными ограничениями и ответственностью ветеринарного врача.' },
-          { question: 'Что означает доказательная ветеринарная медицина?', answer: 'Это использование лучших доступных научных данных вместе с клинической оценкой, обстоятельствами конкретного пациента и честным учётом неопределённости.' },
-          { question: 'Заменяет ли информация на сайте консультацию ветеринарного врача?', answer: 'Нет. Материалы общего характера не предназначены для постановки диагноза или выбора лечения конкретного животного.' },
-        ],
+        id: 'education',
+        question: { ru: 'Какое образование подтверждено?', en: 'What education is verified?' },
+        answer: educationAnswer,
+        sources: ['cv:education'],
+        link: pageLink('cv', { ru: 'Открыть образование в CV', en: 'Open education in the CV' }),
       },
       {
-        id: 'website-and-contact',
-        title: 'Сайт, профили и связь',
-        items: [
-          { question: 'Зачем нужна профессиональная хронология?', answer: 'Она позволит связать проверенные этапы образования, клинической практики, исследований, публикаций и проектов без неподтверждённых дат.' },
-          { question: 'Где находятся официальные профили?', answer: 'Подтверждённые научные, профессиональные и публичные ссылки собраны на странице «Профили» и берутся из единого источника данных сайта.' },
-          { question: 'Как медиа могут связаться с Артуром Фаттаховым?', answer: 'На странице «Контакты» доступна форма для профессиональных и медиа-запросов.' },
-          { question: 'Как поддерживается актуальность сайта?', answer: 'Новые сведения добавляются после проверки, а страницы обновляются, когда появляются подтверждённые изменения или первичные источники.' },
-          { question: 'На каких языках доступен сайт?', answer: 'Основные страницы доступны на русском и английском языках с отдельными каноническими адресами для каждой версии.' },
-        ],
+        id: 'professional-experience',
+        question: { ru: 'Какой профессиональный опыт представлен на сайте?', en: 'What professional experience is presented on the website?' },
+        answer: experienceAnswer,
+        sources: ['cv:experience'],
+        link: pageLink('cv', { ru: 'Открыть полный опыт в CV', en: 'Open the full experience record' }),
       },
     ],
+  },
+  {
+    id: 'veterinary-practice',
+    title: { ru: 'Практика и диагностика', en: 'Practice and diagnostics' },
+    introduction: {
+      ru: 'Работа с ветеринарными пациентами и границы визуальной диагностики.',
+      en: 'Veterinary patient work and the limits of diagnostic imaging.',
+    },
+    items: [
+      {
+        id: 'veterinary-patients',
+        question: { ru: 'С какими ветеринарными пациентами связана частная практика?', en: 'Which veterinary patients are covered by the private practice?' },
+        answer: practiceAnswer,
+        sources: ['cv:experience'],
+        link: pageLink('cv', { ru: 'Открыть запись практики в CV', en: 'Open the practice record in the CV' }),
+      },
+      {
+        id: 'diagnostic-imaging-qualification',
+        question: { ru: 'Какая квалификация по визуальной диагностике подтверждена?', en: 'What diagnostic imaging qualification is verified?' },
+        answer: qualificationAnswer,
+        sources: ['cv:qualification'],
+        link: pageLink('cv', { ru: 'Открыть квалификации в CV', en: 'Open qualifications in the CV' }),
+      },
+      {
+        id: 'imaging-context',
+        question: { ru: 'Как интерпретируются результаты визуальной диагностики?', en: 'How are diagnostic imaging findings interpreted?' },
+        answer: (lang) => aboutPageCopy[lang].professionalSystem.areas[1].description,
+        sources: ['about:diagnostic-context'],
+        link: pageLink('about', { ru: 'Открыть профессиональные принципы', en: 'Open the professional principles' }),
+      },
+      {
+        id: 'medical-information',
+        question: { ru: 'Заменяет ли информация на сайте ветеринарную консультацию?', en: 'Does information on this website replace a veterinary consultation?' },
+        answer: (lang) => lang === 'ru'
+          ? 'Нет. Материалы сайта носят общий информационный характер и не предназначены для постановки диагноза или выбора лечения конкретного животного.'
+          : 'No. Website material is general information and is not intended to diagnose or select treatment for an individual animal.',
+        sources: ['legal:disclaimer'],
+      },
+    ],
+  },
+  {
+    id: 'research-publications',
+    title: { ru: 'Исследования и публикации', en: 'Research and publications' },
+    introduction: {
+      ru: 'Область исследований, состав архива и внешние профили.',
+      en: 'Research scope, archive composition, and external profiles.',
+    },
+    items: [
+      {
+        id: 'research-focus',
+        question: { ru: 'На чём сосредоточена исследовательская работа?', en: 'What is the focus of the research work?' },
+        answer: (lang) => `${researchPageCopy[lang].opening.statement} ${researchPageCopy[lang].question.paragraphs[0]}`,
+        sources: ['research:focus'],
+        link: pageLink('research', { ru: 'Открыть исследовательский профиль', en: 'Open the research profile' }),
+      },
+      {
+        id: 'publication-record',
+        question: { ru: 'Какие публикации уже представлены на сайте?', en: 'What publications are already available on the website?' },
+        answer: publicationsAnswer,
+        sources: ['publications:records'],
+        link: pageLink('publications', { ru: 'Открыть архив публикаций', en: 'Open the publication archive' }),
+      },
+      {
+        id: 'patent-record',
+        question: { ru: 'Какой патент представлен в архиве?', en: 'What patent is included in the archive?' },
+        answer: patentAnswer,
+        sources: ['publications:patent'],
+        link: (lang) => ({
+          href: publicationPath(lang, patentRecord.slug),
+          label: lang === 'ru' ? 'Открыть запись патента' : 'Open the patent record',
+        }),
+      },
+      {
+        id: 'research-profiles',
+        question: { ru: 'Где проверить авторство и исследовательские профили?', en: 'Where can authorship and research profiles be checked?' },
+        answer: profileAnswer,
+        sources: ['publications:records', 'identity:profiles'],
+        link: pageLink('profiles', { ru: 'Открыть профессиональные профили', en: 'Open Professional Profiles' }),
+      },
+    ],
+  },
+  {
+    id: 'projects-site-contact',
+    title: { ru: 'Проект, сайт и связь', en: 'Project, website, and contact' },
+    introduction: {
+      ru: 'Статус проекта, разделы сайта и профессиональная связь.',
+      en: 'Project status, website sections, and professional contact.',
+    },
+    items: [
+      {
+        id: 'project-status',
+        question: { ru: 'Какой проект представлен на сайте и каков его статус?', en: 'What project is presented on the website, and what is its status?' },
+        answer: projectAnswer,
+        sources: ['projects:record'],
+        link: pageLink('projects', { ru: 'Открыть страницу проекта', en: 'Open the project page' }),
+      },
+      {
+        id: 'website-sections',
+        question: { ru: 'Какие основные разделы уже доступны?', en: 'Which main sections are already available?' },
+        answer: websiteSectionsAnswer,
+        sources: ['pages:routes'],
+      },
+      {
+        id: 'timeline-purpose',
+        question: { ru: 'Что показывает профессиональная хронология?', en: 'What does the professional timeline show?' },
+        answer: (lang) => lang === 'ru'
+          ? 'Хронология объединяет выбранные подтверждённые этапы образования, профессиональной практики, исследовательской работы и научных результатов. Она дополняет CV и архив публикаций, не дублируя их полностью.'
+          : 'The timeline brings together selected verified milestones in education, professional practice, research work, and scholarly output. It complements the CV and publication archive without reproducing them in full.',
+        sources: ['timeline:records'],
+        link: pageLink('timeline', { ru: 'Открыть хронологию', en: 'Open the timeline' }),
+      },
+      {
+        id: 'professional-contact',
+        question: { ru: 'Как направить профессиональное или исследовательское обращение?', en: 'How can a professional or research inquiry be sent?' },
+        answer: (lang) => `${contactPageCopy[lang].introduction} ${lang === 'ru' ? 'Укажите тему и достаточный контекст для рассмотрения обращения.' : 'Include the subject and enough context for the inquiry to be reviewed.'}`,
+        sources: ['contact:form'],
+        link: pageLink('contact', { ru: 'Перейти к форме обращения', en: 'Open the contact form' }),
+      },
+    ],
+  },
+] as const satisfies readonly FaqGroupDefinition[];
+
+const pageCopy = {
+  ru: {
+    opening: {
+      eyebrow: 'Справочная страница',
+      lead: 'Краткие ответы о профессиональном профиле, ветеринарной практике, визуальной диагностике, исследованиях, публикациях и проекте Артура Фаттахова.',
+      context: 'Полные подтверждённые записи находятся в профильных разделах сайта. FAQ помогает быстро найти нужный контекст, не заменяя About, CV, Research или Publications.',
+    },
+    topicsLabel: 'Темы частых вопросов',
+    related: {
+      title: 'Полные записи',
+      introduction: 'Подробности представлены в основных разделах сайта.',
+      label: 'Связанные основные страницы',
+      links: [
+        { route: 'about', label: 'Профессиональный профиль' },
+        { route: 'cv', label: 'CV' },
+        { route: 'publications', label: 'Публикации' },
+        { route: 'contact', label: 'Форма обращения' },
+      ],
+    },
   },
   en: {
-    hero: 'The answers below provide a concise explanation of Artur Fattakhov’s professional profile, the scope of this website, its publication principles, and official contact routes. They rely only on verified information available on this site.',
-    groups: [
-      {
-        id: 'identity-and-work',
-        title: 'Professional profile',
-        items: [
-          { question: 'Who is Artur Fattakhov?', answer: 'Artur Fattakhov is a veterinarian, veterinary ultrasound specialist, researcher, and entrepreneur.' },
-          { question: 'What fields does he work in?', answer: 'His main fields are veterinary medicine for dogs and cats, diagnostic imaging, ultrasonography, research, home veterinary care, and the use of digital tools.' },
-          { question: 'Which animals are covered by his veterinary work?', answer: 'The professional profile presented on this website concerns veterinary care for dogs and cats.' },
-          { question: 'What role does veterinary ultrasonography have in his work?', answer: 'Veterinary ultrasonography is one of Artur Fattakhov’s principal professional and research interests.' },
-          { question: 'What entrepreneurial work is described on the website?', answer: 'Artur Fattakhov is the founder of a home veterinary service for dogs and cats. Unverified names, metrics, and outcomes are not published here.' },
-        ],
-      },
-      {
-        id: 'research-and-publications',
-        title: 'Research and publications',
-        items: [
-          { question: 'What are his research interests?', answer: 'They include veterinary medicine, diagnostic imaging, ultrasonography, radiographic anatomy, morphometry, clinical decision support, and artificial intelligence.' },
-          { question: 'Where will publications be available?', answer: 'Verified bibliographic records will appear in the Publications section. Official academic profiles are collected on the Profiles page.' },
-          { question: 'Why are unverified works not listed?', answer: 'A publication is added only after authorship, publication details, DOI, or another persistent original-source link has been checked.' },
-          { question: 'Are citation metrics published here?', answer: 'Unverified and rapidly changing citation metrics are not published on this website.' },
-          { question: 'How can researchers propose collaboration?', answer: 'Use the Contact page and describe the research question, methods, expected contributions, and intended outcome.' },
-        ],
-      },
-      {
-        id: 'knowledge-and-technology',
-        title: 'Knowledge and technology',
-        items: [
-          { question: 'What topics does this website cover?', answer: 'The website covers the professional profile, veterinary medicine, diagnostic imaging, research, publications, projects, technology, and verified external profiles.' },
-          { question: 'What is the purpose of the Knowledge Hub?', answer: 'It is intended for concise, verified introductions and future links to more detailed professional material.' },
-          { question: 'How is artificial intelligence considered in veterinary medicine?', answer: 'As a tool whose possible value must be assessed together with data quality, output review, known limitations, and veterinarian responsibility.' },
-          { question: 'What does evidence-based veterinary medicine mean?', answer: 'It combines the best available research evidence with clinical assessment, the circumstances of an individual patient, and transparent consideration of uncertainty.' },
-          { question: 'Does this website replace consultation with a veterinarian?', answer: 'No. General material on this website is not intended to diagnose or select treatment for an individual animal.' },
-        ],
-      },
-      {
-        id: 'website-and-contact',
-        title: 'Website, profiles, and contact',
-        items: [
-          { question: 'Why is there a professional timeline?', answer: 'It will connect verified milestones in education, clinical practice, research, publications, and projects without using unconfirmed dates.' },
-          { question: 'Where are the official profiles?', answer: 'Verified research, professional, and public links are collected on the Profiles page and drawn from the website’s single identity-data source.' },
-          { question: 'How can media contact Artur Fattakhov?', answer: 'The Contact page provides a form for professional and media inquiries.' },
-          { question: 'How is this website maintained?', answer: 'New information is added after review, and pages are updated when verified changes or primary sources become available.' },
-          { question: 'Which languages are available?', answer: 'The main pages are available in Russian and English, with separate canonical URLs for each language version.' },
-        ],
-      },
-    ],
+    opening: {
+      eyebrow: 'Reference page',
+      lead: 'Concise answers about Artur Fattakhov’s professional profile, veterinary practice, diagnostic imaging, research, publications, and project.',
+      context: 'Complete verified records are kept on the relevant pages. The FAQ provides a quick route to context without replacing About, the CV, Research, or Publications.',
+    },
+    topicsLabel: 'Frequently asked question topics',
+    related: {
+      title: 'Full records',
+      introduction: 'Full details are available on the primary pages.',
+      label: 'Related primary pages',
+      links: [
+        { route: 'about', label: 'Professional profile' },
+        { route: 'cv', label: 'CV' },
+        { route: 'publications', label: 'Publications' },
+        { route: 'contact', label: 'Contact form' },
+      ],
+    },
   },
-};
+} as const;
+
+export function getFaqPage(lang: Language): FaqPageCopy {
+  const copy = pageCopy[lang];
+
+  return {
+    opening: copy.opening,
+    topicsLabel: copy.topicsLabel,
+    groups: faqGroupDefinitions.map((group) => ({
+      id: group.id,
+      title: group.title[lang],
+      introduction: group.introduction[lang],
+      items: group.items.map((item) => ({
+        id: item.id,
+        question: item.question[lang],
+        answer: item.answer(lang),
+        sources: item.sources,
+        link: item.link?.(lang),
+        defaultOpen: item.defaultOpen,
+      })),
+    })),
+    related: {
+      title: copy.related.title,
+      introduction: copy.related.introduction,
+      label: copy.related.label,
+      links: copy.related.links.map((link) => ({
+        href: localizedPath(lang, link.route),
+        label: link.label,
+      })),
+    },
+  };
+}
+
+export function createFaqPageJsonLd(lang: Language, title: string, description: string) {
+  const canonicalPath = localizedPath(lang, 'faq');
+  const url = new URL(canonicalPath, identity.url).href;
+  const questions = getFaqPage(lang).groups.flatMap((group) => group.items);
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    '@id': webpageId(canonicalPath),
+    url,
+    name: title,
+    description,
+    inLanguage: identity.languages[lang].code,
+    isPartOf: { '@id': schemaIds.website },
+    about: { '@id': schemaIds.person },
+    breadcrumb: { '@id': breadcrumbId(canonicalPath) },
+    mainEntity: questions.map((item) => ({
+      '@type': 'Question',
+      '@id': `${url}#faq-${item.id}`,
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer,
+      },
+    })),
+  } as const;
+}
+
+export const faqStableIds = {
+  groups: faqGroupDefinitions.map((group) => group.id),
+  questions: faqGroupDefinitions.flatMap((group) => group.items.map((item) => item.id)),
+} as const;
+
+export const faqPublicationSummary = {
+  ...publicationCounts,
+  patentNumber: patentRecord.patentNumber,
+} as const;

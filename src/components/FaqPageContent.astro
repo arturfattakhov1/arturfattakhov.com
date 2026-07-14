@@ -1,9 +1,8 @@
 ---
-import { faqPageCopy } from '../data/faq';
+import { createFaqPageJsonLd, faqPublicationSummary, getFaqPage } from '../data/faq';
+import { pageContent } from '../data/pages';
 import type { Language } from '../i18n/config';
-import Card from './Card.astro';
 import Container from './Container.astro';
-import KnowledgeHubNavigation from './KnowledgeHubNavigation.astro';
 import PageIntro from './PageIntro.astro';
 import PageSection from './PageSection.astro';
 
@@ -12,24 +11,87 @@ interface Props {
 }
 
 const { lang } = Astro.props;
-const copy = faqPageCopy[lang];
+const copy = getFaqPage(lang);
+const metadata = pageContent[lang].faq;
+const structuredData = createFaqPageJsonLd(lang, metadata.title, metadata.description);
 ---
 
-<div class="section-stack faq-sections">
-  <PageIntro>
-    <Container class="section-copy section-copy--lead">
-      <p>{copy.hero}</p>
-      <KnowledgeHubNavigation lang={lang} exclude="faq" />
+<div
+  class="section-stack faq-sections faq-sections--v2"
+  data-faq-page
+  data-faq-group-count={copy.groups.length}
+  data-faq-question-count={copy.groups.reduce((total, group) => total + group.items.length, 0)}
+  data-faq-journal-count={faqPublicationSummary.journal}
+  data-faq-conference-count={faqPublicationSummary.conference}
+  data-faq-patent-count={faqPublicationSummary.patent}
+  data-faq-patent-number={faqPublicationSummary.patentNumber}
+>
+  <PageIntro class="faq-opening">
+    <Container class="faq-opening__copy" size="reading">
+      <p class="eyebrow">{copy.opening.eyebrow}</p>
+      <p class="faq-opening__lead">{copy.opening.lead}</p>
+      <p class="faq-opening__context">{copy.opening.context}</p>
+
+      <nav class="faq-topic-navigation" aria-label={copy.topicsLabel}>
+        <ul>
+          {copy.groups.map((group) => (
+            <li><a href={`#${group.id}`}>{group.title}</a></li>
+          ))}
+        </ul>
+      </nav>
     </Container>
   </PageIntro>
 
   {copy.groups.map((group) => (
-    <PageSection id={group.id} title={group.title}>
+    <PageSection id={group.id} title={group.title} class="faq-group" density="compact">
       <Container>
-        <ul class="card-grid" role="list">
-          {group.items.map((item) => <li><Card title={item.question} description={item.answer} /></li>)}
-        </ul>
+        <p class="faq-group__introduction">{group.introduction}</p>
+        <div class="faq-list">
+          {group.items.map((item) => (
+            <details
+              class="faq-item"
+              id={`faq-${item.id}`}
+              data-faq-id={item.id}
+              data-faq-group={group.id}
+              data-faq-source={item.sources.join(' ')}
+              open={item.defaultOpen}
+            >
+              <summary>
+                <h3>{item.question}</h3>
+                <span class="faq-item__indicator" aria-hidden="true"></span>
+              </summary>
+              <div class="faq-item__answer">
+                <p>{item.answer}</p>
+                {item.link && (
+                  <a data-faq-link={item.id} href={item.link.href}>
+                    {item.link.label}<span aria-hidden="true"> →</span>
+                  </a>
+                )}
+              </div>
+            </details>
+          ))}
+        </div>
       </Container>
     </PageSection>
   ))}
+
+  <PageSection id="full-records" title={copy.related.title} class="faq-related-section" density="compact">
+    <Container>
+      <p class="faq-related__introduction">{copy.related.introduction}</p>
+      <nav class="faq-related" aria-label={copy.related.label}>
+        <ul>
+          {copy.related.links.map((link) => (
+            <li>
+              <a href={link.href}>
+                <span>{link.label}</span>
+                <span aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </Container>
+  </PageSection>
 </div>
+
+<script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />

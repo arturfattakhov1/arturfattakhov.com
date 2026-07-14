@@ -15,6 +15,7 @@ const pageSchemaTypes = {
   profiles: 'CollectionPage',
   knowledge: 'CollectionPage',
   timeline: 'CollectionPage',
+  faq: 'FAQPage',
 };
 const publicationSlugs = [
   'comparative-xray-morphometry-moose-cattle',
@@ -34,7 +35,15 @@ const descriptionsByLanguage = new Map(languages.map((lang) => [lang, new Set()]
 const personSignatures = new Set();
 const websiteSignatures = new Set();
 const timelineIdsByLanguage = new Map();
+const faqGroupIdsByLanguage = new Map();
+const faqQuestionIdsByLanguage = new Map();
 const expectedTimelineEventCount = 10;
+const expectedFaqGroupCount = 4;
+const expectedFaqQuestionCount = 16;
+const prohibitedFaqNames = [
+  ['Move', 'trus'].join(''),
+  ['ВЕТ', ' УЗИ', ' 47'].join(''),
+];
 
 function assert(condition, message) {
   if (!condition) errors.push(message);
@@ -147,6 +156,10 @@ function matchOne(html, expression) {
   return html.match(expression)?.[1];
 }
 
+function escapeHtmlText(value) {
+  return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+}
+
 for (const lang of languages) {
   for (const route of routes) {
     const relativePath = route ? `${lang}/${route}/` : `${lang}/`;
@@ -229,7 +242,56 @@ for (const lang of languages) {
       assert(pageSchema?.isPartOf?.['@id'] === `${domain}/#website`, `${relativePath}: page-level WebSite relationship missing`);
       assert(pageSchema?.breadcrumb?.['@id'] === `${expectedCanonical}#breadcrumb`, `${relativePath}: page-level breadcrumb relationship missing`);
 
-      if (['publications', 'profiles', 'knowledge', 'timeline'].includes(route)) {
+      if (route === 'faq') {
+        const groupIds = [...html.matchAll(/data-faq-group="([^"]+)"/g)].map((match) => match[1]);
+        const uniqueGroupIds = [...new Set(groupIds)];
+        const questionIds = [...html.matchAll(/data-faq-id="([^"]+)"/g)].map((match) => match[1]);
+        const questionSources = [...html.matchAll(/data-faq-source="([^"]+)"/g)].map((match) => match[1]);
+        const questionLinks = [...html.matchAll(/data-faq-link="([^"]+)"/g)].map((match) => match[1]);
+        const faqMain = matchOne(html, /<main\b[^>]*>([\s\S]*?)<\/main>/) ?? '';
+        const schemaQuestions = Array.isArray(pageSchema?.mainEntity) ? pageSchema.mainEntity : [];
+        const schemaQuestionIds = schemaQuestions.map((question) => question['@id']?.split('#faq-').at(-1));
+        const publicationsHtml = pages.get(`/${lang}/publications/`) ?? '';
+        const journalCount = (publicationsHtml.match(/data-type="journal"/g) ?? []).length;
+        const conferenceCount = (publicationsHtml.match(/data-type="conference"/g) ?? []).length;
+        const patentCount = (publicationsHtml.match(/data-type="patent"/g) ?? []).length;
+
+        assert((html.match(/data-faq-page(?=\s|>)/g) ?? []).length === 1, `${relativePath}: expected one FAQ page root`);
+        assert(uniqueGroupIds.length === expectedFaqGroupCount, `${relativePath}: expected ${expectedFaqGroupCount} FAQ groups`);
+        assert(questionIds.length === expectedFaqQuestionCount, `${relativePath}: expected ${expectedFaqQuestionCount} FAQ questions`);
+        assert(new Set(questionIds).size === questionIds.length, `${relativePath}: duplicate FAQ question IDs`);
+        assert(questionSources.length === questionIds.length && questionSources.every(Boolean), `${relativePath}: FAQ source mapping is incomplete`);
+        assert(new Set(questionLinks).size === questionLinks.length, `${relativePath}: duplicate FAQ link IDs`);
+        assert((html.match(/<details\b/g) ?? []).length === questionIds.length, `${relativePath}: FAQ details count does not match questions`);
+        assert((html.match(/<summary>/g) ?? []).length === questionIds.length, `${relativePath}: FAQ summary count does not match questions`);
+        assert((html.match(/<details\b[^>]*\sopen(?:\s|>)/g) ?? []).length === 0, `${relativePath}: FAQ must be initially collapsed for scanning`);
+        assert((faqMain.match(/class="card(?:\s|\")/g) ?? []).length === 0, `${relativePath}: legacy FAQ card layout remains`);
+        assert(uniqueGroupIds.every((id) => faqMain.includes(`href="#${id}"`) && faqMain.includes(`id="${id}"`)), `${relativePath}: FAQ topic navigation is incomplete`);
+        assert(schemaQuestions.length === questionIds.length, `${relativePath}: FAQPage question count does not match rendered FAQ`);
+        assert(JSON.stringify(schemaQuestionIds) === JSON.stringify(questionIds), `${relativePath}: FAQPage question order or IDs do not match rendered FAQ`);
+        assert(schemaQuestions.every((question) => question['@type'] === 'Question' && typeof question.name === 'string' && question.name.trim()), `${relativePath}: FAQPage contains an invalid Question`);
+        assert(schemaQuestions.every((question) => question.acceptedAnswer?.['@type'] === 'Answer' && typeof question.acceptedAnswer?.text === 'string' && question.acceptedAnswer.text.trim()), `${relativePath}: FAQPage contains an invalid acceptedAnswer`);
+        assert(schemaQuestions.every((question) => faqMain.includes(escapeHtmlText(question.name)) && faqMain.includes(escapeHtmlText(question.acceptedAnswer.text))), `${relativePath}: FAQPage text is not synchronized with visible content`);
+        assert(html.includes(`data-faq-group-count="${uniqueGroupIds.length}"`), `${relativePath}: FAQ group count marker is incorrect`);
+        assert(html.includes(`data-faq-question-count="${questionIds.length}"`), `${relativePath}: FAQ question count marker is incorrect`);
+        assert(html.includes(`data-faq-journal-count="${journalCount}"`), `${relativePath}: FAQ journal count is not synchronized`);
+        assert(html.includes(`data-faq-conference-count="${conferenceCount}"`), `${relativePath}: FAQ conference count is not synchronized`);
+        assert(html.includes(`data-faq-patent-count="${patentCount}"`), `${relativePath}: FAQ patent count is not synchronized`);
+        assert(html.includes('data-faq-patent-number="RU 2851956"'), `${relativePath}: FAQ patent number is incorrect`);
+        assert(html.includes(lang === 'ru' ? '2 журнальные статьи' : '2 journal articles'), `${relativePath}: FAQ journal summary missing`);
+        assert(html.includes(lang === 'ru' ? '6 конференционных публикаций' : '6 conference publications'), `${relativePath}: FAQ conference summary missing`);
+        const diagnosticImagingRole = lang === 'ru' ? 'специалист визуальной диагностики' : 'diagnostic imaging specialist';
+        assert(faqMain.toLowerCase().includes(diagnosticImagingRole), `${relativePath}: verified diagnostic imaging role missing`);
+        assert(html.includes(`href="/${lang}/contact/"`), `${relativePath}: localized Contact link missing`);
+        assert(!/(?:где будут доступны публикации|публикации будут|where will publications|publications will appear)/i.test(faqMain), `${relativePath}: stale future Publications promise found`);
+        assert(!/(?:PhD|doctoral candidate|current postgraduate student|professor|senior researcher|ultrasound physician|sonographer|врач(?:ом)? УЗИ)/i.test(faqMain), `${relativePath}: unverified FAQ status found`);
+        assert(prohibitedFaqNames.every((name) => !faqMain.toLowerCase().includes(name.toLowerCase())), `${relativePath}: prohibited project or practice name found`);
+        assert(!/(?:mailto:|tel:|\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b)/i.test(faqMain), `${relativePath}: contact details exposed in FAQ`);
+        assert(!/<script\b[^>]*\ssrc=/i.test(faqMain), `${relativePath}: FAQ must not add a client script`);
+
+        faqGroupIdsByLanguage.set(lang, uniqueGroupIds);
+        faqQuestionIdsByLanguage.set(lang, questionIds);
+      } else if (['publications', 'profiles', 'knowledge', 'timeline'].includes(route)) {
         const itemList = jsonLdNodes.find((node) => node['@id'] === `${expectedCanonical}#item-list` && node['@type'] === 'ItemList');
         assert(pageSchema?.mainEntity?.['@id'] === `${expectedCanonical}#item-list`, `${relativePath}: CollectionPage mainEntity missing`);
         assert(itemList?.numberOfItems > 0 && itemList?.itemListElement?.length === itemList.numberOfItems, `${relativePath}: CollectionPage ItemList is incomplete`);
@@ -277,6 +339,22 @@ assert(websiteSignatures.size === 1, 'conflicting WebSite entities detected acro
 const ruTimelineIds = timelineIdsByLanguage.get('ru') ?? [];
 const enTimelineIds = timelineIdsByLanguage.get('en') ?? [];
 assert(JSON.stringify(ruTimelineIds) === JSON.stringify(enTimelineIds), 'Timeline RU/EN stable ID parity is incomplete');
+
+const ruFaqGroupIds = faqGroupIdsByLanguage.get('ru') ?? [];
+const enFaqGroupIds = faqGroupIdsByLanguage.get('en') ?? [];
+const ruFaqQuestionIds = faqQuestionIdsByLanguage.get('ru') ?? [];
+const enFaqQuestionIds = faqQuestionIdsByLanguage.get('en') ?? [];
+assert(JSON.stringify(ruFaqGroupIds) === JSON.stringify(enFaqGroupIds), 'FAQ RU/EN group parity is incomplete');
+assert(JSON.stringify(ruFaqQuestionIds) === JSON.stringify(enFaqQuestionIds), 'FAQ RU/EN question parity is incomplete');
+
+const faqSource = await readFile(new URL('src/data/faq.ts', root), 'utf8');
+assert(faqSource.includes("from './cv'"), 'FAQ must reuse centralized CV records');
+assert(faqSource.includes("from './publication-records'"), 'FAQ must reuse centralized publication records');
+assert(faqSource.includes("from './remaining-pages'"), 'FAQ must reuse centralized project records');
+assert(faqSource.includes("from './about'"), 'FAQ must reuse approved About terminology');
+assert(faqSource.includes('publicationRecords.filter'), 'FAQ publication counts must be derived from centralized records');
+assert(faqSource.includes('publicationPath(lang, patentRecord.slug)'), 'FAQ patent URL must come from the centralized publication record');
+assert(!faqSource.includes('xray-morphometric-laminitis-cattle-patent'), 'FAQ must not duplicate the patent slug');
 
 const timelineSource = await readFile(new URL('src/data/timeline.ts', root), 'utf8');
 assert(timelineSource.includes("from './cv'"), 'Timeline must reuse centralized CV records');
