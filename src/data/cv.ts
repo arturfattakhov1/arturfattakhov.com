@@ -8,7 +8,12 @@ interface LabelValue {
   value: string;
 }
 
+export type EducationRecordId = 'research-teaching' | 'veterinary-doctor';
+export type ExperienceRecordId = 'private-practice' | 'sechenov-analyst' | 'aspect-research-regulatory';
+export type PrimaryTrainingRecordId = 'diagnostic-imaging-course' | 'veterinary-pharma' | 'veterinary-diagnostics' | 'glp' | 'molecular-genetics';
+
 interface EducationRecord {
+  id: EducationRecordId;
   year: string;
   organization: string;
   shortOrganization?: string;
@@ -17,6 +22,7 @@ interface EducationRecord {
 }
 
 interface ExperienceRecord {
+  id: ExperienceRecordId;
   period: string;
   role: string;
   organization: string;
@@ -34,6 +40,10 @@ interface TrainingRecord {
   organization?: string;
   period: string;
   certificate?: string;
+}
+
+interface PrimaryTrainingRecord extends TrainingRecord {
+  id: PrimaryTrainingRecordId;
 }
 
 interface CompetencyGroup {
@@ -71,7 +81,7 @@ export interface CvPageCopy {
   };
   qualifications: {
     introduction: string;
-    primary: readonly TrainingRecord[];
+    primary: readonly PrimaryTrainingRecord[];
     additionalTitle: string;
     additional: readonly TrainingRecord[];
   };
@@ -119,6 +129,7 @@ export const cvPageCopy: Record<Language, CvPageCopy> = {
       introduction: 'Образование представлено как завершённая профессиональная подготовка. Записи не создают текущий академический статус.',
       records: [
         {
+          id: 'research-teaching',
           year: '2024',
           organization: 'Московская государственная академия ветеринарной медицины и биотехнологии имени К. И. Скрябина',
           shortOrganization: 'МГАВМиБ - МВА имени К. И. Скрябина',
@@ -126,6 +137,7 @@ export const cvPageCopy: Record<Language, CvPageCopy> = {
           note: 'Подготовка завершена в 2024 году; диплом о квалификации выдан в 2026 году.',
         },
         {
+          id: 'veterinary-doctor',
           year: '2021',
           organization: 'Санкт-Петербургский государственный университет ветеринарной медицины',
           shortOrganization: 'СПбГУВМ',
@@ -137,6 +149,7 @@ export const cvPageCopy: Record<Language, CvPageCopy> = {
       introduction: 'Профессиональный опыт указан в обратном хронологическом порядке. Официальные должности и фактические функции разделены там, где это важно для точности.',
       records: [
         {
+          id: 'private-practice',
           period: 'Июль 2025 - настоящее время',
           role: 'Основатель и ветеринарный врач',
           organization: 'Частная ветеринарная практика',
@@ -154,6 +167,7 @@ export const cvPageCopy: Record<Language, CvPageCopy> = {
           ],
         },
         {
+          id: 'sechenov-analyst',
           period: 'Июнь 2024 - декабрь 2024',
           role: 'Аналитик',
           organization: 'Первый Московский государственный медицинский университет имени И. М. Сеченова Министерства здравоохранения Российской Федерации',
@@ -177,6 +191,7 @@ export const cvPageCopy: Record<Language, CvPageCopy> = {
           ],
         },
         {
+          id: 'aspect-research-regulatory',
           period: 'Июль 2022 - январь 2023',
           role: 'Ветеринарный специалист по научно-исследовательской и регуляторной работе',
           organization: 'АГ «Аспект»',
@@ -219,27 +234,32 @@ export const cvPageCopy: Record<Language, CvPageCopy> = {
       introduction: 'В разделе указаны профильные квалификации, дополнительное обучение и подтверждённое участие в профессиональных образовательных форматах.',
       primary: [
         {
+          id: 'diagnostic-imaging-course',
           title: 'Профильный курс «Ветеринарный врач визуальной диагностики»',
           organization: 'ВЕТ ВОРКШОП',
           period: '24 ноября 2025 - 10 марта 2026',
           certificate: '№ 407',
         },
         {
+          id: 'veterinary-pharma',
           title: 'Специалист в сфере обращения лекарственных средств ветеринарного применения (фармацевтическая деятельность)',
           organization: 'СПбГУВМ',
           period: '30 апреля 2021',
         },
         {
+          id: 'veterinary-diagnostics',
           title: 'Ветеринарная диагностика',
           organization: 'СПбГУВМ',
           period: '12-16 апреля 2021',
           certificate: '№ 19',
         },
         {
+          id: 'glp',
           title: 'Организация и проведение неклинических (доклинических) исследований по международному стандарту надлежащей лабораторной практики (GLP)',
           period: '7 марта 2024',
         },
         {
+          id: 'molecular-genetics',
           title: 'Молекулярно-генетические технологии в диагностике и профилактике инфекционных болезней животных',
           organization: 'ФГБУ «ВНИИЗЖ»',
           period: '17-18 ноября 2022',
@@ -346,12 +366,14 @@ export const cvPageCopy: Record<Language, CvPageCopy> = {
       introduction: 'Education is presented as completed professional training. These records do not create a current academic status.',
       records: [
         {
+          id: 'research-teaching',
           year: '2024',
           organization: 'Moscow State Academy of Veterinary Medicine and Biotechnology named after K. I. Skryabin',
           qualification: 'Researcher. Teacher-Researcher',
           note: 'Postgraduate research training completed in 2024; diploma issued in 2026.',
         },
         {
+          id: 'veterinary-doctor',
           year: '2021',
           organization: 'Saint Petersburg State University of Veterinary Medicine',
           qualification: 'Veterinary Doctor',
@@ -362,6 +384,7 @@ export const cvPageCopy: Record<Language, CvPageCopy> = {
       introduction: 'Professional experience is listed in reverse chronological order. Official roles and factual functions are separated where accuracy requires it.',
       records: [
         {
+          id: 'private-practice',
           period: 'July 2025 - Present',
           role: 'Founder and Veterinary Doctor',
           organization: 'Private Veterinary Practice',
@@ -379,6 +402,7 @@ export const cvPageCopy: Record<Language, CvPageCopy> = {
           ],
         },
         {
+          id: 'sechenov-analyst',
           period: 'June 2024 - December 2024',
           role: 'Analyst',
           organization: 'I.M. Sechenov First Moscow State Medical University',
@@ -402,6 +426,7 @@ export const cvPageCopy: Record<Language, CvPageCopy> = {
           ],
         },
         {
+          id: 'aspect-research-regulatory',
           period: 'July 2022 - January 2023',
           role: 'Veterinary Research Specialist',
           organization: 'Aspect Group',
@@ -444,27 +469,32 @@ export const cvPageCopy: Record<Language, CvPageCopy> = {
       introduction: 'This section lists professional qualifications, continuing education, and verified participation in professional educational formats.',
       primary: [
         {
+          id: 'diagnostic-imaging-course',
           title: 'Professional Course: Veterinary Diagnostic Imaging',
           organization: 'Vet Workshop',
           period: '24 November 2025 - 10 March 2026',
           certificate: 'No. 407',
         },
         {
+          id: 'veterinary-pharma',
           title: 'Specialist in the Circulation of Veterinary Medicinal Products (Pharmaceutical Activities)',
           organization: 'Saint Petersburg State University of Veterinary Medicine',
           period: '30 April 2021',
         },
         {
+          id: 'veterinary-diagnostics',
           title: 'Veterinary Diagnostics',
           organization: 'Saint Petersburg State University of Veterinary Medicine',
           period: '12-16 April 2021',
           certificate: 'No. 19',
         },
         {
+          id: 'glp',
           title: 'Organization and Conduct of Nonclinical (Preclinical) Studies under Good Laboratory Practice (GLP)',
           period: '7 March 2024',
         },
         {
+          id: 'molecular-genetics',
           title: 'Molecular Genetic Technologies in the Diagnosis and Prevention of Infectious Animal Diseases',
           organization: 'FGBI ARRIAH',
           period: '17-18 November 2022',

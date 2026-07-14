@@ -1,13 +1,7 @@
 ---
-import { timelinePageCopy } from '../data/timeline';
-import { publicationPath, publicationRecords } from '../data/publication-records';
+import { getTimelineContextLinks, getTimelineEntries, timelinePageCopy } from '../data/timeline';
 import type { Language } from '../i18n/config';
-import { localizedPath } from '../i18n/config';
-import Button from './Button.astro';
-import Card from './Card.astro';
 import Container from './Container.astro';
-import KnowledgeHubNavigation from './KnowledgeHubNavigation.astro';
-import LinkCard from './LinkCard.astro';
 import PageIntro from './PageIntro.astro';
 import PageSection from './PageSection.astro';
 
@@ -17,52 +11,66 @@ interface Props {
 
 const { lang } = Astro.props;
 const copy = timelinePageCopy[lang];
+const entries = getTimelineEntries(lang);
+const contextLinks = getTimelineContextLinks(lang);
 ---
 
-<div class="section-stack timeline-sections">
-  <PageIntro>
-    <Container class="section-copy section-copy--lead">
-      <p>{copy.hero}</p>
-      <div class="button-group">
-        <Button href={localizedPath(lang, 'publications')}>{copy.publicationsCta}</Button>
-        <Button href={localizedPath(lang, 'research')} variant="secondary">{lang === 'ru' ? 'Исследования' : 'Research'}</Button>
-        <Button href={localizedPath(lang, 'projects')} variant="secondary">{lang === 'ru' ? 'Проекты' : 'Projects'}</Button>
-      </div>
-      <KnowledgeHubNavigation lang={lang} exclude="timeline" />
+<div class="section-stack timeline-sections timeline-sections--v2">
+  <PageIntro class="timeline-opening">
+    <Container class="timeline-opening__copy" size="reading">
+      <p class="eyebrow">{copy.opening.eyebrow}</p>
+      <p class="timeline-opening__lead">{copy.opening.lead}</p>
+      <p class="timeline-opening__context">{copy.opening.context}</p>
     </Container>
   </PageIntro>
 
-  <PageSection id="verified-publication-milestones" title={copy.verifiedTitle}>
+  <PageSection id="professional-timeline" title={copy.chronologyTitle} density="open">
     <Container>
-      <p class="section-copy">{copy.verifiedIntro}</p>
-      {[2021, 2024, 2025].map((year) => (
-        <section aria-labelledby={`timeline-${year}-heading`}>
-          <h3 id={`timeline-${year}-heading`}>{copy.yearHeadings[String(year) as keyof typeof copy.yearHeadings]}</h3>
-          <ul class="card-grid" role="list">
-            {publicationRecords.filter((record) => record.year === year).map((record) => (
-              <li>
-                <LinkCard
-                  title={record.title[lang]}
-                  description={record.venue}
-                  href={publicationPath(lang, record.slug)}
-                  linkLabel={lang === 'ru' ? 'Открыть запись' : 'Open record'}
-                />
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+      <ol class="timeline-list">
+        {entries.map((entry) => (
+          <li
+            id={`timeline-${entry.id}`}
+            data-timeline-entry={entry.id}
+            data-timeline-source={entry.source}
+            data-current={entry.current ? 'true' : undefined}
+          >
+            <article class="timeline-entry">
+              <div class="timeline-entry__aside">
+                <time datetime={entry.datetime}>{entry.period}</time>
+                <p>{copy.categories[entry.category]}</p>
+              </div>
+              <div class="timeline-entry__body">
+                <h3>{entry.title}</h3>
+                <p>{entry.summary}</p>
+                {entry.link && (
+                  <a class="timeline-entry__link" data-timeline-link={entry.id} href={entry.link.href}>
+                    {entry.link.label}
+                  </a>
+                )}
+              </div>
+            </article>
+          </li>
+        ))}
+      </ol>
     </Container>
   </PageSection>
 
-  <PageSection id="professional-timeline" title={copy.sectionTitle}>
+  <PageSection id="related-records" title={copy.contextTitle} density="compact">
     <Container>
-      <ol class="card-grid">
-        {copy.milestones.map((milestone) => <li><Card {...milestone} /></li>)}
-      </ol>
-      <div class="section-copy">
-        <p>{copy.closing}</p>
-      </div>
+      <p class="timeline-context__intro">{copy.contextIntro}</p>
+      <nav class="timeline-context" aria-label={copy.contextLabel}>
+        <ul>
+          {contextLinks.map((link) => (
+            <li>
+              <a href={link.href}>
+                <span>{link.title}</span>
+                <small>{link.description}</small>
+                <span aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </Container>
   </PageSection>
 </div>

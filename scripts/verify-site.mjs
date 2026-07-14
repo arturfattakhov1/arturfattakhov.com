@@ -33,6 +33,8 @@ const titlesByLanguage = new Map(languages.map((lang) => [lang, new Set()]));
 const descriptionsByLanguage = new Map(languages.map((lang) => [lang, new Set()]));
 const personSignatures = new Set();
 const websiteSignatures = new Set();
+const timelineIdsByLanguage = new Map();
+const expectedTimelineEventCount = 10;
 
 function assert(condition, message) {
   if (!condition) errors.push(message);
@@ -231,6 +233,29 @@ for (const lang of languages) {
         const itemList = jsonLdNodes.find((node) => node['@id'] === `${expectedCanonical}#item-list` && node['@type'] === 'ItemList');
         assert(pageSchema?.mainEntity?.['@id'] === `${expectedCanonical}#item-list`, `${relativePath}: CollectionPage mainEntity missing`);
         assert(itemList?.numberOfItems > 0 && itemList?.itemListElement?.length === itemList.numberOfItems, `${relativePath}: CollectionPage ItemList is incomplete`);
+
+        if (route === 'timeline') {
+          const eventIds = [...html.matchAll(/data-timeline-entry="([^"]+)"/g)].map((match) => match[1]);
+          const eventSources = [...html.matchAll(/data-timeline-source="([^"]+)"/g)].map((match) => match[1]);
+          const eventLinks = [...html.matchAll(/<a\b([^>]*data-timeline-link="[^"]+"[^>]*)>/g)]
+            .map((match) => matchOne(match[1], /href="([^"]+)"/))
+            .filter(Boolean);
+          const itemUrls = itemList?.itemListElement?.map((item) => item.url) ?? [];
+
+          assert(eventIds.length === expectedTimelineEventCount, `${relativePath}: expected ${expectedTimelineEventCount} Timeline entries`);
+          assert(new Set(eventIds).size === eventIds.length, `${relativePath}: duplicate Timeline stable IDs`);
+          assert(eventSources.length === eventIds.length && eventSources.every(Boolean), `${relativePath}: Timeline source mapping is incomplete`);
+          assert(new Set(eventSources).size === eventSources.length, `${relativePath}: duplicate Timeline source mapping`);
+          assert(eventLinks.length > 0 && new Set(eventLinks).size === eventLinks.length, `${relativePath}: duplicate or missing Timeline event links`);
+          assert((html.match(/data-current="true"/g) ?? []).length === 1, `${relativePath}: current practice marker is incorrect`);
+          assert(itemList?.numberOfItems === eventIds.length, `${relativePath}: Timeline ItemList count does not match rendered entries`);
+          assert(itemUrls.length === eventIds.length && itemUrls.every((url, index) => url === `${expectedCanonical}#timeline-${eventIds[index]}`), `${relativePath}: Timeline ItemList does not match rendered entry order`);
+          assert(itemList?.itemListElement?.every((item) => typeof item.name === 'string' && item.name.trim().length > 0), `${relativePath}: Timeline ItemList contains an empty entry`);
+          assert(!/(?:будут добавлены|будет расширяться|будущие этапы|will be added|will expand|future milestones)/i.test(html), `${relativePath}: stale Timeline placeholder promise found`);
+          assert(!/(?:PhD student|doctoral candidate|current postgraduate student|professor|senior researcher|ultrasound physician|sonographer)/i.test(html), `${relativePath}: unverified Timeline status found`);
+          assert(html.includes(lang === 'ru' ? '>Аналитик<' : '>Analyst<'), `${relativePath}: verified Analyst role missing`);
+          timelineIdsByLanguage.set(lang, eventIds);
+        }
       } else {
         assert(pageSchema?.mainEntity?.['@id'] === `${domain}/#person`, `${relativePath}: page-level mainEntity must reference Person`);
       }
@@ -248,6 +273,16 @@ for (const lang of languages) {
 
 assert(personSignatures.size === 1, 'conflicting Person entities detected across pages');
 assert(websiteSignatures.size === 1, 'conflicting WebSite entities detected across pages');
+
+const ruTimelineIds = timelineIdsByLanguage.get('ru') ?? [];
+const enTimelineIds = timelineIdsByLanguage.get('en') ?? [];
+assert(JSON.stringify(ruTimelineIds) === JSON.stringify(enTimelineIds), 'Timeline RU/EN stable ID parity is incomplete');
+
+const timelineSource = await readFile(new URL('src/data/timeline.ts', root), 'utf8');
+assert(timelineSource.includes("from './cv'"), 'Timeline must reuse centralized CV records');
+assert(timelineSource.includes("from './publication-records'"), 'Timeline must reuse centralized publication records');
+assert(timelineSource.includes('publicationPath(lang, patent2025.slug)'), 'Timeline patent URL must come from the centralized publication record');
+assert(!timelineSource.includes('xray-morphometric-laminitis-cattle-patent'), 'Timeline must not duplicate the patent slug');
 
 const publicationFilterScriptPath = '/scripts/publication-filter.js';
 const publicationFilterScriptUrl = `${publicationFilterScriptPath}?v=3`;
@@ -368,7 +403,7 @@ for (const lang of languages) {
     research: ['about', 'publications', 'profiles', 'knowledge', 'timeline'],
     publications: ['about', 'research', 'profiles'],
     projects: ['research', 'publications', 'contact', 'knowledge', 'timeline'],
-    timeline: ['research', 'publications', 'projects', 'knowledge'],
+    timeline: ['cv', 'research', 'publications'],
     knowledge: ['research', 'publications', 'timeline'],
     profiles: ['about', 'publications', 'contact', 'knowledge', 'timeline'],
     contact: ['privacy'],

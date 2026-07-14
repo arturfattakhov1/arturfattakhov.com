@@ -15,7 +15,7 @@ import { pageContent, type StandardPageSlug } from '../../data/pages';
 import type { LegalPageSlug } from '../../data/legal';
 import { identity } from '../../data/identity';
 import { knowledgePageCopy } from '../../data/knowledge';
-import { publicationPath, publicationRecords } from '../../data/publication-records';
+import { getTimelineSchemaItems } from '../../data/timeline';
 import type { PageSchemaType, SchemaListItem } from '../../data/structured-data';
 import { languages, localizedPath, type Language } from '../../i18n/config';
 import PageLayout from '../../layouts/PageLayout.astro';
@@ -47,10 +47,7 @@ let schemaItems: SchemaListItem[] | undefined;
 if (page === 'profiles') {
   schemaItems = identity.profiles.map((profile) => ({ name: profile.name, url: profile.url }));
 } else if (page === 'timeline') {
-  schemaItems = publicationRecords.map((record) => ({
-    name: record.title[lang],
-    url: publicationPath(lang, record.slug),
-  }));
+  schemaItems = getTimelineSchemaItems(lang);
 } else if (page === 'knowledge') {
   schemaItems = knowledgePageCopy[lang].topics.map((topic) => ({
     name: topic.title,
