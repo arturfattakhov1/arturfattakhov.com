@@ -7,9 +7,10 @@ import { footerCoreNavigation, footerReferenceNavigation, ui } from '../i18n/ui'
 interface Props {
   lang: Language;
   showVerifiedProfiles?: boolean;
+  showReferenceLinks?: boolean;
 }
 
-const { lang, showVerifiedProfiles = true } = Astro.props;
+const { lang, showVerifiedProfiles = true, showReferenceLinks = true } = Astro.props;
 const verifiedProfileKeys = new Set(['orcid', 'googleScholar', 'webOfScience', 'researchGate', 'github']);
 const verifiedProfiles = identity.profiles.filter((profile) => verifiedProfileKeys.has(profile.key));
 ---
@@ -48,14 +49,16 @@ const verifiedProfiles = identity.profiles.filter((profile) => verifiedProfileKe
           </ul>
         </nav>
       )}
-      <nav aria-labelledby={`footer-reference-${lang}`}>
-        <h2 id={`footer-reference-${lang}`}>{ui[lang].footerReference}</h2>
-        <ul>
-          {footerReferenceNavigation.map((item) => (
-            <li><a href={localizedPath(lang, item.slug)}>{item.label[lang]}</a></li>
-          ))}
-        </ul>
-      </nav>
+      {showReferenceLinks && (
+        <nav aria-labelledby={`footer-reference-${lang}`}>
+          <h2 id={`footer-reference-${lang}`}>{ui[lang].footerReference}</h2>
+          <ul>
+            {footerReferenceNavigation.map((item) => (
+              <li><a href={localizedPath(lang, item.slug)}>{item.label[lang]}</a></li>
+            ))}
+          </ul>
+        </nav>
+      )}
     </div>
     <div class="site-footer__meta">
       <nav class="site-footer__languages" aria-label={ui[lang].footerLanguage}>

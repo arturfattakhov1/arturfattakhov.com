@@ -1,0 +1,57 @@
+---
+import { notFoundCopy } from '../data/not-found';
+import type { Language } from '../i18n/config';
+import { localizedPath } from '../i18n/config';
+import Button from './Button.astro';
+import Container from './Container.astro';
+
+interface Props {
+  lang: Language;
+  hidden?: boolean;
+  fallback?: boolean;
+}
+
+const { lang, hidden = false, fallback = false } = Astro.props;
+const copy = notFoundCopy[lang];
+const alternateLanguage: Language = lang === 'ru' ? 'en' : 'ru';
+const titleId = `not-found-title-${lang}${fallback ? '-fallback' : ''}`;
+---
+
+<section
+  class:list={['not-found-page', { 'not-found-page--fallback': fallback }]}
+  data-not-found-locale={fallback ? undefined : lang}
+  data-not-found-document-title={copy.documentTitle}
+  data-not-found-description={copy.description}
+  lang={lang}
+  hidden={hidden}
+  aria-labelledby={titleId}
+>
+  <Container class="not-found-page__inner" size="wide">
+    <p class="not-found-page__code">{copy.code}</p>
+    <div class="not-found-page__message">
+      {fallback ? <h2 id={titleId}>{copy.title}</h2> : <h1 id={titleId}>{copy.title}</h1>}
+      <p class="not-found-page__description">{copy.description}</p>
+      <div class="not-found-page__actions">
+        <Button href={localizedPath(lang)}>{copy.homeLabel}</Button>
+        <a
+          class="not-found-page__language"
+          href={localizedPath(alternateLanguage)}
+          lang={alternateLanguage}
+          hreflang={alternateLanguage}
+          data-not-found-language-link={alternateLanguage}
+        >
+          {copy.languageLabel}
+        </a>
+      </div>
+    </div>
+    <nav class="not-found-page__navigation" aria-label={copy.navigationLabel}>
+      <p>{copy.navigationLabel}</p>
+      <ul role="list">
+        <li><a href={localizedPath(lang, 'about')}>{copy.links.about}</a></li>
+        <li><a href={localizedPath(lang, 'research')}>{copy.links.research}</a></li>
+        <li><a href={localizedPath(lang, 'publications')}>{copy.links.publications}</a></li>
+        <li><a href={localizedPath(lang, 'contact')}>{copy.links.contact}</a></li>
+      </ul>
+    </nav>
+  </Container>
+</section>

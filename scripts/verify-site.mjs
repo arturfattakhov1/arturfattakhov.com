@@ -399,6 +399,38 @@ const redirects = await readFile(new URL('dist/_redirects', root), 'utf8');
 assert(redirects.includes('/contact /ru/contact/ 301'), '/contact redirect missing');
 assert(redirects.includes('/contact/ /ru/contact/ 301'), '/contact/ redirect missing');
 
+const notFoundPath = '404.html';
+const notFoundScriptPath = '/scripts/not-found.js';
+const notFound = await readFile(new URL(`dist/${notFoundPath}`, root), 'utf8');
+const notFoundScript = await readFile(new URL(`dist${notFoundScriptPath}`, root), 'utf8');
+assert(notFound.includes('<html lang="ru" data-not-found-page>'), '404.html: safe Russian fallback language missing');
+assert(notFound.includes('<meta name="robots" content="noindex, nofollow">'), '404.html: noindex directive missing');
+assert(!notFound.includes('<link rel="canonical"'), '404.html: canonical must not represent a missing URL');
+assert(!notFound.includes('application/ld+json'), '404.html: JSON-LD must not describe the error page as content');
+assert(notFound.includes('Страница не найдена'), '404.html: Russian message missing');
+assert(notFound.includes('Page not found'), '404.html: English message missing');
+assert(notFound.includes('data-not-found-locale="ru"'), '404.html: Russian locale state missing');
+assert(notFound.includes('data-not-found-locale="en" hidden'), '404.html: English enhanced state must be initially hidden');
+assert(notFound.includes('<noscript>'), '404.html: no-JavaScript fallback missing');
+assert(notFound.includes('href="/ru/"'), '404.html: Russian home link missing');
+assert(notFound.includes('href="/en/"'), '404.html: English home link missing');
+for (const lang of languages) {
+  for (const route of ['about', 'research', 'publications', 'contact']) {
+    assert(notFound.includes(`href="/${lang}/${route}/"`), `404.html: ${lang} ${route} link missing`);
+  }
+}
+assert(notFound.includes(`<script src="${notFoundScriptPath}" defer></script>`), '404.html: local language script missing');
+const notFoundScriptSources = [...notFound.matchAll(/<script\b[^>]*\ssrc="([^"]+)"[^>]*>/g)].map((match) => match[1]);
+assert(notFoundScriptSources.length === 1 && notFoundScriptSources.every((source) => source.startsWith('/')), '404.html: external script found');
+assert(!/<meta\s+http-equiv="refresh"/i.test(notFound), '404.html: meta refresh must not be used');
+assert(!/(?:mailto:|tel:|\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b)/i.test(notFound), '404.html: contact details must not be exposed');
+assert(!/(?:\/ru|\/en)\/(?:blog|uses|now)\//.test(notFound), '404.html: out-of-scope secondary link found');
+assert(notFoundScript.includes('window.location.pathname'), '404 script: pathname language detection missing');
+assert(notFoundScript.includes('document.documentElement.lang = language'), '404 script: document language update missing');
+assert(notFoundScript.includes('element.hidden = element.dataset.notFoundLocale !== language'), '404 script: inactive locale hiding missing');
+assert(notFoundScript.includes('document.title ='), '404 script: localized document title update missing');
+assert(!/(?:location\.assign|location\.replace|location\.href\s*=|window\.location\s*=)/.test(notFoundScript), '404 script: automatic redirect found');
+
 const robots = await readFile(new URL('dist/robots.txt', root), 'utf8');
 assert(robots.includes('User-agent: *'), 'robots.txt user agent missing');
 assert(robots.includes('Allow: /'), 'robots.txt does not explicitly allow indexing');
@@ -417,10 +449,15 @@ assert(headers.includes("script-src 'self'"), 'CSP script restriction missing');
 assert(headers.includes("form-action 'self' https://formspree.io"), 'CSP Formspree form-action permission missing');
 assert(headers.includes("connect-src 'self' https://formspree.io"), 'CSP Formspree connect-src permission missing');
 
+const wranglerConfig = await readFile(new URL('wrangler.jsonc', root), 'utf8');
+assert(wranglerConfig.includes('"directory": "./dist"'), 'Wrangler static assets directory is incorrect');
+assert(wranglerConfig.includes('"not_found_handling": "404-page"'), 'Wrangler custom 404 handling is missing');
+
 const sitemapIndex = await readFile(new URL('dist/sitemap-index.xml', root), 'utf8');
 assert(sitemapIndex.includes(`<loc>${domain}/sitemap-0.xml</loc>`), 'sitemap index does not reference the generated sitemap');
 
 const sitemap = await readFile(new URL('dist/sitemap-0.xml', root), 'utf8');
+assert(!sitemap.includes('/404'), '404 page must not appear in sitemap');
 for (const lang of languages) {
   for (const route of routes) {
     const relativePath = route ? `${lang}/${route}/` : `${lang}/`;
@@ -462,5 +499,5 @@ if (errors.length > 0) {
   console.error(errors.map((error) => `- ${error}`).join('\n'));
   process.exitCode = 1;
 } else {
-  console.log(`Verified ${languages.length * (routes.length + publicationSlugs.length)} localized pages, redirects, metadata, JSON-LD, sitemap, robots, links, filters, and source content.`);
+  console.log(`Verified ${languages.length * (routes.length + publicationSlugs.length)} localized pages, bilingual 404, redirects, metadata, JSON-LD, sitemap, robots, links, filters, and source content.`);
 }

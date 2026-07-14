@@ -1,0 +1,49 @@
+---
+import '../styles/global.css';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import NotFoundContent from '../components/NotFoundContent.astro';
+import { notFoundCopy } from '../data/not-found';
+import { localizedPath } from '../i18n/config';
+
+const russianCopy = notFoundCopy.ru;
+---
+
+<!doctype html>
+<html lang="ru" data-not-found-page>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#f7f8f5" />
+    <title>{russianCopy.documentTitle}</title>
+    <meta name="description" content={russianCopy.description} data-not-found-meta-description />
+    <meta name="robots" content="noindex, nofollow" />
+    <script is:inline src="/scripts/not-found.js" defer></script>
+  </head>
+  <body>
+    <div class="site-shell not-found-shell">
+      <div class="not-found-shell__locale" data-not-found-locale="ru">
+        <Header lang="ru" currentPath={localizedPath('ru')} />
+      </div>
+      <div class="not-found-shell__locale" data-not-found-locale="en" hidden>
+        <Header lang="en" currentPath={localizedPath('en')} />
+      </div>
+
+      <main id="main-content" tabindex="-1">
+        <NotFoundContent lang="ru" />
+        <NotFoundContent lang="en" hidden />
+        <noscript>
+          <NotFoundContent lang="en" fallback />
+        </noscript>
+      </main>
+
+      <div class="not-found-shell__locale" data-not-found-locale="ru">
+        <Footer lang="ru" showVerifiedProfiles={false} showReferenceLinks={false} />
+      </div>
+      <div class="not-found-shell__locale" data-not-found-locale="en" hidden>
+        <Footer lang="en" showVerifiedProfiles={false} showReferenceLinks={false} />
+      </div>
+    </div>
+  </body>
+</html>
