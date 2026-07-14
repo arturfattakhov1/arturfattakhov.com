@@ -278,35 +278,6 @@ export const mediaPageCopy = {
   },
 } as const;
 
-export const cvPageCopy = {
-  ru: {
-    hero: 'Профессиональное резюме объединяет подтверждённые сведения о клинической, исследовательской и предпринимательской работе. Хронология и документы будут добавляться только после проверки.',
-    professionalProfile: 'Артур Фаттахов — ветеринарный врач, специалист по ультразвуковой диагностике, исследователь и предприниматель. Его профессиональные интересы включают ветеринарную медицину собак и кошек, диагностическую визуализацию, клиническую поддержку решений и искусственный интеллект.',
-    placeholders: {
-      education: 'Сведения об образовании будут добавлены после проверки.',
-      research: 'Темы, статус и результаты исследовательской работы будут указываться только по проверяемым источникам.',
-      clinicalPractice: 'Описание клинической практики будет добавлено без публикации неподтверждённых работодателей, должностей или показателей.',
-      entrepreneurship: 'Подтверждённые сведения о предпринимательской работе будут отделены от планов и будущих инициатив.',
-      skills: 'Профессиональные навыки будут описываться конкретно и только в пределах подтверждённого опыта.',
-    },
-    profileLinkLabel: 'Открыть профиль',
-    externalLinkLabel: 'откроется в новой вкладке',
-  },
-  en: {
-    hero: 'This professional CV brings together verified information about clinical, research, and entrepreneurial work. Chronology and supporting records will be added only after review.',
-    professionalProfile: 'Artur Fattakhov is a veterinarian, veterinary ultrasound specialist, researcher, and entrepreneur. His professional interests include veterinary medicine for dogs and cats, diagnostic imaging, clinical decision support, and artificial intelligence.',
-    placeholders: {
-      education: 'Education details will be added after verification.',
-      research: 'Research themes, status, and outcomes will be stated only where verifiable sources are available.',
-      clinicalPractice: 'Clinical-practice information will be added without publishing unverified employers, positions, or metrics.',
-      entrepreneurship: 'Verified entrepreneurial work will be distinguished clearly from plans and future initiatives.',
-      skills: 'Professional skills will be described specifically and only within the limits of verified experience.',
-    },
-    profileLinkLabel: 'Open profile',
-    externalLinkLabel: 'opens in a new tab',
-  },
-} as const;
-
 export const usesPageCopy = {
   ru: {
     hero: 'Эта страница будет документировать инструменты, программы и технологии, которые регулярно используются в профессиональной работе. Список будет практическим: для каждого пункта важно объяснить задачу, контекст применения и ограничения.',

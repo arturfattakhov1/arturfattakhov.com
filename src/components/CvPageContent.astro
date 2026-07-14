@@ -1,33 +1,235 @@
 ---
 import { identity } from '../data/identity';
-import { cvPageCopy } from '../data/remaining-pages';
+import { cvPageCopy, getResearchOutputSummary } from '../data/cv';
 import type { Language } from '../i18n/config';
-import CollectionPlaceholder from './CollectionPlaceholder.astro';
+import { localizedPath } from '../i18n/config';
+import Button from './Button.astro';
 import Container from './Container.astro';
 import CvSections from './CvSections.astro';
-import ProfileCard from './ProfileCard.astro';
 
-type ProfileKey = (typeof identity.profiles)[number]['key'];
+type IdentityProfile = (typeof identity.profiles)[number];
+
 interface Props { lang: Language; }
+
 const { lang } = Astro.props;
 const copy = cvPageCopy[lang];
-const byKey = new Map(identity.profiles.map((profile) => [profile.key, profile] as const));
-const keys: ProfileKey[] = ['orcid', 'googleScholar', 'researchGate', 'webOfScience'];
-const identifiers = keys.map((key) => byKey.get(key)).filter((profile) => profile !== undefined);
+const outputSummary = getResearchOutputSummary(lang);
+const profilesByKey = new Map(identity.profiles.map((profile) => [profile.key, profile] as const));
+const profiles = copy.profiles.keys
+  .map((key) => profilesByKey.get(key))
+  .filter((profile): profile is IdentityProfile => profile !== undefined);
 ---
 
 <CvSections lang={lang}>
-  <Fragment slot="hero"><Container class="section-copy section-copy--lead"><p>{copy.hero}</p></Container></Fragment>
-  <Fragment slot="profile"><Container class="section-copy"><p>{copy.professionalProfile}</p></Container></Fragment>
-  <Fragment slot="education"><Container><CollectionPlaceholder collection="cv-education" title={copy.placeholders.education} description={copy.placeholders.education} /></Container></Fragment>
-  <Fragment slot="research"><Container><CollectionPlaceholder collection="cv-research" title={copy.placeholders.research} description={copy.placeholders.research} /></Container></Fragment>
-  <Fragment slot="clinical"><Container><CollectionPlaceholder collection="cv-clinical-practice" title={copy.placeholders.clinicalPractice} description={copy.placeholders.clinicalPractice} /></Container></Fragment>
-  <Fragment slot="entrepreneurship"><Container><CollectionPlaceholder collection="cv-entrepreneurship" title={copy.placeholders.entrepreneurship} description={copy.placeholders.entrepreneurship} /></Container></Fragment>
-  <Fragment slot="skills"><Container><CollectionPlaceholder collection="cv-skills" title={copy.placeholders.skills} description={copy.placeholders.skills} /></Container></Fragment>
-  <Fragment slot="identifiers">
+  <Fragment slot="hero">
+    <Container class="cv-opening">
+      <p class="eyebrow">{copy.opening.eyebrow}</p>
+      <p class="cv-opening__lead">{copy.opening.lead}</p>
+      <p class="cv-opening__context">{copy.opening.context}</p>
+      <nav class="cv-opening__links" aria-label={copy.opening.linksLabel}>
+        <p>{copy.opening.linksLabel}</p>
+        <div class="button-group">
+          <Button href={localizedPath(lang, 'publications')}>{copy.opening.links.publications}</Button>
+          <Button href={localizedPath(lang, 'profiles')} variant="secondary">{copy.opening.links.profiles}</Button>
+        </div>
+      </nav>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="education">
     <Container>
-      <ul class="card-grid" role="list">
-        {identifiers.map((profile) => <li><ProfileCard profile={profile} linkLabel={copy.profileLinkLabel} externalLinkLabel={copy.externalLinkLabel} /></li>)}
+      <p class="cv-section-lead">{copy.education.introduction}</p>
+      <ol class="cv-record-list cv-education-list">
+        {copy.education.records.map((record) => (
+          <li>
+            <article>
+              <p class="cv-record-year">{record.year}</p>
+              <div class="cv-record-body">
+                <h3>{record.qualification}</h3>
+                <p class="cv-record-organization">{record.organization}</p>
+                {record.shortOrganization && <p class="cv-record-secondary">{record.shortOrganization}</p>}
+                {record.note && <p class="cv-record-note">{record.note}</p>}
+              </div>
+            </article>
+          </li>
+        ))}
+      </ol>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="experience">
+    <Container>
+      <p class="cv-section-lead">{copy.experience.introduction}</p>
+      <ol class="cv-record-list cv-experience-list">
+        {copy.experience.records.map((record) => (
+          <li>
+            <article>
+              <div class="cv-record-aside">
+                <p class="cv-record-period">{record.period}</p>
+                {record.location && <p class="cv-record-location">{record.location}</p>}
+              </div>
+              <div class="cv-record-body">
+                <h3>{record.role}</h3>
+                <p class="cv-record-organization">{record.organization}</p>
+                {record.secondaryOrganization && <p class="cv-record-secondary">{record.secondaryOrganization}</p>}
+                {(record.department || record.laboratory) && (
+                  <dl class="cv-context-list">
+                    {record.department && (
+                      <div>
+                        <dt>{lang === 'ru' ? 'Подразделение' : 'Subdivision'}</dt>
+                        <dd>{record.department}</dd>
+                      </div>
+                    )}
+                    {record.laboratory && (
+                      <div>
+                        <dt>{lang === 'ru' ? 'Лаборатория' : 'Laboratory'}</dt>
+                        <dd>{record.laboratory}</dd>
+                      </div>
+                    )}
+                  </dl>
+                )}
+                <p class="cv-record-description">{record.description}</p>
+                <ul class="cv-compact-list">
+                  {record.responsibilities.map((item) => <li>{item}</li>)}
+                </ul>
+                {record.result && <p class="cv-record-result">{record.result}</p>}
+              </div>
+            </article>
+          </li>
+        ))}
+      </ol>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="research">
+    <Container>
+      <p class="cv-section-lead">{copy.research.introduction}</p>
+      <ul class="cv-topic-list" role="list">
+        {copy.research.topics.map((topic) => <li>{topic}</li>)}
+      </ul>
+      <nav class="cv-related-links" aria-label={copy.research.linksLabel}>
+        <p>{copy.research.linksLabel}</p>
+        <ul>
+          <li><a href={localizedPath(lang, 'research')}>{copy.research.links.research}</a></li>
+          <li><a href={localizedPath(lang, 'publications')}>{copy.research.links.publications}</a></li>
+        </ul>
+      </nav>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="qualifications">
+    <Container>
+      <p class="cv-section-lead">{copy.qualifications.introduction}</p>
+      <ol class="cv-training-list">
+        {copy.qualifications.primary.map((record) => (
+          <li>
+            <article>
+              <h3>{record.title}</h3>
+              <dl class="cv-training-meta">
+                {record.organization && (
+                  <div>
+                    <dt>{lang === 'ru' ? 'Организация' : 'Organization'}</dt>
+                    <dd>{record.organization}</dd>
+                  </div>
+                )}
+                <div>
+                  <dt>{lang === 'ru' ? 'Дата' : 'Date'}</dt>
+                  <dd>{record.period}</dd>
+                </div>
+                {record.certificate && (
+                  <div>
+                    <dt>{lang === 'ru' ? 'Документ' : 'Certificate'}</dt>
+                    <dd>{record.certificate}</dd>
+                  </div>
+                )}
+              </dl>
+            </article>
+          </li>
+        ))}
+      </ol>
+      <details class="cv-additional-training">
+        <summary>{copy.qualifications.additionalTitle}</summary>
+        <ol>
+          {copy.qualifications.additional.map((record) => (
+            <li>
+              <span>{record.title}</span>
+              <small>
+                {[record.organization, record.period].filter(Boolean).join(' · ')}
+              </small>
+            </li>
+          ))}
+        </ol>
+      </details>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="output">
+    <Container>
+      <p class="cv-section-lead">{copy.output.introduction}</p>
+      <dl class="cv-output-summary">
+        {outputSummary.map((item) => (
+          <div>
+            <dt>{item.value}</dt>
+            <dd>{item.label}</dd>
+          </div>
+        ))}
+      </dl>
+      <nav class="cv-related-links" aria-label={copy.output.linksLabel}>
+        <p>{copy.output.linksLabel}</p>
+        <ul>
+          <li><a href={localizedPath(lang, 'publications')}>{copy.output.links.publications}</a></li>
+          <li><a href={localizedPath(lang, 'research')}>{copy.output.links.research}</a></li>
+        </ul>
+      </nav>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="competencies">
+    <Container>
+      <p class="cv-section-lead">{copy.competencies.introduction}</p>
+      <div class="cv-competency-groups">
+        {copy.competencies.groups.map((group, index) => (
+          <section aria-labelledby={`cv-competency-${index + 1}`}>
+            <h3 id={`cv-competency-${index + 1}`}>{group.title}</h3>
+            <ul class="cv-compact-list">
+              {group.items.map((item) => <li>{item}</li>)}
+            </ul>
+          </section>
+        ))}
+      </div>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="languages">
+    <Container>
+      <dl class="cv-language-list">
+        {copy.languages.records.map((record) => (
+          <div>
+            <dt>{record.label}</dt>
+            <dd>{record.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </Container>
+  </Fragment>
+
+  <Fragment slot="profiles">
+    <Container>
+      <p class="cv-section-lead">{copy.profiles.introduction}</p>
+      <ul class="cv-profile-list" role="list">
+        {profiles.map((profile) => (
+          <li>
+            <a
+              href={profile.url}
+              target="_blank"
+              rel="me noopener noreferrer"
+              aria-label={`${copy.profiles.openLabel}: ${profile.name} (${copy.profiles.externalLabel})`}
+            >
+              <span>{profile.name}</span>
+              <span aria-hidden="true">↗</span>
+            </a>
+          </li>
+        ))}
       </ul>
     </Container>
   </Fragment>
