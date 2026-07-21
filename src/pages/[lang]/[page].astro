@@ -14,7 +14,7 @@ import UsesPageContent from '../../components/UsesPageContent.astro';
 import { pageContent, type StandardPageSlug } from '../../data/pages';
 import type { LegalPageSlug } from '../../data/legal';
 import { identity } from '../../data/identity';
-import { knowledgePageCopy } from '../../data/knowledge';
+import { getKnowledgeSchemaItems } from '../../data/knowledge';
 import { getTimelineSchemaItems } from '../../data/timeline';
 import type { PageSchemaType, SchemaListItem } from '../../data/structured-data';
 import { languages, localizedPath, type Language } from '../../i18n/config';
@@ -49,10 +49,7 @@ if (page === 'profiles') {
 } else if (page === 'timeline') {
   schemaItems = getTimelineSchemaItems(lang);
 } else if (page === 'knowledge') {
-  schemaItems = knowledgePageCopy[lang].topics.map((topic) => ({
-    name: topic.title,
-    url: `${localizedPath(lang, 'knowledge')}#${topic.id}`,
-  }));
+  schemaItems = getKnowledgeSchemaItems(lang);
 }
 ---
 

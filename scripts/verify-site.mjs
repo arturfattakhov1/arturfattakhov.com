@@ -34,13 +34,17 @@ const titlesByLanguage = new Map(languages.map((lang) => [lang, new Set()]));
 const descriptionsByLanguage = new Map(languages.map((lang) => [lang, new Set()]));
 const personSignatures = new Set();
 const websiteSignatures = new Set();
+const publicationMetadataByLanguage = new Map(languages.map((lang) => [lang, new Map()]));
+const knowledgeThemeIdsByLanguage = new Map();
+const knowledgeRecordSlugsByLanguage = new Map();
 const timelineIdsByLanguage = new Map();
 const faqGroupIdsByLanguage = new Map();
 const faqQuestionIdsByLanguage = new Map();
 const expectedTimelineEventCount = 10;
+const expectedKnowledgeThemeCount = 4;
 const expectedFaqGroupCount = 4;
 const expectedFaqQuestionCount = 16;
-const prohibitedFaqNames = [
+const prohibitedNames = [
   ['Move', 'trus'].join(''),
   ['ВЕТ', ' УЗИ', ' 47'].join(''),
 ];
@@ -128,6 +132,11 @@ for (const lang of languages) {
     const jsonLdNodes = flattenJsonLd(jsonLdBlocks);
     assert(jsonLdBlocks.length === 3, `${relativePath}: expected identity, publication, and breadcrumb JSON-LD blocks`);
     const publicationSchema = jsonLdNodes.find((node) => node['@type'] === 'ScholarlyArticle' || node['@type'] === 'Patent');
+    const publicationMeta = html.match(/<p class="publication-record-meta"><span>([^<]+)<\/span><span>(\d{4})<\/span>(?:<span>[^<]+<\/span>)?<\/p>/);
+    const typeByLabel = lang === 'ru'
+      ? { 'Журнальная статья': 'journal', 'Публикация конференции': 'conference', 'Патент': 'patent' }
+      : { 'Journal article': 'journal', 'Conference paper': 'conference', 'Patent': 'patent' };
+    const publicationType = publicationMeta ? typeByLabel[publicationMeta[1]] : undefined;
     const expectedType = slug.endsWith('-patent') ? 'Patent' : 'ScholarlyArticle';
     const expectedPageId = `${expectedCanonical}#webpage`;
     const expectedPublicationId = `${expectedCanonical}#publication`;
@@ -136,6 +145,8 @@ for (const lang of languages) {
     const personNodes = jsonLdNodes.filter((node) => node['@id'] === `${domain}/#person` && node['@type'] === 'Person');
     const websiteNodes = jsonLdNodes.filter((node) => node['@id'] === `${domain}/#website` && node['@type'] === 'WebSite');
     assert(publicationSchema?.['@type'] === expectedType, `${relativePath}: incorrect publication schema type`);
+    assert(Boolean(publicationType), `${relativePath}: publication display type is missing`);
+    assert(publicationSchema?.datePublished?.startsWith(publicationMeta?.[2]), `${relativePath}: publication display year does not match schema`);
     assert(publicationSchema?.['@id'] === expectedPublicationId, `${relativePath}: incorrect publication schema id`);
     assert(publicationSchema?.mainEntityOfPage?.['@id'] === expectedPageId, `${relativePath}: incorrect publication mainEntityOfPage`);
     assert(publicationSchema?.author?.filter((author) => author['@id'] === `${domain}/#person`).length === 1, `${relativePath}: canonical Person author reference missing`);
@@ -148,6 +159,12 @@ for (const lang of languages) {
     assert(websiteNodes.length === 1, `${relativePath}: expected one canonical WebSite entity`);
     if (personNodes[0]) personSignatures.add(JSON.stringify(personNodes[0]));
     if (websiteNodes[0]) websiteSignatures.add(JSON.stringify(websiteNodes[0]));
+    publicationMetadataByLanguage.get(lang).set(slug, {
+      title: publicationSchema?.name,
+      type: publicationType,
+      year: publicationMeta?.[2],
+      href: `/${relativePath}`,
+    });
     assertUniqueSchemaIds(jsonLdNodes, relativePath);
   }
 }
@@ -242,7 +259,60 @@ for (const lang of languages) {
       assert(pageSchema?.isPartOf?.['@id'] === `${domain}/#website`, `${relativePath}: page-level WebSite relationship missing`);
       assert(pageSchema?.breadcrumb?.['@id'] === `${expectedCanonical}#breadcrumb`, `${relativePath}: page-level breadcrumb relationship missing`);
 
-      if (route === 'faq') {
+      if (route === 'knowledge') {
+        const knowledgeMain = matchOne(html, /<main\b[^>]*>([\s\S]*?)<\/main>/) ?? '';
+        const themeIds = [...html.matchAll(/data-knowledge-theme="([^"]+)"/g)].map((match) => match[1]);
+        const themeRecordCounts = [...html.matchAll(/data-knowledge-theme-record-count="(\d+)"/g)].map((match) => Number(match[1]));
+        const recordEntries = [...html.matchAll(/<li\b([^>]*\bdata-knowledge-record="[^"]+"[^>]*)>([\s\S]*?)<\/li>/g)]
+          .map((match) => ({
+            attributes: match[1],
+            content: match[2],
+            slug: matchOne(match[1], /data-knowledge-record="([^"]+)"/),
+          }));
+        const recordSlugs = recordEntries.map((entry) => entry.slug).filter(Boolean);
+        const recordTypes = [...html.matchAll(/data-knowledge-record-type="([^"]+)"/g)].map((match) => match[1]);
+        const recordYears = [...html.matchAll(/data-knowledge-record-year="([^"]+)"/g)].map((match) => match[1]);
+        const itemList = jsonLdNodes.find((node) => node['@id'] === `${expectedCanonical}#item-list` && node['@type'] === 'ItemList');
+        const itemUrls = itemList?.itemListElement?.map((item) => item.url) ?? [];
+
+        assert((html.match(/data-knowledge-page(?=\s|>)/g) ?? []).length === 1, `${relativePath}: expected one Knowledge page root`);
+        assert(themeIds.length === expectedKnowledgeThemeCount, `${relativePath}: expected ${expectedKnowledgeThemeCount} Knowledge themes`);
+        assert(new Set(themeIds).size === themeIds.length, `${relativePath}: duplicate Knowledge theme IDs`);
+        assert(themeRecordCounts.length === themeIds.length && themeRecordCounts.every((count) => count > 0), `${relativePath}: empty Knowledge theme found`);
+        assert(recordSlugs.length === publicationSlugs.length, `${relativePath}: expected every publication record in Knowledge`);
+        assert(new Set(recordSlugs).size === recordSlugs.length, `${relativePath}: duplicate Knowledge publication record`);
+        assert(JSON.stringify([...recordSlugs].sort()) === JSON.stringify([...publicationSlugs].sort()), `${relativePath}: Knowledge publication coverage is incomplete`);
+        assert(themeRecordCounts.reduce((total, count) => total + count, 0) === recordSlugs.length, `${relativePath}: Knowledge theme counts do not match records`);
+        assert(recordTypes.length === recordSlugs.length && recordTypes.every((type) => ['journal', 'conference', 'patent'].includes(type)), `${relativePath}: Knowledge record type markers are incomplete`);
+        assert(recordYears.length === recordSlugs.length && recordYears.every((year) => ['2021', '2024', '2025'].includes(year)), `${relativePath}: Knowledge record year markers are incomplete`);
+        assert(html.includes(`data-knowledge-theme-count="${themeIds.length}"`), `${relativePath}: Knowledge theme count marker is incorrect`);
+        assert(html.includes(`data-knowledge-record-count="${recordSlugs.length}"`), `${relativePath}: Knowledge record count marker is incorrect`);
+        assert(themeIds.every((id) => knowledgeMain.includes(`href="#${id}"`) && knowledgeMain.includes(`id="${id}"`)), `${relativePath}: Knowledge topic navigation is incomplete`);
+        assert(recordSlugs.every((slug) => knowledgeMain.includes(`href="/${lang}/publications/${slug}/"`)), `${relativePath}: Knowledge publication link is incomplete`);
+        const publicationMetadata = publicationMetadataByLanguage.get(lang);
+        assert(recordEntries.every((entry) => {
+          const expected = publicationMetadata.get(entry.slug);
+          return expected
+            && typeof expected.title === 'string'
+            && entry.attributes.includes(`data-knowledge-record-type="${expected.type}"`)
+            && entry.attributes.includes(`data-knowledge-record-year="${expected.year}"`)
+            && entry.content.includes(`href="${expected.href}"`)
+            && entry.content.includes(`<time datetime="${expected.year}">${expected.year}</time>`)
+            && entry.content.includes(`<span class="knowledge-record__title">${escapeHtmlText(expected.title)}</span>`);
+        }), `${relativePath}: Knowledge record presentation is not synchronized with publication details`);
+        assert(pageSchema?.mainEntity?.['@id'] === `${expectedCanonical}#item-list`, `${relativePath}: Knowledge CollectionPage mainEntity missing`);
+        assert(itemList?.numberOfItems === themeIds.length, `${relativePath}: Knowledge ItemList count does not match themes`);
+        assert(itemUrls.length === themeIds.length && itemUrls.every((url, index) => url === `${expectedCanonical}#${themeIds[index]}`), `${relativePath}: Knowledge ItemList does not match visible themes`);
+        assert(itemList?.itemListElement?.every((item) => typeof item.name === 'string' && item.name.trim().length > 0), `${relativePath}: Knowledge ItemList contains an empty theme`);
+        assert(!/(?:здесь будут|будет объединять|будущие материалы|материалы будут|will contain|will connect|future material|material will be|will examine|will explain|will address)/i.test(knowledgeMain), `${relativePath}: stale Knowledge future promise found`);
+        assert(!/(?:veterinary-ultrasonography|artificial-intelligence|evidence-based-veterinary-medicine|scientific-communication)/i.test(knowledgeMain), `${relativePath}: empty legacy Knowledge theme remains`);
+        assert(prohibitedNames.every((name) => !knowledgeMain.toLowerCase().includes(name.toLowerCase())), `${relativePath}: prohibited name found in Knowledge`);
+        assert(!/(?:mailto:|tel:|\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b)/i.test(knowledgeMain), `${relativePath}: contact details exposed in Knowledge`);
+        assert(!/<script\b[^>]*\ssrc=/i.test(knowledgeMain), `${relativePath}: Knowledge must not add a client script`);
+
+        knowledgeThemeIdsByLanguage.set(lang, themeIds);
+        knowledgeRecordSlugsByLanguage.set(lang, recordSlugs);
+      } else if (route === 'faq') {
         const groupIds = [...html.matchAll(/data-faq-group="([^"]+)"/g)].map((match) => match[1]);
         const uniqueGroupIds = [...new Set(groupIds)];
         const questionIds = [...html.matchAll(/data-faq-id="([^"]+)"/g)].map((match) => match[1]);
@@ -285,13 +355,13 @@ for (const lang of languages) {
         assert(html.includes(`href="/${lang}/contact/"`), `${relativePath}: localized Contact link missing`);
         assert(!/(?:где будут доступны публикации|публикации будут|where will publications|publications will appear)/i.test(faqMain), `${relativePath}: stale future Publications promise found`);
         assert(!/(?:PhD|doctoral candidate|current postgraduate student|professor|senior researcher|ultrasound physician|sonographer|врач(?:ом)? УЗИ)/i.test(faqMain), `${relativePath}: unverified FAQ status found`);
-        assert(prohibitedFaqNames.every((name) => !faqMain.toLowerCase().includes(name.toLowerCase())), `${relativePath}: prohibited project or practice name found`);
+        assert(prohibitedNames.every((name) => !faqMain.toLowerCase().includes(name.toLowerCase())), `${relativePath}: prohibited project or practice name found`);
         assert(!/(?:mailto:|tel:|\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b)/i.test(faqMain), `${relativePath}: contact details exposed in FAQ`);
         assert(!/<script\b[^>]*\ssrc=/i.test(faqMain), `${relativePath}: FAQ must not add a client script`);
 
         faqGroupIdsByLanguage.set(lang, uniqueGroupIds);
         faqQuestionIdsByLanguage.set(lang, questionIds);
-      } else if (['publications', 'profiles', 'knowledge', 'timeline'].includes(route)) {
+      } else if (['publications', 'profiles', 'timeline'].includes(route)) {
         const itemList = jsonLdNodes.find((node) => node['@id'] === `${expectedCanonical}#item-list` && node['@type'] === 'ItemList');
         assert(pageSchema?.mainEntity?.['@id'] === `${expectedCanonical}#item-list`, `${relativePath}: CollectionPage mainEntity missing`);
         assert(itemList?.numberOfItems > 0 && itemList?.itemListElement?.length === itemList.numberOfItems, `${relativePath}: CollectionPage ItemList is incomplete`);
@@ -339,6 +409,22 @@ assert(websiteSignatures.size === 1, 'conflicting WebSite entities detected acro
 const ruTimelineIds = timelineIdsByLanguage.get('ru') ?? [];
 const enTimelineIds = timelineIdsByLanguage.get('en') ?? [];
 assert(JSON.stringify(ruTimelineIds) === JSON.stringify(enTimelineIds), 'Timeline RU/EN stable ID parity is incomplete');
+
+const ruKnowledgeThemeIds = knowledgeThemeIdsByLanguage.get('ru') ?? [];
+const enKnowledgeThemeIds = knowledgeThemeIdsByLanguage.get('en') ?? [];
+const ruKnowledgeRecordSlugs = knowledgeRecordSlugsByLanguage.get('ru') ?? [];
+const enKnowledgeRecordSlugs = knowledgeRecordSlugsByLanguage.get('en') ?? [];
+assert(JSON.stringify(ruKnowledgeThemeIds) === JSON.stringify(enKnowledgeThemeIds), 'Knowledge RU/EN theme parity is incomplete');
+assert(JSON.stringify(ruKnowledgeRecordSlugs) === JSON.stringify(enKnowledgeRecordSlugs), 'Knowledge RU/EN record parity is incomplete');
+
+const knowledgeSource = await readFile(new URL('src/data/knowledge.ts', root), 'utf8');
+assert(knowledgeSource.includes("from './publication-records'"), 'Knowledge must reuse centralized publication records');
+assert(knowledgeSource.includes('publicationRecords.map'), 'Knowledge mapping must validate against centralized publication records');
+assert(knowledgeSource.includes('record.title[lang]'), 'Knowledge titles must come from centralized publication records');
+assert(knowledgeSource.includes('record.type'), 'Knowledge types must come from centralized publication records');
+assert(knowledgeSource.includes('record.year'), 'Knowledge years must come from centralized publication records');
+assert(knowledgeSource.includes('publicationPath(lang, record.slug)'), 'Knowledge URLs must come from centralized publication records');
+assert(knowledgeSource.includes('new Set(assignedSlugs).size !== assignedSlugs.length'), 'Knowledge must reject duplicate record assignments');
 
 const ruFaqGroupIds = faqGroupIdsByLanguage.get('ru') ?? [];
 const enFaqGroupIds = faqGroupIdsByLanguage.get('en') ?? [];
@@ -482,7 +568,7 @@ for (const lang of languages) {
     publications: ['about', 'research', 'profiles'],
     projects: ['research', 'publications', 'contact', 'knowledge', 'timeline'],
     timeline: ['cv', 'research', 'publications'],
-    knowledge: ['research', 'publications', 'timeline'],
+    knowledge: ['research', 'publications', 'faq', 'disclaimer'],
     profiles: ['about', 'publications', 'contact', 'knowledge', 'timeline'],
     contact: ['privacy'],
   };
