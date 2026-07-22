@@ -53,6 +53,7 @@ export const ui = {
 } as const satisfies Record<Language, Record<string, string>>;
 
 export const desktopNavigation = [
+  { slug: 'practice', label: { ru: 'Практика', en: 'Practice' } },
   { slug: 'about', label: { ru: 'Обо мне', en: 'About' } },
   { slug: 'publications', label: { ru: 'Публикации', en: 'Publications' } },
 ] as const;

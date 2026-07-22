@@ -1,0 +1,77 @@
+---
+import { practicePageCopy } from '../data/practice';
+import { localizedPath, type Language } from '../i18n/config';
+import Button from './Button.astro';
+import Container from './Container.astro';
+import PageIntro from './PageIntro.astro';
+import PageSection from './PageSection.astro';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const copy = practicePageCopy[lang];
+---
+
+<div class="section-stack practice-page" data-practice-page>
+  <PageIntro class="practice-opening">
+    <p class="eyebrow">{copy.opening.eyebrow}</p>
+    <p class="lead">{copy.opening.lead}</p>
+    <p class="practice-opening__context">{copy.opening.context}</p>
+  </PageIntro>
+
+  <PageSection id="formats" title={copy.formats.title} density="editorial">
+    <Container>
+      <p class="practice-section-lead">{copy.formats.introduction}</p>
+      <div class="practice-format-grid">
+        {copy.formats.items.map((item) => (
+          <article>
+            <h3>{item.title}</h3>
+            <p>{item.description}</p>
+          </article>
+        ))}
+      </div>
+    </Container>
+  </PageSection>
+
+  <PageSection id="process" title={copy.process.title} density="editorial">
+    <Container>
+      <ol class="practice-step-list">
+        {copy.process.items.map((item, index) => (
+          <li>
+            <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+            <div><h3>{item.title}</h3><p>{item.description}</p></div>
+          </li>
+        ))}
+      </ol>
+    </Container>
+  </PageSection>
+
+  <PageSection id="principles" title={copy.principles.title} density="editorial">
+    <Container>
+      <dl class="practice-principle-list">
+        {copy.principles.items.map((item) => (
+          <div><dt>{item.title}</dt><dd>{item.description}</dd></div>
+        ))}
+      </dl>
+    </Container>
+  </PageSection>
+
+  <PageSection id="remote-limits" title={copy.limits.title} density="editorial">
+    <Container size="reading" class="practice-limits">
+      {copy.limits.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+      <aside class="urgent-notice" aria-labelledby="urgent-notice-title">
+        <h3 id="urgent-notice-title">{copy.limits.urgentTitle}</h3>
+        <p>{copy.limits.urgentText}</p>
+      </aside>
+    </Container>
+  </PageSection>
+
+  <PageSection id="contact-practice" title={copy.contact.title} density="compact">
+    <Container class="practice-contact">
+      <p>{copy.contact.description}</p>
+      <Button href={localizedPath(lang, 'contact')}>{copy.contact.cta}</Button>
+    </Container>
+  </PageSection>
+</div>

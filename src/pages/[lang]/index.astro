@@ -5,11 +5,10 @@ import Button from '../../components/Button.astro';
 import Container from '../../components/Container.astro';
 import HomeSections from '../../components/HomeSections.astro';
 import { homePageCopy } from '../../data/home';
-import { identity } from '../../data/identity';
 import { homeContent } from '../../data/pages';
 import { publicationPath, publicationRecords } from '../../data/publication-records';
 import { languages, localizedPath, type Language } from '../../i18n/config';
-import PageLayout from '../../layouts/PageLayout.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 
 export const prerender = true;
 
@@ -25,8 +24,8 @@ const { lang } = Astro.props as Props;
 const content = homeContent[lang];
 const copy = homePageCopy[lang];
 const featuredSlugs = [
-  'comparative-xray-morphometry-moose-cattle',
   'hoof-capsule-cattle-moose',
+  'comparative-xray-morphometry-moose-cattle',
   'xray-morphometric-laminitis-cattle-patent',
 ] as const;
 const featuredRecords = featuredSlugs.map((slug) => {
@@ -34,157 +33,94 @@ const featuredRecords = featuredSlugs.map((slug) => {
   if (!record) throw new Error(`Missing verified homepage publication record: ${slug}`);
   return record;
 });
-const profileKeys = ['orcid', 'googleScholar', 'researchGate', 'webOfScience'] as const;
-const featuredProfiles = profileKeys.map((key) => {
-  const profile = identity.profiles.find((item) => item.key === key);
-  if (!profile) throw new Error(`Missing verified homepage profile: ${key}`);
-  return profile;
-});
 ---
 
-<PageLayout
+<BaseLayout
   title={content.title}
   description={content.description}
   lang={lang}
   canonicalPath={localizedPath(lang)}
-  showBreadcrumbs={false}
 >
-  <HomeSections lang={lang}>
-    <Fragment slot="hero">
-      <Container class="home-identity">
-        <div class="home-identity__copy">
-          <ul class="home-roles" role="list">
-            {copy.hero.roles.map((role) => <li>{role}</li>)}
-          </ul>
-          <p class="home-thesis">{copy.hero.thesis}</p>
-          <p class="home-context">{copy.hero.context}</p>
-          <div class="button-group">
-            <Button href={localizedPath(lang, 'about')}>{copy.hero.primaryCta}</Button>
-            <Button href={localizedPath(lang, 'research')} variant="secondary">{copy.hero.secondaryCta}</Button>
-          </div>
-        </div>
-        <figure class="home-portrait">
-          <Image
-            src={portrait}
-            alt={copy.hero.portraitAlt}
-            width={portrait.width}
-            height={portrait.height}
-            widths={[480, 720, 960, 1085]}
-            sizes="(max-width: 48rem) calc(100vw - 1.5rem), (max-width: 64rem) 44vw, 34rem"
-            format="webp"
-            quality={85}
-            loading="eager"
-            decoding="async"
-            fetchpriority="high"
-          />
-        </figure>
-      </Container>
-    </Fragment>
-
-    <Fragment slot="proof">
-      <Container>
-        <dl class="home-proof-list">
-          {copy.proof.map((item) => (
-            <div>
-              <dt>{item.title}</dt>
-              <dd>{item.description}</dd>
+  <article class="page page--home home-page">
+    <HomeSections lang={lang}>
+      <Fragment slot="hero">
+        <Container class="home-hero">
+          <div class="home-hero__copy">
+            <p class="home-hero__role">{copy.hero.role}</p>
+            <h1 id="page-title">{content.title}</h1>
+            <p class="home-hero__benefit">{copy.hero.benefit}</p>
+            <p class="home-hero__context">{copy.hero.context}</p>
+            <div class="button-group">
+              <Button href={localizedPath(lang, 'contact')}>{copy.hero.primaryCta}</Button>
+              <Button href={localizedPath(lang, 'about')} variant="secondary">{copy.hero.secondaryCta}</Button>
             </div>
-          ))}
-        </dl>
-      </Container>
-    </Fragment>
+          </div>
+          <figure class="home-portrait">
+            <Image
+              src={portrait}
+              alt={copy.hero.portraitAlt}
+              width={240}
+              height={240}
+              format="webp"
+              quality={86}
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
+            />
+          </figure>
+        </Container>
+      </Fragment>
 
-    <Fragment slot="fields">
-      <Container>
-        <p class="home-section-lead">{copy.fields.introduction}</p>
-        <ol class="home-field-list">
-          {copy.fields.items.map((item, index) => (
-            <li>
-              <span class="home-field-list__index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-              <div>
+      <Fragment slot="help">
+        <Container>
+          <p class="home-section-lead">{copy.help.introduction}</p>
+          <ul class="home-service-list" role="list">
+            {copy.help.items.map((item) => (
+              <li>
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
-                <a class="home-text-link" href={localizedPath(lang, item.path)}>
-                  {item.linkLabel}<span aria-hidden="true"> →</span>
-                </a>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </Container>
-    </Fragment>
-
-    <Fragment slot="scholarly">
-      <Container>
-        <p class="home-section-lead">{copy.scholarly.introduction}</p>
-        <ol class="home-record-list">
-          {featuredRecords.map((record) => (
-            <li>
-              <p class="home-record-list__type">
-                {record.type === 'patent' ? copy.scholarly.recordType.patent : copy.scholarly.recordType.journal}
-                <span aria-hidden="true"> · </span>{record.year}
-              </p>
-              <h3>
-                <a href={publicationPath(lang, record.slug)}>{record.title[lang]}</a>
-              </h3>
-              <p class="home-record-list__meta">
-                {record.patentNumber ?? record.venue}
-                {record.doi && <><span aria-hidden="true"> · </span>DOI {record.doi}</>}
-              </p>
-              <a class="home-text-link" href={publicationPath(lang, record.slug)}>
-                {copy.scholarly.openRecord}<span aria-hidden="true"> →</span>
-              </a>
-            </li>
-          ))}
-        </ol>
-        <a class="home-section-link" href={localizedPath(lang, 'publications')}>
-          {copy.scholarly.allRecords}<span aria-hidden="true"> →</span>
-        </a>
-      </Container>
-    </Fragment>
-
-    <Fragment slot="profiles">
-      <Container>
-        <p class="home-section-lead">{copy.profiles.introduction}</p>
-        <ul class="home-profile-list" role="list">
-          {featuredProfiles.map((profile) => (
-            <li>
-              <a
-                href={profile.url}
-                target="_blank"
-                rel="me noopener noreferrer"
-                aria-label={`${copy.profiles.openProfile}: ${profile.name} (${copy.profiles.externalLinkLabel})`}
-              >
-                <span>{profile.name}</span><span aria-hidden="true">↗</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-        <a class="home-section-link" href={localizedPath(lang, 'profiles')}>
-          {copy.profiles.allProfiles}<span aria-hidden="true"> →</span>
-        </a>
-        <nav class="home-reference-nav" aria-label={copy.profiles.referenceLabel}>
-          <span>{copy.profiles.referenceLabel}</span>
-          <ul role="list">
-            {copy.profiles.references.map((item) => (
-              <li><a href={localizedPath(lang, item.path)}>{item.label}</a></li>
+              </li>
             ))}
           </ul>
-        </nav>
-      </Container>
-    </Fragment>
+          <div class="home-section-actions">
+            <Button href={localizedPath(lang, 'practice')} variant="secondary">{copy.help.practiceCta}</Button>
+            <a class="home-text-link" href={localizedPath(lang, 'contact')}>{copy.help.contactCta}<span aria-hidden="true"> →</span></a>
+          </div>
+        </Container>
+      </Fragment>
 
-    <Fragment slot="position">
-      <Container size="reading" class="home-position-copy">
-        {copy.position.map((paragraph) => <p>{paragraph}</p>)}
-      </Container>
-    </Fragment>
+      <Fragment slot="profile">
+        <Container>
+          <p class="home-section-lead">{copy.profile.introduction}</p>
+          <dl class="home-profile-grid">
+            {copy.profile.items.map((item) => (
+              <div>
+                <dt>{item.title}</dt>
+                <dd>{item.description}</dd>
+              </div>
+            ))}
+          </dl>
+          <a class="home-section-link" href={localizedPath(lang, 'about')}>{copy.profile.aboutLink}<span aria-hidden="true"> →</span></a>
+        </Container>
+      </Fragment>
 
-    <Fragment slot="contact">
-      <Container class="home-contact-close">
-        <p>{copy.contact.description}</p>
-        <Button href={localizedPath(lang, 'contact')} variant="secondary">{copy.contact.cta}</Button>
-      </Container>
-    </Fragment>
-  </HomeSections>
-</PageLayout>
+      <Fragment slot="materials">
+        <Container>
+          <p class="home-section-lead">{copy.materials.introduction}</p>
+          <ol class="home-record-list">
+            {featuredRecords.map((record) => (
+              <li>
+                <p class="home-record-list__type">
+                  {copy.materials.recordType[record.type]}<span aria-hidden="true"> · </span>{record.year}
+                </p>
+                <h3><a href={publicationPath(lang, record.slug)}>{record.title[lang]}</a></h3>
+                <a class="home-text-link" href={publicationPath(lang, record.slug)}>{copy.materials.openRecord}<span aria-hidden="true"> →</span></a>
+              </li>
+            ))}
+          </ol>
+          <a class="home-section-link" href={localizedPath(lang, 'publications')}>{copy.materials.allRecords}<span aria-hidden="true"> →</span></a>
+        </Container>
+      </Fragment>
+    </HomeSections>
+  </article>
+</BaseLayout>

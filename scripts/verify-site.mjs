@@ -5,9 +5,10 @@ import { fileURLToPath } from 'node:url';
 const root = new URL('../', import.meta.url);
 const domain = 'https://arturfattakhov.com';
 const languages = ['ru', 'en'];
-const routes = ['', 'about', 'research', 'publications', 'media', 'blog', 'contact', 'cv', 'profiles', 'uses', 'knowledge', 'timeline', 'faq', 'search', 'privacy', 'terms', 'disclaimer'];
+const routes = ['', 'practice', 'about', 'research', 'publications', 'media', 'blog', 'contact', 'cv', 'profiles', 'uses', 'knowledge', 'timeline', 'faq', 'search', 'privacy', 'terms', 'disclaimer'];
 const legalRoutes = ['privacy', 'terms', 'disclaimer'];
 const pageSchemaTypes = {
+  practice: 'WebPage',
   research: 'AboutPage',
   publications: 'CollectionPage',
   contact: 'ContactPage',
@@ -262,6 +263,18 @@ for (const lang of languages) {
       assert(pageSchema?.isPartOf?.['@id'] === `${domain}/#website`, `${relativePath}: page-level WebSite relationship missing`);
       assert(pageSchema?.breadcrumb?.['@id'] === `${expectedCanonical}#breadcrumb`, `${relativePath}: page-level breadcrumb relationship missing`);
 
+      if (route === 'practice') {
+        const service = jsonLdNodes.find((node) => node['@id'] === `${expectedCanonical}#professional-service`);
+        assert(service?.['@type'] === 'ProfessionalService', `${relativePath}: ProfessionalService schema missing`);
+        assert(service?.provider?.['@id'] === `${domain}/#person`, `${relativePath}: ProfessionalService provider relationship missing`);
+        assert(pageSchema?.mainEntity?.['@id'] === `${expectedCanonical}#professional-service`, `${relativePath}: Practice mainEntity is incorrect`);
+        assert(Array.isArray(service?.areaServed) && service.areaServed.length === 2, `${relativePath}: confirmed service area is incomplete`);
+        assert(!('address' in (service ?? {})), `${relativePath}: unverified service address found`);
+        assert(!('telephone' in (service ?? {})), `${relativePath}: unverified service telephone found`);
+        assert(!('openingHours' in (service ?? {})), `${relativePath}: unverified service hours found`);
+        assert(!('priceRange' in (service ?? {})), `${relativePath}: unverified service price range found`);
+      }
+
       if (route === 'knowledge') {
         const knowledgeMain = matchOne(html, /<main\b[^>]*>([\s\S]*?)<\/main>/) ?? '';
         const themeIds = [...html.matchAll(/data-knowledge-theme="([^"]+)"/g)].map((match) => match[1]);
@@ -391,7 +404,7 @@ for (const lang of languages) {
           assert(html.includes(lang === 'ru' ? '>Аналитик<' : '>Analyst<'), `${relativePath}: verified Analyst role missing`);
           timelineIdsByLanguage.set(lang, eventIds);
         }
-      } else {
+      } else if (route !== 'practice') {
         assert(pageSchema?.mainEntity?.['@id'] === `${domain}/#person`, `${relativePath}: page-level mainEntity must reference Person`);
       }
     }
@@ -497,7 +510,8 @@ for (const lang of languages) {
   assert(!siteHeader.includes(`href="/${lang}/projects/"`), `${lang}: Projects remains in global header navigation`);
   assert(!siteHeader.includes(`href="/${lang}/now/"`), `${lang}: Now remains in global header navigation`);
   assert(!siteHeader.includes(`href="/${lang}/about/#professional-system"`), `${lang}: temporary Practice anchor remains in navigation`);
-  assert(!siteHeader.includes(lang === 'ru' ? '>Практика<' : '>Practice<'), `${lang}: temporary Practice label remains in navigation`);
+  assert(siteHeader.includes(`href="/${lang}/practice/"`), `${lang}: localized Practice navigation link missing`);
+  assert(siteHeader.includes(lang === 'ru' ? '>Практика<' : '>Practice<'), `${lang}: localized Practice navigation label missing`);
   assert(siteHeader.includes(lang === 'ru'
     ? 'class="header-consultation" href="/ru/contact/">Связаться</a>'
     : 'class="header-consultation" href="/en/contact/">Contact</a>'), `${lang}: honest Contact CTA missing`);
@@ -518,12 +532,23 @@ for (const lang of languages) {
   assert(searchHtml.includes(`<script src="${searchScriptPath}" type="module"></script>`), `${searchPath}: local search script missing`);
   assert(!searchHtml.includes('data-pagefind-body'), `${searchPath}: search results page must not index itself`);
 
-  for (const indexedRoute of ['about', 'research', 'media', 'profiles', 'knowledge', 'publications']) {
+  for (const indexedRoute of ['practice', 'about', 'research', 'media', 'profiles', 'knowledge', 'publications']) {
     assert(pages.get(`/${lang}/${indexedRoute}/`)?.includes('data-pagefind-body'), `${lang}/${indexedRoute}/: Pagefind body marker missing`);
   }
   for (const excludedRoute of ['contact', 'cv', 'uses', 'timeline', 'faq', 'search', 'privacy', 'terms', 'disclaimer']) {
     assert(!pages.get(`/${lang}/${excludedRoute}/`)?.includes('data-pagefind-body'), `${lang}/${excludedRoute}/: excluded route is indexed`);
   }
+
+  const practicePath = `/${lang}/practice/`;
+  const practiceHtml = pages.get(practicePath) ?? '';
+  const practiceMain = matchOne(practiceHtml, /<main\b[^>]*>([\s\S]*?)<\/main>/) ?? '';
+  assert(practiceMain.includes('data-practice-page'), `${practicePath}: Practice page root missing`);
+  assert(practiceMain.includes(`href="/${lang}/contact/"`), `${practicePath}: localized Contact CTA missing`);
+  assert(practiceMain.includes(lang === 'ru' ? 'Санкт-Петербург' : 'Saint Petersburg'), `${practicePath}: confirmed Saint Petersburg service area missing`);
+  assert(practiceMain.includes(lang === 'ru' ? 'Ленинградской области' : 'Leningrad Region'), `${practicePath}: confirmed Leningrad Region service area missing`);
+  assert(practiceMain.includes(lang === 'ru' ? 'затруднённом дыхании' : 'difficulty breathing'), `${practicePath}: urgent notice is incomplete`);
+  assert(practiceMain.includes(lang === 'ru' ? 'не заменяет физикальный осмотр' : 'does not replace a physical examination'), `${practicePath}: remote-format limitation missing`);
+  assert(!/(?:price|prices|цена|цены|стоимость)/i.test(practiceMain), `${practicePath}: unapproved pricing language found`);
 }
 
 const privateRecipient = ['arturfattakhov1', 'gmail.com'].join('@');
@@ -606,8 +631,8 @@ for (const lang of languages) {
   const sameAs = profileNodes.find((node) => node['@id'] === `${domain}/#person`)?.sameAs ?? [];
   assert(sameAs.every((url) => profilesHtml?.includes(`href="${url.replaceAll('&', '&amp;')}"`)), `${profilesPath}: verified profile link missing from page`);
 
-  for (const sourceRoute of ['', 'about', 'research', 'profiles']) {
-    const sourcePath = sourceRoute ? `/${lang}/${sourceRoute}/` : `/${lang}/`;
+  for (const sourceRoute of ['about', 'research', 'profiles']) {
+    const sourcePath = `/${lang}/${sourceRoute}/`;
     const sourceHtml = pages.get(sourcePath);
     for (const hubRoute of ['knowledge', 'timeline', 'faq']) {
       assert(sourceHtml?.includes(`href="/${lang}/${hubRoute}/"`), `${sourcePath}: contextual ${hubRoute} link missing`);
@@ -717,8 +742,8 @@ assert(headers.includes("connect-src 'self' https://formspree.io"), 'CSP Formspr
 
 const pagefindEntry = JSON.parse(await readFile(new URL('dist/pagefind/pagefind-entry.json', root), 'utf8'));
 assert(pagefindEntry.version === '1.5.2', 'Pagefind version is not pinned to 1.5.2');
-assert(pagefindEntry.languages?.ru?.page_count === 15, 'Pagefind Russian index count is incorrect');
-assert(pagefindEntry.languages?.en?.page_count === 15, 'Pagefind English index count is incorrect');
+assert(pagefindEntry.languages?.ru?.page_count === 16, 'Pagefind Russian index count is incorrect');
+assert(pagefindEntry.languages?.en?.page_count === 16, 'Pagefind English index count is incorrect');
 await readFile(new URL('dist/pagefind/pagefind.js', root), 'utf8');
 await readFile(new URL('dist/pagefind/wasm.ru.pagefind', root));
 await readFile(new URL('dist/pagefind/wasm.en.pagefind', root));
@@ -792,8 +817,12 @@ for (const file of (await sourceFiles(new URL('dist/', root))).filter((entry) =>
   assert(!html.includes('data-faq-id="project-status"'), `${relativePath}: removed FAQ project-status question found`);
   assert(!/(?:href|action)="\/(?:ru|en)\/(?:projects|now)\//.test(html), `${relativePath}: internal link to a removed route found`);
   assert(!/(?:Newsletter|Subscribe|Подписаться на обновления)/i.test(html), `${relativePath}: unimplemented newsletter CTA found`);
+  assert(!/(?:Online Consultation|Онлайн-консультац(?:ия|ии|ию|ией))/i.test(html), `${relativePath}: unimplemented Online Consultation CTA found`);
+  assert(!/(?:specialist\s+in\s+ultrasound|ultrasound physician|sonographer|radiologist|специалист(?:ом)?\s+УЗИ|врач(?:ом)?\s+УЗИ|кандидат(?:ом)?\s+наук|\bPhD\b|\bprofessor\b|\bпрофессор\b)/i.test(html), `${relativePath}: prohibited public positioning found`);
   const scriptSources = [...html.matchAll(/<script\b[^>]*\ssrc="([^"]+)"[^>]*>/g)].map((match) => match[1]);
   assert(scriptSources.every((source) => source.startsWith('/')), `${relativePath}: external script origin found`);
+  const stylesheetSources = [...html.matchAll(/<link\b[^>]*\brel="stylesheet"[^>]*\bhref="([^"]+)"[^>]*>/g)].map((match) => match[1]);
+  assert(stylesheetSources.every((source) => source.startsWith('/')), `${relativePath}: external stylesheet or font origin found`);
 }
 
 const forbiddenPatterns = [

@@ -10,46 +10,31 @@ const { lang } = Astro.props;
 
 const headings = {
   ru: {
-    proof: 'Проверенная основа',
-    fields: 'Профессиональные направления',
-    scholarly: 'Избранные научные работы',
-    profiles: 'Научные профили',
-    position: 'Профессиональная позиция',
-    contact: 'Контакты',
+    help: 'Как я могу помочь',
+    profile: 'Профессиональный профиль',
+    materials: 'Новые материалы',
   },
   en: {
-    proof: 'Verified foundation',
-    fields: 'Professional fields',
-    scholarly: 'Selected scholarly work',
-    profiles: 'Research profiles',
-    position: 'Professional position',
-    contact: 'Contact',
+    help: 'How I can help',
+    profile: 'Professional profile',
+    materials: 'New material',
   },
 } as const satisfies Record<Language, Record<string, string>>;
 
 const copy = headings[lang];
 ---
 
-<div class="home-sections home-sections--v2">
-  <section class="home-opening" id="identity" aria-labelledby="page-title">
+<div class="home-sections home-sections--slice-2">
+  <section class="home-opening" aria-labelledby="page-title">
     <slot name="hero" />
   </section>
-  <PageSection id="verified-foundation" title={copy.proof} class="home-proof" density="compact">
-    <slot name="proof" />
+  <PageSection id="help" title={copy.help} class="home-help" density="editorial">
+    <slot name="help" />
   </PageSection>
-  <PageSection id="professional-fields" title={copy.fields} class="home-fields" density="open">
-    <slot name="fields" />
+  <PageSection id="professional-profile" title={copy.profile} class="home-profile" density="editorial">
+    <slot name="profile" />
   </PageSection>
-  <PageSection id="selected-work" title={copy.scholarly} class="home-scholarly" density="open">
-    <slot name="scholarly" />
-  </PageSection>
-  <PageSection id="research-profiles" title={copy.profiles} class="home-profiles" density="editorial">
-    <slot name="profiles" />
-  </PageSection>
-  <PageSection id="professional-position" title={copy.position} class="home-position" density="open">
-    <slot name="position" />
-  </PageSection>
-  <PageSection id="contact" title={copy.contact} class="home-contact" density="editorial">
-    <slot name="contact" />
+  <PageSection id="new-material" title={copy.materials} class="home-materials" density="editorial">
+    <slot name="materials" />
   </PageSection>
 </div>
