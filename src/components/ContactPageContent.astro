@@ -4,123 +4,28 @@ import type { Language } from '../i18n/config';
 import { localizedPath } from '../i18n/config';
 import ContactSections from './ContactSections.astro';
 import Container from './Container.astro';
-
-interface Props {
-  lang: Language;
-}
-
+interface Props { lang: Language; }
 const { lang } = Astro.props;
 const copy = contactPageCopy[lang];
-const fieldId = (name: string) => `contact-${lang}-${name}`;
+const id = (name: string) => `contact-${lang}-${name}`;
 ---
-
 <ContactSections formTitle={copy.formTitle}>
-  <Fragment slot="hero">
-    <Container size="reading" class="contact-opening__copy">
-      <p>{copy.introduction}</p>
-    </Container>
-  </Fragment>
-
+  <Fragment slot="hero"><Container size="reading" class="contact-opening__copy"><p>{copy.introduction}</p></Container></Fragment>
   <Fragment slot="form">
     <Container size="wide" class="contact-form-wrap">
-      <form
-        class="contact-form"
-        action={contactFormEndpoint}
-        method="POST"
-        accept-charset="UTF-8"
-        data-contact-form
-        data-required-message={copy.requiredError}
-        data-email-message={copy.emailError}
-        data-success-message={copy.success}
-        data-error-message={copy.error}
-      >
-        <div class="contact-form__name-row">
-          <div class="contact-form__field">
-            <label for={fieldId('first-name')}>{copy.fields.firstName.label}</label>
-            <input
-              id={fieldId('first-name')}
-              name="firstName"
-              type="text"
-              autocomplete="given-name"
-              maxlength="80"
-              required
-            />
-          </div>
-
-          <div class="contact-form__field">
-            <label for={fieldId('last-name')}>{copy.fields.lastName.label}</label>
-            <input
-              id={fieldId('last-name')}
-              name="lastName"
-              type="text"
-              autocomplete="family-name"
-              maxlength="80"
-            />
-          </div>
-        </div>
-
-        <div class="contact-form__field">
-          <label for={fieldId('email')}>{copy.fields.email.label}</label>
-          <input
-            id={fieldId('email')}
-            name="email"
-            type="email"
-            inputmode="email"
-            autocomplete="email"
-            maxlength="254"
-            required
-          />
-        </div>
-
-        <div class="contact-form__field">
-          <label for={fieldId('message')}>{copy.fields.message.label}</label>
-          <textarea
-            id={fieldId('message')}
-            name="message"
-            placeholder={copy.fields.message.placeholder}
-            maxlength="5000"
-            rows="9"
-            required
-          ></textarea>
-        </div>
-
-        <div class="contact-form__honeypot" aria-hidden="true">
-          <label for={fieldId('gotcha')}>{copy.honeypotLabel}</label>
-          <input
-            id={fieldId('gotcha')}
-            name="_gotcha"
-            type="text"
-            autocomplete="off"
-            tabindex="-1"
-          />
-        </div>
-
+      <form class="contact-form" action={contactFormEndpoint} method="POST" accept-charset="UTF-8" data-contact-form data-required-message={copy.requiredError} data-email-message={copy.emailError} data-success-message={copy.success} data-error-message={copy.error}>
+        <div class="contact-form__field"><label for={id('name')}>{copy.fields.name}</label><input id={id('name')} name="name" type="text" autocomplete="name" maxlength="120" required /></div>
+        <div class="contact-form__field"><label for={id('email')}>{copy.fields.email}</label><input id={id('email')} name="email" type="email" inputmode="email" autocomplete="email" maxlength="254" required /></div>
+        <div class="contact-form__field"><label for={id('topic')}>{copy.fields.topic}</label><select id={id('topic')} name="topic" required><option value="" disabled selected>—</option>{copy.topics.map((topic) => <option value={topic.value}>{topic.label}</option>)}</select></div>
+        <div class="contact-form__field"><label for={id('message')}>{copy.fields.message}</label><textarea id={id('message')} name="message" placeholder={copy.fields.messagePlaceholder} maxlength="5000" rows="8" required></textarea></div>
+        <div class="contact-form__honeypot" aria-hidden="true"><label for={id('gotcha')}>{copy.honeypot}</label><input id={id('gotcha')} name="_gotcha" type="text" autocomplete="off" tabindex="-1" /></div>
         <input type="hidden" name="subject" value="New message from arturfattakhov.com" />
-
-        <button
-          class="button button--primary contact-form__submit"
-          type="submit"
-          data-idle-label={copy.submit}
-          data-submitting-label={copy.submitting}
-        >
-          {copy.submit}
-        </button>
-
-        <p
-          class="contact-form__status"
-          role="status"
-          aria-live="polite"
-          aria-atomic="true"
-          tabindex="-1"
-          data-contact-status
-        ></p>
-
-        <p class="contact-form__privacy">
-          {copy.privacy.beforeLink}<a href={localizedPath(lang, 'privacy')}>{copy.privacy.link}</a>{copy.privacy.afterLink}
-        </p>
+        <input type="hidden" name="language" value={lang} />
+        <button class="button button--primary contact-form__submit" type="submit" data-idle-label={copy.submit} data-submitting-label={copy.submitting}>{copy.submit}</button>
+        <p class="contact-form__status" role="status" aria-live="polite" aria-atomic="true" tabindex="-1" data-contact-status></p>
+        <p class="contact-form__privacy">{copy.privacy.before}<a href={localizedPath(lang, 'privacy')}>{copy.privacy.link}</a>{copy.privacy.after}</p>
       </form>
     </Container>
   </Fragment>
 </ContactSections>
-
 <script is:inline src="/scripts/contact-form.js" defer></script>

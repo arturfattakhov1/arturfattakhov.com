@@ -5,7 +5,7 @@ const initializeContactForms = () => {
     const form = element;
     const submitButton = form.querySelector('button[type="submit"]');
     const status = form.querySelector('[data-contact-status]');
-    const requiredFields = [...form.querySelectorAll('input[required], textarea[required]')];
+    const requiredFields = [...form.querySelectorAll('input[required], select[required], textarea[required]')];
     let submitting = false;
 
     if (!(submitButton instanceof HTMLButtonElement) || !(status instanceof HTMLElement)) return;
@@ -13,7 +13,7 @@ const initializeContactForms = () => {
     form.dataset.enhanced = 'true';
 
     const setFieldValidity = (field) => {
-      if (!(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement)) return;
+      if (!(field instanceof HTMLInputElement || field instanceof HTMLSelectElement || field instanceof HTMLTextAreaElement)) return;
 
       field.setCustomValidity('');
       if (field.required && field.value.trim() === '') {
@@ -53,7 +53,7 @@ const initializeContactForms = () => {
       delete status.dataset.state;
 
       const formData = new FormData(form);
-      for (const fieldName of ['firstName', 'lastName', 'email', 'message']) {
+      for (const fieldName of ['name', 'email', 'topic', 'message']) {
         const value = formData.get(fieldName);
         if (typeof value === 'string') formData.set(fieldName, value.trim());
       }
