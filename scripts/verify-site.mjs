@@ -214,7 +214,7 @@ for (const directiveName of ['connect-src', 'form-action']) {
 }
 
 const generatedHtml = walk(dist).filter((path) => path.endsWith('.html') && !path.includes('/pagefind/'));
-assert(generatedHtml.length === 48, `expected 48 HTML files including root redirect and 404, found ${generatedHtml.length}`);
+assert(generatedHtml.length === 49, `expected 49 HTML files including root redirect and 404, found ${generatedHtml.length}`);
 
 console.log(`Verified 46 localized public URLs, 9 unique publication records, 6 hidden drafts, ${requiredRedirects.length} redirect rules, and ${generatedHtml.length} generated HTML files.`);
 console.log(`Pagefind: ru=${pagefindEntry.languages.ru.page_count}, en=${pagefindEntry.languages.en.page_count}.`);
