@@ -4813,3 +4813,334 @@ main:has(.search-page) > .breadcrumbs {
     display: none;
   }
 }
+
+/* Slice 2: owner-focused homepage and veterinary practice */
+.home-page {
+  padding-top: clamp(var(--space-10), 5vw, var(--space-16));
+}
+
+.home-sections--slice-2 .page-section {
+  min-height: 0;
+  padding-block: clamp(var(--space-10), 5vw, var(--space-16));
+}
+
+.home-sections--slice-2 .home-opening {
+  padding-bottom: clamp(var(--space-12), 6vw, var(--space-20));
+}
+
+.home-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(var(--space-8), 6vw, var(--space-16));
+  align-items: center;
+}
+
+.home-hero__copy {
+  max-width: 50rem;
+}
+
+.home-hero__role {
+  margin: 0 0 var(--space-4);
+  color: var(--accent-dark);
+  font-size: var(--font-supporting);
+  font-weight: 720;
+  letter-spacing: 0.035em;
+}
+
+.home-hero h1 {
+  max-width: 14ch;
+  font-size: clamp(2.75rem, 6.2vw, 5rem);
+}
+
+.home-hero__benefit {
+  max-width: 56ch;
+  margin: var(--space-6) 0 0;
+  color: var(--text);
+  font-size: clamp(1.2rem, 1.8vw, 1.55rem);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.home-hero__context {
+  max-width: 62ch;
+  margin: var(--space-4) 0 0;
+  color: var(--text-soft);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.home-sections--slice-2 .home-portrait {
+  width: 12rem;
+  height: 12rem;
+  border: 0.35rem solid var(--surface);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--line), var(--shadow-sm);
+}
+
+.home-sections--slice-2 .home-portrait img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  object-position: center 28%;
+}
+
+.home-service-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-8);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.home-service-list li,
+.home-profile-grid div {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line-strong);
+}
+
+.home-service-list h3 {
+  margin: 0;
+  font-size: var(--font-subsection-title);
+}
+
+.home-service-list p,
+.home-profile-grid dd {
+  margin: var(--space-3) 0 0;
+  color: var(--text-soft);
+  font-size: var(--font-supporting);
+  line-height: 1.58;
+}
+
+.home-section-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: center;
+  margin-top: var(--space-8);
+}
+
+.home-section-actions .home-text-link {
+  margin-top: 0;
+}
+
+.home-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6) var(--space-10);
+  margin: 0;
+}
+
+.home-profile-grid dt {
+  font-weight: 720;
+}
+
+.home-sections--slice-2 .home-record-list li {
+  padding-block: var(--space-6);
+}
+
+.practice-opening__context,
+.practice-section-lead {
+  max-width: var(--measure-narrow);
+  margin: var(--space-5) 0 0;
+  color: var(--text-soft);
+  line-height: 1.62;
+}
+
+.practice-section-lead {
+  margin-top: 0;
+  margin-bottom: var(--space-8);
+  font-size: var(--font-lead);
+}
+
+.practice-format-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-8) var(--space-10);
+}
+
+.practice-format-grid article {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line-strong);
+}
+
+.practice-format-grid h3,
+.practice-step-list h3,
+.urgent-notice h3 {
+  margin: 0;
+  font-size: var(--font-subsection-title);
+}
+
+.practice-format-grid p,
+.practice-step-list p {
+  margin: var(--space-3) 0 0;
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+
+.practice-step-list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.practice-step-list li {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  gap: var(--space-5);
+  padding-block: var(--space-6);
+  border-top: 1px solid var(--line);
+}
+
+.practice-step-list li > span {
+  color: var(--accent);
+  font-size: var(--font-metadata);
+  font-weight: 720;
+  letter-spacing: 0.075em;
+}
+
+.practice-principle-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-8);
+  margin: 0;
+}
+
+.practice-principle-list div {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line-strong);
+}
+
+.practice-principle-list dt {
+  font-weight: 720;
+}
+
+.practice-principle-list dd {
+  margin: var(--space-3) 0 0;
+  color: var(--text-soft);
+  line-height: 1.58;
+}
+
+.practice-limits > p {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.66;
+}
+
+.practice-limits > p + p {
+  margin-top: var(--space-4);
+}
+
+.urgent-notice {
+  margin-top: var(--space-8);
+  padding: var(--space-6);
+  background: #fff8e8;
+  border: 1px solid #ddc88f;
+  border-left: 0.3rem solid #9b6815;
+  border-radius: var(--radius-sm);
+}
+
+.urgent-notice h3 {
+  color: #5f3c08;
+  font-family: var(--font-sans);
+}
+
+.urgent-notice p {
+  margin: var(--space-3) 0 0;
+  color: #4c3b1e;
+  line-height: 1.6;
+}
+
+.practice-contact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-8);
+}
+
+.practice-contact p {
+  max-width: 54ch;
+  margin: 0;
+  color: var(--text-soft);
+}
+
+@media (max-width: 48rem) {
+  .home-hero {
+    grid-template-columns: minmax(0, 1fr) 7.5rem;
+    gap: var(--space-6);
+    align-items: start;
+  }
+
+  .home-sections--slice-2 .home-portrait {
+    width: 7.5rem;
+    height: 7.5rem;
+  }
+
+  .home-hero__role,
+  .home-hero h1 {
+    grid-column: 1 / -1;
+  }
+
+  .home-service-list,
+  .practice-principle-list {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  .practice-format-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  .practice-contact {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 32rem) {
+  .home-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .home-sections--slice-2 .home-portrait {
+    grid-row: 1;
+    width: 6.5rem;
+    height: 6.5rem;
+  }
+
+  .home-hero__copy {
+    display: contents;
+  }
+
+  .home-hero__role {
+    grid-row: 2;
+    margin-bottom: 0;
+  }
+
+  .home-hero h1 {
+    grid-row: 3;
+  }
+
+  .home-hero__benefit {
+    grid-row: 4;
+  }
+
+  .home-hero__context {
+    grid-row: 5;
+  }
+
+  .home-hero .button-group {
+    grid-row: 6;
+  }
+
+  .home-profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-section-actions .button,
+  .practice-contact .button {
+    width: 100%;
+  }
+}

@@ -1,210 +1,163 @@
 import type { Language } from '../i18n/config';
 
-interface HomeField {
-  title: string;
-  description: string;
-  linkLabel: string;
-  path: 'about' | 'research';
-}
-
 interface HomePageCopy {
   hero: {
-    roles: string[];
-    thesis: string;
+    role: string;
+    benefit: string;
     context: string;
     portraitAlt: string;
     primaryCta: string;
     secondaryCta: string;
   };
-  proof: Array<{ title: string; description: string }>;
-  fields: {
+  help: {
+    title: string;
     introduction: string;
-    items: HomeField[];
+    items: Array<{ title: string; description: string }>;
+    practiceCta: string;
+    contactCta: string;
   };
-  scholarly: {
+  profile: {
+    title: string;
     introduction: string;
-    recordType: { journal: string; patent: string };
+    items: Array<{ title: string; description: string }>;
+    aboutLink: string;
+  };
+  materials: {
+    title: string;
+    introduction: string;
+    recordType: { journal: string; conference: string; patent: string };
     openRecord: string;
     allRecords: string;
-  };
-  profiles: {
-    introduction: string;
-    openProfile: string;
-    externalLinkLabel: string;
-    allProfiles: string;
-    referenceLabel: string;
-    references: Array<{ label: string; path: 'knowledge' | 'timeline' | 'faq' }>;
-  };
-  position: string[];
-  contact: {
-    description: string;
-    cta: string;
   };
 }
 
 export const homePageCopy: Record<Language, HomePageCopy> = {
   ru: {
     hero: {
-      roles: [
-        'Ветеринарный врач',
-        'Специалист визуальной диагностики',
-        'Исследователь',
-        'Предприниматель',
-      ],
-      thesis: 'Ветеринарная медицина, визуальная диагностика и исследования, направленные на более точное понимание здоровья животных.',
-      context: 'Этот сайт служит единым источником проверенной информации о профессиональной деятельности, исследовательских интересах, публикациях и официальных профилях Артура Фаттахова.',
-      portraitAlt: 'Портрет Артура Фаттахова',
-      primaryCta: 'Обо мне',
-      secondaryCta: 'Исследования',
+      role: 'Ветеринарный врач · Специалист визуальной диагностики',
+      benefit: 'Помогаю владельцам собак и кошек разобраться в состоянии животного, оценить имеющиеся данные и определить следующий обоснованный шаг.',
+      context: 'В работе я соединяю клиническую практику, современные методы диагностики и ответственное применение технологий.',
+      portraitAlt: 'Портрет ветеринарного врача Артура Фаттахова',
+      primaryCta: 'Связаться',
+      secondaryCta: 'Обо мне и опыт',
     },
-    proof: [
-      {
-        title: 'Ветеринарное образование',
-        description: 'Профессиональная подготовка в области ветеринарной медицины.',
-      },
-      {
-        title: 'Визуальная диагностика',
-        description: 'Специализация в диагностической визуализации и ультразвуковом исследовании.',
-      },
-      {
-        title: 'Исследовательская подготовка',
-        description: 'Завершил обучение в аспирантуре и получил диплом с квалификацией «Исследователь. Преподаватель-исследователь».',
-      },
-      {
-        title: 'Научные результаты',
-        description: 'Две научные публикации и один зарегистрированный патент представлены на сайте с проверенными библиографическими данными.',
-      },
-    ],
-    fields: {
-      introduction: 'Клиническая практика, визуальная диагностика и исследования образуют единую систему профессиональной работы.',
+    help: {
+      title: 'Как я могу помочь',
+      introduction: 'Работаю с владельцами собак и кошек в частной ветеринарной практике — очно и дистанционно в пределах задач, которые безопасно решать без осмотра.',
       items: [
         {
-          title: 'Клиническая практика',
-          description: 'Ветеринарная медицина собак и кошек, последовательный клинический процесс и интерпретация доступных данных при принятии решений.',
-          linkLabel: 'Профессиональный профиль',
-          path: 'about',
+          title: 'Выездная и очная помощь',
+          description: 'Выездная ветеринарная помощь и очное взаимодействие по предварительному согласованию.',
+        },
+        {
+          title: 'Обсуждение имеющихся данных',
+          description: 'Дистанционно можно обсудить медицинскую информацию о животном и определить обоснованный следующий шаг.',
         },
         {
           title: 'Визуальная диагностика',
-          description: 'Ультразвуковое исследование, качество изображений и оценка результатов вместе с анамнезом и клиническими признаками.',
-          linkLabel: 'О профессиональном подходе',
-          path: 'about',
+          description: 'Использую визуальную диагностику как часть клинической оценки, а не отдельно от анамнеза и осмотра.',
+        },
+      ],
+      practiceCta: 'Подробнее о практике',
+      contactCta: 'Связаться',
+    },
+    profile: {
+      title: 'Профессиональный профиль',
+      introduction: 'Мой профессиональный путь объединяет ветеринарное образование, практическую работу, визуальную диагностику, исследования и предпринимательский опыт.',
+      items: [
+        {
+          title: 'Ветеринарное образование',
+          description: 'Завершённая профессиональная подготовка с квалификацией «Ветеринарный врач».',
         },
         {
-          title: 'Исследования',
-          description: 'Диагностическая визуализация, рентгенографическая анатомия, морфометрия и клиническая поддержка принятия решений.',
-          linkLabel: 'Исследовательские направления',
-          path: 'research',
+          title: 'Клиническая практика',
+          description: 'Частная ветеринарная практика и работа с собаками и кошками.',
+        },
+        {
+          title: 'Визуальная диагностика',
+          description: 'Профильная подготовка по ветеринарной визуальной диагностике.',
+        },
+        {
+          title: 'Предпринимательский опыт',
+          description: 'Организация и развитие частной ветеринарной практики.',
+        },
+        {
+          title: 'Исследовательская квалификация',
+          description: 'Квалификация «Исследователь. Преподаватель-исследователь».',
         },
       ],
+      aboutLink: 'Обо мне и опыт',
     },
-    scholarly: {
-      introduction: 'Выбранные записи отражают работу с рентгеноморфометрией, сравнительной анатомией и микроморфологией. На сайте приведены только проверенные библиографические сведения.',
-      recordType: { journal: 'Научная публикация', patent: 'Патент' },
-      openRecord: 'Открыть запись',
+    materials: {
+      title: 'Новые материалы',
+      introduction: 'Последние опубликованные записи из проверенного библиографического каталога.',
+      recordType: { journal: 'Научная статья', conference: 'Материал конференции', patent: 'Патент' },
+      openRecord: 'Открыть материал',
       allRecords: 'Все публикации',
-    },
-    profiles: {
-      introduction: 'Официальные научные профили связывают авторские и библиографические записи с одной проверенной профессиональной идентичностью.',
-      openProfile: 'Открыть профиль',
-      externalLinkLabel: 'откроется в новой вкладке',
-      allProfiles: 'Все официальные профили',
-      referenceLabel: 'Дополнительный профессиональный контекст',
-      references: [
-        { label: 'База знаний', path: 'knowledge' },
-        { label: 'Хронология', path: 'timeline' },
-        { label: 'Вопросы и ответы', path: 'faq' },
-      ],
-    },
-    position: [
-      'Я рассматриваю диагностику как процесс, в котором результаты визуализации должны оцениваться вместе с анамнезом, клиническими признаками и другими доступными данными.',
-      'Научная коммуникация для меня означает точное изложение методов и результатов без преувеличений и публикацию только проверенных сведений.',
-    ],
-    contact: {
-      description: 'Для профессиональных, исследовательских, образовательных и медиа-запросов используйте официальную страницу контактов.',
-      cta: 'Перейти к контактам',
     },
   },
   en: {
     hero: {
-      roles: [
-        'Veterinary Doctor',
-        'Diagnostic Imaging Specialist',
-        'Researcher',
-        'Entrepreneur',
-      ],
-      thesis: 'Veterinary medicine, diagnostic imaging and research focused on a more precise understanding of animal health.',
-      context: 'This website is the central source for verified information about Artur Fattakhov’s professional work, research interests, publications, and official profiles.',
-      portraitAlt: 'Portrait of Artur Fattakhov',
-      primaryCta: 'About',
-      secondaryCta: 'Research',
+      role: 'Veterinary Doctor · Diagnostic Imaging Specialist',
+      benefit: 'I help dog and cat owners understand their animal’s condition, make sense of the available information, and identify the next well-founded step.',
+      context: 'My work brings together clinical practice, modern diagnostic methods, and the responsible use of technology.',
+      portraitAlt: 'Portrait of veterinary doctor Artur Fattakhov',
+      primaryCta: 'Contact',
+      secondaryCta: 'About and experience',
     },
-    proof: [
-      {
-        title: 'Veterinary education',
-        description: 'Professional training in veterinary medicine.',
-      },
-      {
-        title: 'Diagnostic imaging',
-        description: 'Specialisation in diagnostic imaging and veterinary ultrasonography.',
-      },
-      {
-        title: 'Research training',
-        description: 'Completed postgraduate training and received a qualification in research and teaching.',
-      },
-      {
-        title: 'Scholarly record',
-        description: 'Two scientific publications and one registered patent are presented with verified bibliographic data.',
-      },
-    ],
-    fields: {
-      introduction: 'Clinical practice, diagnostic imaging, and research form one connected system of professional work.',
+    help: {
+      title: 'How I can help',
+      introduction: 'I work with dog and cat owners through private veterinary practice, both in person and remotely where the question can be handled safely without an examination.',
       items: [
         {
-          title: 'Clinical practice',
-          description: 'Veterinary medicine for dogs and cats, structured clinical workflows, and interpretation of available evidence in decision-making.',
-          linkLabel: 'Professional profile',
-          path: 'about',
+          title: 'Mobile and in-person care',
+          description: 'Mobile veterinary care and in-person appointments by prior arrangement.',
+        },
+        {
+          title: 'Reviewing available information',
+          description: 'A remote discussion can help make sense of existing medical information and define a well-founded next step.',
         },
         {
           title: 'Diagnostic imaging',
-          description: 'Ultrasonography, image quality, and interpretation of findings alongside history and clinical signs.',
-          linkLabel: 'About the professional approach',
-          path: 'about',
+          description: 'I use diagnostic imaging as part of a clinical assessment, not in isolation from history and examination.',
+        },
+      ],
+      practiceCta: 'Explore the practice',
+      contactCta: 'Contact',
+    },
+    profile: {
+      title: 'Professional profile',
+      introduction: 'My professional path combines veterinary education, clinical work, diagnostic imaging, research, and entrepreneurial experience.',
+      items: [
+        {
+          title: 'Veterinary education',
+          description: 'Completed professional education with the qualification of Veterinary Doctor.',
         },
         {
-          title: 'Research',
-          description: 'Diagnostic imaging, radiographic anatomy, morphometry, and clinical decision support.',
-          linkLabel: 'Research directions',
-          path: 'research',
+          title: 'Clinical practice',
+          description: 'Private veterinary practice working with dogs and cats.',
+        },
+        {
+          title: 'Diagnostic imaging',
+          description: 'Focused professional training in veterinary diagnostic imaging.',
+        },
+        {
+          title: 'Entrepreneurial experience',
+          description: 'Building and developing a private veterinary practice.',
+        },
+        {
+          title: 'Research qualification',
+          description: 'Qualification as Researcher and Teacher-Researcher.',
         },
       ],
+      aboutLink: 'About and experience',
     },
-    scholarly: {
-      introduction: 'The selected records concern X-ray morphometry, comparative anatomy, and micromorphology. Only verified bibliographic information is presented here.',
-      recordType: { journal: 'Scientific publication', patent: 'Patent' },
-      openRecord: 'Open record',
+    materials: {
+      title: 'New material',
+      introduction: 'Recent published records from the verified bibliographic catalogue.',
+      recordType: { journal: 'Journal article', conference: 'Conference paper', patent: 'Patent' },
+      openRecord: 'Open material',
       allRecords: 'All publications',
-    },
-    profiles: {
-      introduction: 'Official research profiles connect authorship and bibliographic records with one verified professional identity.',
-      openProfile: 'Open profile',
-      externalLinkLabel: 'opens in a new tab',
-      allProfiles: 'All official profiles',
-      referenceLabel: 'Additional professional context',
-      references: [
-        { label: 'Knowledge Hub', path: 'knowledge' },
-        { label: 'Timeline', path: 'timeline' },
-        { label: 'FAQ', path: 'faq' },
-      ],
-    },
-    position: [
-      'I approach diagnostics as a process in which imaging findings should be interpreted alongside history, clinical signs, and other available evidence.',
-      'For me, scientific communication means describing methods and results accurately, without exaggeration, and publishing only verified information.',
-    ],
-    contact: {
-      description: 'Use the official contact page for professional, research, educational, and media inquiries.',
-      cta: 'Go to contact page',
     },
   },
 };

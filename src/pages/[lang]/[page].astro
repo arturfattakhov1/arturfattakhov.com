@@ -7,6 +7,7 @@ import KnowledgePageContent from '../../components/KnowledgePageContent.astro';
 import LegalPageContent from '../../components/LegalPageContent.astro';
 import MediaPageContent from '../../components/MediaPageContent.astro';
 import ProfilesPageContent from '../../components/ProfilesPageContent.astro';
+import PracticePageContent from '../../components/PracticePageContent.astro';
 import ResearchPageContent from '../../components/ResearchPageContent.astro';
 import SearchPageContent from '../../components/SearchPageContent.astro';
 import TimelinePageContent from '../../components/TimelinePageContent.astro';
@@ -21,7 +22,7 @@ import { languages, localizedPath, type Language } from '../../i18n/config';
 import PageLayout from '../../layouts/PageLayout.astro';
 
 export function getStaticPaths() {
-  const pages: StandardPageSlug[] = ['about', 'research', 'media', 'contact', 'cv', 'profiles', 'uses', 'knowledge', 'timeline', 'faq', 'search', 'privacy', 'terms', 'disclaimer'];
+  const pages: StandardPageSlug[] = ['about', 'practice', 'research', 'media', 'contact', 'cv', 'profiles', 'uses', 'knowledge', 'timeline', 'faq', 'search', 'privacy', 'terms', 'disclaimer'];
   return languages.flatMap((lang) =>
     pages.map((page) => ({ params: { lang, page }, props: { lang, page } })),
   );
@@ -35,6 +36,7 @@ interface Props {
 const { lang, page } = Astro.props;
 const content = pageContent[lang][page];
 const pageSchemaTypes: Partial<Record<StandardPageSlug, PageSchemaType>> = {
+  practice: 'WebPage',
   research: 'AboutPage',
   profiles: 'CollectionPage',
   contact: 'ContactPage',
@@ -42,9 +44,10 @@ const pageSchemaTypes: Partial<Record<StandardPageSlug, PageSchemaType>> = {
   timeline: 'CollectionPage',
 };
 const schemaType = pageSchemaTypes[page];
-const searchablePages = new Set<StandardPageSlug>(['about', 'research', 'media', 'profiles', 'knowledge']);
+const searchablePages = new Set<StandardPageSlug>(['about', 'practice', 'research', 'media', 'profiles', 'knowledge']);
 const searchTypeLabels: Partial<Record<StandardPageSlug, Record<Language, string>>> = {
   about: { ru: 'Профессиональный профиль', en: 'Professional profile' },
+  practice: { ru: 'Ветеринарная практика', en: 'Veterinary practice' },
   research: { ru: 'Исследования', en: 'Research' },
   media: { ru: 'Медиа', en: 'Media' },
   profiles: { ru: 'Профессиональные профили', en: 'Professional profiles' },
@@ -69,11 +72,13 @@ if (page === 'profiles') {
   type={page === 'about' ? 'profile' : 'website'}
   schemaType={schemaType}
   schemaItems={schemaItems}
+  professionalService={page === 'practice'}
   showVerifiedProfiles={page !== 'contact'}
   searchable={searchablePages.has(page)}
   searchType={searchTypeLabels[page]?.[lang]}
 >
   {page === 'about' && <AboutPageContent lang={lang} />}
+  {page === 'practice' && <PracticePageContent lang={lang} />}
   {page === 'research' && <ResearchPageContent lang={lang} />}
   {page === 'profiles' && <ProfilesPageContent lang={lang} />}
   {page === 'contact' && <ContactPageContent lang={lang} />}

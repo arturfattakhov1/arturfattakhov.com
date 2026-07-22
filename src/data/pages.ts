@@ -4,6 +4,7 @@ import type { LegalPageSlug } from './legal';
 
 export type StandardPageSlug = LegalPageSlug
   | 'about'
+  | 'practice'
   | 'research'
   | 'media'
   | 'contact'
@@ -21,13 +22,14 @@ export interface PageContent {
 }
 
 export const homeContent: Record<Language, PageContent> = {
-  ru: { title: identity.name.ru, description: 'Официальный сайт Артура Фаттахова — ветеринарного врача и специалиста визуальной диагностики.' },
-  en: { title: identity.name.en, description: 'Official website of Artur Fattakhov, Veterinary Doctor and Diagnostic Imaging Specialist.' },
+  ru: { title: identity.name.ru, description: 'Ветеринарный врач и специалист визуальной диагностики Артур Фаттахов: помощь владельцам собак и кошек, практика и проверенные материалы.' },
+  en: { title: identity.name.en, description: 'Veterinary Doctor and Diagnostic Imaging Specialist Artur Fattakhov: support for dog and cat owners, practice, and verified material.' },
 };
 
 export const pageContent: Record<Language, Record<StandardPageSlug, PageContent>> = {
   ru: {
     about: { title: 'Обо мне', description: 'Профессиональный профиль Артура Фаттахова: ветеринарная медицина, визуальная диагностика и исследования.' },
+    practice: { title: 'Практика', description: 'Частная ветеринарная практика Артура Фаттахова: форматы помощи собакам и кошкам, принципы работы и ограничения дистанционного обсуждения.' },
     research: { title: 'Исследования', description: 'Исследовательские направления Артура Фаттахова в ветеринарной медицине, клинической диагностике и применении искусственного интеллекта.' },
     media: { title: 'Медиа', description: 'Раздел для проверенных интервью, статей, видео и подкастов с участием Артура Фаттахова.' },
     contact: { title: 'Связаться', description: 'Форма для профессиональных обращений, предложений о сотрудничестве и других профильных вопросов Артуру Фаттахову.' },
@@ -44,6 +46,7 @@ export const pageContent: Record<Language, Record<StandardPageSlug, PageContent>
   },
   en: {
     about: { title: 'About', description: 'Professional profile of Artur Fattakhov across veterinary medicine, diagnostic imaging, and research.' },
+    practice: { title: 'Practice', description: 'Artur Fattakhov’s private veterinary practice: formats for helping dogs and cats, professional principles, and the limits of remote discussion.' },
     research: { title: 'Research', description: 'Research directions of Artur Fattakhov in veterinary medicine, clinical diagnostics, and artificial intelligence.' },
     media: { title: 'Media', description: 'A section for verified interviews, articles, videos, and podcasts featuring Artur Fattakhov.' },
     contact: { title: 'Contact', description: 'A contact form for professional inquiries, collaboration proposals, and other relevant messages to Artur Fattakhov.' },

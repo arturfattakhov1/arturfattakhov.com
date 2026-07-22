@@ -14,6 +14,7 @@ interface Props {
   type?: 'profile' | 'article' | 'website';
   schemaType?: PageSchemaType;
   schemaItems?: SchemaListItem[];
+  professionalService?: boolean;
   showVerifiedProfiles?: boolean;
   searchable?: boolean;
   searchType?: string;
@@ -28,6 +29,7 @@ const {
   type = 'website',
   schemaType,
   schemaItems,
+  professionalService = false,
   showVerifiedProfiles = true,
   searchable = false,
   searchType,
@@ -61,6 +63,7 @@ const {
       title={title}
       description={description}
       items={schemaItems}
+      professionalService={professionalService}
     />
   )}
 </BaseLayout>

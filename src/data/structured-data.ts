@@ -15,6 +15,7 @@ interface PageSchemaInput {
   title: string;
   description: string;
   items?: SchemaListItem[];
+  professionalService?: boolean;
 }
 
 interface BreadcrumbItemInput {
@@ -41,6 +42,7 @@ export function createPageJsonLd({
   title,
   description,
   items = [],
+  professionalService = false,
 }: PageSchemaInput) {
   const url = absoluteUrl(canonicalPath);
   const pageId = webpageId(canonicalPath);
@@ -55,8 +57,30 @@ export function createPageJsonLd({
     isPartOf: { '@id': schemaIds.website },
     about: { '@id': schemaIds.person },
     breadcrumb: { '@id': breadcrumbId(canonicalPath) },
-    mainEntity: items.length > 0 ? { '@id': itemListId } : { '@id': schemaIds.person },
+    mainEntity: professionalService
+      ? { '@id': `${url}#professional-service` }
+      : items.length > 0
+        ? { '@id': itemListId }
+        : { '@id': schemaIds.person },
   }];
+
+  if (professionalService) {
+    graph.push({
+      '@type': 'ProfessionalService',
+      '@id': `${url}#professional-service`,
+      name: lang === 'ru' ? 'Ветеринарная практика Артура Фаттахова' : 'Artur Fattakhov Veterinary Practice',
+      url,
+      description,
+      provider: { '@id': schemaIds.person },
+      areaServed: [
+        { '@type': 'AdministrativeArea', name: lang === 'ru' ? 'Санкт-Петербург' : 'Saint Petersburg' },
+        { '@type': 'AdministrativeArea', name: lang === 'ru' ? 'Ленинградская область' : 'Leningrad Region' },
+      ],
+      serviceType: lang === 'ru'
+        ? ['Частная ветеринарная практика', 'Выездная ветеринарная помощь собакам и кошкам']
+        : ['Private veterinary practice', 'Mobile veterinary care for dogs and cats'],
+    });
+  }
 
   if (items.length > 0) {
     graph.push({
