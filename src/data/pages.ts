@@ -8,6 +8,7 @@ export type StandardPageSlug = LegalPageSlug
   | 'research'
   | 'media'
   | 'contact'
+  | 'consultation'
   | 'profiles'
   | 'knowledge'
   | 'search';
@@ -29,6 +30,7 @@ export const pageContent: Record<Language, Record<StandardPageSlug, PageContent>
     research: { title: 'Исследования', description: 'Темы, методы, проверенные результаты и публикации Артура Фаттахова по сравнительной анатомии, ветеринарной морфологии и рентгеноморфометрии.' },
     media: { title: 'Медиа', description: 'Проверенные интервью, экспертные комментарии, междисциплинарные проекты и авторские каналы Артура Фаттахова.' },
     contact: { title: 'Связаться', description: 'Форма для ветеринарных вопросов, медиа-запросов, лекций, профессиональных проектов и партнёрств.' },
+    consultation: { title: 'Онлайн-консультация', description: 'Заявка на предварительную оценку дистанционного ветеринарного формата: границы, процесс, возможные форматы, стоимость и срочные состояния.' },
     profiles: { title: 'Профессиональные профили', description: 'Подтверждённые научные, медиа, социальные и технические профили Артура Фаттахова.' },
     knowledge: { title: 'База знаний', description: 'Проверенные материалы Артура Фаттахова для владельцев животных о ветеринарной помощи и диагностическом контексте.' },
     search: { title: 'Поиск', description: 'Поиск по профессиональным материалам, публикациям и страницам Артура Фаттахова.' },
@@ -42,6 +44,7 @@ export const pageContent: Record<Language, Record<StandardPageSlug, PageContent>
     research: { title: 'Research', description: 'Topics, methods, verified outputs, and publications by Artur Fattakhov in comparative anatomy, veterinary morphology, and radiomorphometry.' },
     media: { title: 'Media', description: 'Verified interviews, expert comments, interdisciplinary projects, and authored channels by Artur Fattakhov.' },
     contact: { title: 'Contact', description: 'A form for veterinary questions, media inquiries, lectures, professional projects, and partnerships.' },
+    consultation: { title: 'Online consultation', description: 'Apply for preliminary review of a remote veterinary format, including boundaries, process, possible formats, pricing, and urgent-care guidance.' },
     profiles: { title: 'Professional profiles', description: 'Verified scientific, media, social, and technical profiles of Artur Fattakhov.' },
     knowledge: { title: 'Knowledge Base', description: "Reviewed material by Artur Fattakhov for animal owners on veterinary care and diagnostic context." },
     search: { title: 'Search', description: "Search Artur Fattakhov's professional material, publications, and profile pages." },

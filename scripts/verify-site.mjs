@@ -6,7 +6,7 @@ const root = process.cwd();
 const dist = join(root, 'dist');
 const site = 'https://arturfattakhov.com';
 const languages = ['ru', 'en'];
-const standardRoutes = ['', 'about', 'practice', 'research', 'publications', 'media', 'contact', 'profiles', 'knowledge', 'search', 'privacy', 'terms', 'disclaimer'];
+const standardRoutes = ['', 'about', 'practice', 'research', 'publications', 'media', 'contact', 'consultation', 'profiles', 'knowledge', 'search', 'privacy', 'terms', 'disclaimer'];
 const publicationSlugs = [
   'comparative-xray-morphometry-moose-cattle', 'hoof-capsule-cattle-moose', 'diagnostic-imaging-distal-limb-cattle',
   'distal-limb-disorders-cattle', 'digitalization-cattle-farming', 'ovariectomy-ovariohysterectomy-cats',
@@ -105,18 +105,67 @@ for (const lang of languages) {
     : 'Your inquiry has been received. If a response is required, I will contact you at the email provided.';
   assert(contact.includes(confirmation), `${lang}: exact contact confirmation copy is missing`);
 
+  const consultation = readFileSync(htmlPath(lang, 'consultation'), 'utf8');
+  assert(consultation.includes('data-consultation-page') && consultation.includes('data-application-first'), `${lang}: application-first consultation markers are missing`);
+  assert(consultation.includes('data-pagefind-body'), `${lang}: consultation must be indexed by Pagefind`);
+  assert(consultation.includes('action="https://formspree.io/f/xgogvvao"'), `${lang}: consultation must use the exact Formspree endpoint`);
+  assert(consultation.includes('method="POST"'), `${lang}: consultation form must use POST`);
+  for (const name of ['name', 'email', 'animalSpecies', 'inquirySummary', 'nonEmergencyConfirmation', 'privacyConsent']) {
+    const field = consultation.match(new RegExp(`<(?:input|select|textarea)\\b[^>]*\\bname="${name}"[^>]*>`))?.[0];
+    assert(field, `${lang}: consultation field missing ${name}`);
+    assert(/\brequired(?:[\s=>]|$)/.test(field), `${lang}: consultation field ${name} must be required`);
+  }
+  for (const name of ['countryOrRegion', 'animalAge', 'preferredLanguage', 'preferredFormat']) {
+    assert(new RegExp(`<(?:input|select)\\b[^>]*\\bname="${name}"`).test(consultation), `${lang}: consultation optional field missing ${name}`);
+  }
+  for (const hidden of ['source', 'subject', 'language']) assert(consultation.includes(`name="${hidden}"`), `${lang}: consultation hidden field missing ${hidden}`);
+  assert(consultation.includes('name="source" value="online-consultation"'), `${lang}: consultation source marker is incorrect`);
+  assert(consultation.includes('name="_gotcha"'), `${lang}: consultation honeypot is missing`);
+  assert(!consultation.includes('type="file"'), `${lang}: consultation must not accept file uploads`);
+  assert(!/<(?:input|button)\b[^>]*(?:name|type)="(?:payment|card|price|checkout)"/i.test(consultation), `${lang}: consultation contains a payment element`);
+  assert(!/<iframe\b/i.test(consultation), `${lang}: consultation contains an iframe`);
+  assert(!/<script\b[^>]*\bsrc="https?:\/\//i.test(consultation), `${lang}: consultation contains an external service script`);
+  assert(consultation.includes('data-urgent-guidance') && consultation.includes('data-no-site-payment') && consultation.includes('data-legal-consistency'), `${lang}: consultation safety markers are incomplete`);
+  assert(!/"@type":"(?:Offer|AggregateRating|MedicalClinic|LocalBusiness)"/.test(consultation), `${lang}: consultation contains unsupported structured data`);
+  const consultationConfirmation = lang === 'ru'
+    ? 'Заявка принята. Я предварительно оценю вопрос и свяжусь с вами по указанному email, чтобы сообщить, подходит ли дистанционный формат и какие следующие шаги возможны.'
+    : 'Your application has been received. I will review the inquiry and contact you at the email provided to confirm whether a remote format is appropriate and what the next steps may be.';
+  assert(consultation.includes(consultationConfirmation), `${lang}: exact consultation confirmation copy is missing`);
+  assert(!/консультация подтверждена|consultation (?:is|has been) confirmed/i.test(consultation), `${lang}: success copy incorrectly confirms a consultation`);
+
+  const home = readFileSync(htmlPath(lang, ''), 'utf8');
+  assert(new RegExp(`class="button button--primary" href="/${lang}/consultation/"`).test(home), `${lang}: homepage primary CTA must lead to Consultation`);
+  assert(new RegExp(`class="button button--secondary" href="/${lang}/about/"`).test(home), `${lang}: homepage secondary CTA must lead to About`);
+
+  const practice = readFileSync(htmlPath(lang, 'practice'), 'utf8');
+  assert(practice.includes(`href="/${lang}/consultation/"`) && practice.includes(`href="/${lang}/contact/"`), `${lang}: Practice CTAs must lead to Consultation and Contact`);
+
+  const privacy = readFileSync(htmlPath(lang, 'privacy'), 'utf8');
+  const terms = readFileSync(htmlPath(lang, 'terms'), 'utf8');
+  const disclaimer = readFileSync(htmlPath(lang, 'disclaimer'), 'utf8');
+  assert(privacy.includes('Formspree') && privacy.includes(lang === 'ru' ? 'Загрузка медицинских файлов отсутствует' : 'Medical file upload is not available'), `${lang}: Privacy form-processing model is inconsistent`);
+  assert(terms.includes('id="consultation-applications"'), `${lang}: Terms consultation application boundary is missing`);
+  assert(disclaimer.includes(lang === 'ru' ? 'Онлайн-заявка не предназначена для экстренной помощи' : 'The online application is not intended for emergency care'), `${lang}: Disclaimer emergency boundary is missing`);
+
   const shell = readFileSync(htmlPath(lang, 'about'), 'utf8');
   for (const route of ['practice', 'about', 'publications', 'media', 'contact']) assert(shell.includes(`href="/${lang}/${route}/"`), `${lang}: primary navigation missing ${route}`);
   for (const route of ['knowledge', 'research', 'profiles', 'privacy', 'terms', 'disclaimer', 'search']) assert(shell.includes(`href="/${lang}/${route}/"`), `${lang}: secondary navigation missing ${route}`);
+  const consultationLabel = lang === 'ru' ? 'Онлайн-консультация' : 'Online consultation';
+  assert(shell.includes(`class="header-consultation" href="/${lang}/consultation/"`) && shell.includes(`class="menu-panel__consultation" href="/${lang}/consultation/"`), `${lang}: header or drawer Consultation CTA is missing`);
+  assert(count(shell, new RegExp(consultationLabel, 'g')) >= 3, `${lang}: localized Consultation CTA is missing from the shell`);
   for (const route of legacyRoutes) assert(!shell.includes(`href="/${lang}/${route}/"`), `${lang}: global shell links to legacy route ${route}`);
 }
 
 const redirects = read('public/_redirects');
 const requiredRedirects = [
+  '/ /ru/ 301', '/contact /ru/contact/ 301', '/contact/ /ru/contact/ 301', '/cv /ru/about/ 301', '/cv/ /ru/about/ 301',
   '/ru/timeline/ /ru/about/#professional-timeline 301', '/en/timeline/ /en/about/#professional-timeline 301',
   '/ru/cv/ /ru/about/ 301', '/en/cv/ /en/about/ 301', '/ru/blog/ /ru/knowledge/ 301', '/en/blog/ /en/knowledge/ 301',
+  '/ru/blog/* /ru/knowledge/ 301', '/en/blog/* /en/knowledge/ 301',
   '/ru/faq/ /ru/practice/ 301', '/en/faq/ /en/practice/ 301', '/ru/uses/ /ru/profiles/ 301', '/en/uses/ /en/profiles/ 301',
   '/ru/projects/ /ru/about/ 301', '/en/projects/ /en/about/ 301', '/ru/now/ /ru/about/ 301', '/en/now/ /en/about/ 301',
+  '/consultation /ru/consultation/ 301', '/consultation/ /ru/consultation/ 301',
+  '/ru/online-consultation/ /ru/consultation/ 301', '/en/online-consultation/ /en/consultation/ 301',
 ];
 for (const rule of requiredRedirects) assert(redirects.includes(rule), `redirect missing: ${rule}`);
 for (const lang of languages) for (const route of legacyRoutes) assert(!existsSync(htmlPath(lang, route)), `legacy route still generated: /${lang}/${route}/`);
@@ -127,14 +176,15 @@ for (const path of draftSources) assert(readFileSync(path, 'utf8').includes('sta
 
 const sitemap = read('dist/sitemap-0.xml');
 const sitemapUrls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
-assert(sitemapUrls.length === 44 && new Set(sitemapUrls).size === 44, `sitemap must contain 44 unique public URLs, found ${sitemapUrls.length}`);
+assert(sitemapUrls.length === 46 && new Set(sitemapUrls).size === 46, `sitemap must contain 46 unique public URLs, found ${sitemapUrls.length}`);
+for (const lang of languages) assert(sitemap.includes(`${site}/${lang}/consultation/`), `${lang}: Consultation is missing from sitemap`);
 for (const slug of draftSlugs) assert(!sitemap.includes(slug), `draft leaked into sitemap: ${slug}`);
 for (const route of legacyRoutes) assert(!sitemap.includes(`/${route}/`), `legacy route leaked into sitemap: ${route}`);
 
 const pagefindEntry = JSON.parse(read('dist/pagefind/pagefind-entry.json'));
-for (const lang of languages) assert(pagefindEntry.languages?.[lang]?.page_count === 16, `${lang}: expected 16 isolated Pagefind pages`);
+for (const lang of languages) assert(pagefindEntry.languages?.[lang]?.page_count === 17, `${lang}: expected 17 isolated Pagefind pages`);
 const pagefindFragments = walk(join(dist, 'pagefind/fragment')).filter((path) => path.endsWith('.pf_fragment'));
-assert(pagefindFragments.length === 32, `expected 32 Pagefind fragments, found ${pagefindFragments.length}`);
+assert(pagefindFragments.length === 34, `expected 34 Pagefind fragments, found ${pagefindFragments.length}`);
 for (const path of pagefindFragments) {
   const fragment = gunzipSync(readFileSync(path)).toString('utf8');
   const lang = relative(join(dist, 'pagefind/fragment'), path).split('_')[0];
@@ -145,7 +195,11 @@ for (const path of pagefindFragments) {
 const htmlOutput = expectedPages.map((page) => readFileSync(page.path, 'utf8')).join('\n');
 const prohibited = [/ВЕТ УЗИ 47/i, /Movetrus/i, /controlled marketplace/i, /диссертац/i, /research pause/i, /пауза в исслед/i, /кандидат наук/i, /\bPhD\b/i, /профессор/i, /врач УЗИ/i, /специалист УЗИ/i, /active AI platform/i, /действующ[^<]{0,30}AI-платформ/i];
 for (const pattern of prohibited) assert(!pattern.test(htmlOutput), `confidential or unsupported public term detected: ${pattern}`);
-assert(!/Online Consultation|Онлайн-консультац/.test(htmlOutput), 'Online Consultation CTA is prohibited');
+
+const formScript = read('public/scripts/contact-form.js');
+assert(formScript.includes("if (typeof window.fetch !== 'function' || form.dataset.nativeFallback === 'true') return;"), 'native form fallback is missing');
+assert(formScript.includes('if (payload?.ok !== true)') && formScript.indexOf('if (payload?.ok !== true)') < formScript.indexOf('form.reset()'), 'form must reset only after JSON ok: true');
+assert(formScript.includes('submitButton.disabled = true') && formScript.includes('submitButton.disabled = false'), 'submit button busy state is incomplete');
 
 const headers = read('public/_headers');
 assert(headers.includes("script-src 'self' 'wasm-unsafe-eval'"), 'Pagefind CSP allowance is missing');
@@ -160,7 +214,7 @@ for (const directiveName of ['connect-src', 'form-action']) {
 }
 
 const generatedHtml = walk(dist).filter((path) => path.endsWith('.html') && !path.includes('/pagefind/'));
-assert(generatedHtml.length === 46, `expected 46 HTML files including root redirect and 404, found ${generatedHtml.length}`);
+assert(generatedHtml.length === 48, `expected 48 HTML files including root redirect and 404, found ${generatedHtml.length}`);
 
-console.log(`Verified 44 localized public URLs, 9 unique publication records, 6 hidden drafts, 14 legacy redirects, and ${generatedHtml.length} generated HTML files.`);
+console.log(`Verified 46 localized public URLs, 9 unique publication records, 6 hidden drafts, ${requiredRedirects.length} redirect rules, and ${generatedHtml.length} generated HTML files.`);
 console.log(`Pagefind: ru=${pagefindEntry.languages.ru.page_count}, en=${pagefindEntry.languages.en.page_count}.`);

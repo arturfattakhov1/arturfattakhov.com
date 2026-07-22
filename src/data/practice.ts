@@ -6,7 +6,7 @@ interface PracticePageCopy {
   process: { title: string; items: Array<{ title: string; description: string }> };
   principles: { title: string; items: Array<{ title: string; description: string }> };
   limits: { title: string; paragraphs: string[]; urgentTitle: string; urgentText: string };
-  contact: { title: string; description: string; cta: string };
+  contact: { title: string; description: string; primaryCta: string; secondaryCta: string };
 }
 
 export const practicePageCopy: Record<Language, PracticePageCopy> = {
@@ -29,8 +29,8 @@ export const practicePageCopy: Record<Language, PracticePageCopy> = {
     process: {
       title: 'Как проходит взаимодействие',
       items: [
-        { title: 'Контекст', description: 'Вы описываете вопрос, состояние животного и доступные медицинские данные через страницу контактов.' },
-        { title: 'Формат', description: 'Я оцениваю, какой формат уместен, и мы предварительно согласуем дальнейшее взаимодействие.' },
+        { title: 'Контекст', description: 'Вы описываете вопрос, состояние животного и доступные данные через заявку на онлайн-консультацию или страницу контактов.' },
+        { title: 'Формат', description: 'Я оцениваю, какой формат уместен. Заявка не означает принятия случая; стоимость и дальнейшее взаимодействие согласуются отдельно.' },
         { title: 'Следующий шаг', description: 'После обсуждения или осмотра формулирую границы оценки и следующий обоснованный шаг.' },
       ],
     },
@@ -52,9 +52,10 @@ export const practicePageCopy: Record<Language, PracticePageCopy> = {
       urgentText: 'При затруднённом дыхании, потере сознания, судорогах, сильном кровотечении, невозможности мочеиспускания или резком ухудшении немедленно обратитесь в ближайшую доступную ветеринарную клинику, предпочтительно круглосуточную.',
     },
     contact: {
-      title: 'Связаться',
-      description: 'Опишите ситуацию и имеющиеся данные. Это позволит определить, какой следующий шаг и формат взаимодействия уместны.',
-      cta: 'Связаться',
+      title: 'Следующий шаг',
+      description: 'Для дистанционного вопроса отправьте заявку на предварительную оценку. Для медиа, лекций, проектов и других обращений используйте общую форму контактов.',
+      primaryCta: 'Онлайн-консультация',
+      secondaryCta: 'Связаться',
     },
   },
   en: {
@@ -76,8 +77,8 @@ export const practicePageCopy: Record<Language, PracticePageCopy> = {
     process: {
       title: 'How the process works',
       items: [
-        { title: 'Context', description: 'You describe the question, the animal’s condition, and the available medical information through the contact page.' },
-        { title: 'Format', description: 'I consider which format is appropriate, and we agree on the next interaction in advance.' },
+        { title: 'Context', description: 'You describe the question, the animal’s condition, and the available information through the online consultation application or contact page.' },
+        { title: 'Format', description: 'I consider which format is appropriate. An application does not mean the case has been accepted; price and next steps are agreed separately.' },
         { title: 'Next step', description: 'After a discussion or examination, I explain the limits of the assessment and the next well-founded step.' },
       ],
     },
@@ -99,9 +100,10 @@ export const practicePageCopy: Record<Language, PracticePageCopy> = {
       urgentText: 'If there is difficulty breathing, loss of consciousness, seizures, severe bleeding, inability to urinate, or sudden deterioration, seek immediate care at the nearest available veterinary clinic, preferably one open around the clock.',
     },
     contact: {
-      title: 'Contact',
-      description: 'Describe the situation and the information already available. This will help establish the appropriate next step and format.',
-      cta: 'Contact',
+      title: 'Next step',
+      description: 'For a remote veterinary question, submit an application for preliminary review. Use the general contact form for media, lectures, projects, and other inquiries.',
+      primaryCta: 'Online consultation',
+      secondaryCta: 'Contact',
     },
   },
 };

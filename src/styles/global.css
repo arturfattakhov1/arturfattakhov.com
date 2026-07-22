@@ -5527,3 +5527,141 @@ main:has(.search-page) > .breadcrumbs {
     width: 100%;
   }
 }
+
+/* Slice 6: application-first online consultation */
+.consultation-opening {
+  max-width: 52rem;
+}
+
+.consultation-response-time {
+  max-width: var(--measure-narrow);
+  margin: var(--space-5) 0 0;
+  color: var(--muted);
+  font-size: var(--font-supporting);
+  line-height: 1.6;
+}
+
+.consultation-copy,
+.consultation-legal {
+  max-width: var(--reading-column);
+  color: var(--text-soft);
+  line-height: 1.66;
+}
+
+.consultation-copy p,
+.consultation-legal p {
+  margin: 0;
+}
+
+.consultation-copy p + p,
+.consultation-copy ul + p {
+  margin-top: var(--space-5);
+}
+
+.consultation-copy ul {
+  display: grid;
+  gap: var(--space-2);
+  padding-left: 1.25rem;
+  margin: var(--space-5) 0 0;
+}
+
+.consultation-geography {
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--line);
+}
+
+.consultation-step-list li:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.consultation-page #urgent-conditions .urgent-notice {
+  margin-top: 0;
+}
+
+.consultation-page #urgent-conditions .urgent-notice p + p {
+  margin-top: var(--space-4);
+}
+
+.consultation-form-wrap {
+  max-width: 52rem;
+}
+
+.consultation-form-intro {
+  max-width: 62ch;
+  margin: 0 0 var(--space-8);
+  color: var(--text-soft);
+  line-height: 1.62;
+}
+
+.consultation-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6);
+}
+
+.consultation-form__format {
+  grid-column: 1 / -1;
+}
+
+.consultation-form__consents {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.consultation-checkbox {
+  display: grid;
+  grid-template-columns: 1.25rem minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+  color: var(--text-soft);
+  font-size: var(--font-supporting);
+  line-height: 1.55;
+  cursor: pointer;
+}
+
+.consultation-checkbox input {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0.15rem 0 0;
+  accent-color: var(--accent-dark);
+}
+
+.consultation-checkbox input:focus-visible {
+  outline: 0.18rem solid var(--focus);
+  outline-offset: 0.16rem;
+}
+
+.consultation-legal__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-6);
+  margin-top: var(--space-4) !important;
+}
+
+.practice-contact .button-group {
+  flex: none;
+}
+
+@media (max-width: 48rem) {
+  .consultation-form__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .consultation-form__format {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 32rem) {
+  .consultation-form .contact-form__submit,
+  .practice-contact .button-group,
+  .practice-contact .button-group .button {
+    width: 100%;
+  }
+
+  .practice-contact .button-group {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,170 @@
+---
+import { consultationPageCopy } from '../data/consultation';
+import { contactFormEndpoint } from '../data/contact';
+import { localizedPath, type Language } from '../i18n/config';
+import Container from './Container.astro';
+import PageIntro from './PageIntro.astro';
+import PageSection from './PageSection.astro';
+
+interface Props { lang: Language; }
+
+const { lang } = Astro.props;
+const copy = consultationPageCopy[lang];
+const id = (name: string) => `consultation-${lang}-${name}`;
+---
+
+<div class="section-stack consultation-page" data-consultation-page data-application-first>
+  <PageIntro class="consultation-opening">
+    <p class="eyebrow">{copy.opening.eyebrow}</p>
+    <p class="lead">{copy.opening.lead}</p>
+    <p class="consultation-response-time">{copy.opening.responseTime}</p>
+  </PageIntro>
+
+  <PageSection id="suitable-questions" title={copy.suitable.title}>
+    <Container class="consultation-copy">
+      <p>{copy.suitable.introduction}</p>
+      <ul>{copy.suitable.items.map((item) => <li>{item}</li>)}</ul>
+      <p class="consultation-geography">{copy.suitable.geography}</p>
+    </Container>
+  </PageSection>
+
+  <PageSection id="remote-limits" title={copy.limits.title}>
+    <Container size="reading" class="consultation-copy">
+      {copy.limits.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+    </Container>
+  </PageSection>
+
+  <PageSection id="consultation-process" title={copy.process.title}>
+    <Container>
+      <ol class="practice-step-list consultation-step-list">
+        {copy.process.items.map((item, index) => (
+          <li>
+            <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+            <div><h3>{item.title}</h3><p>{item.description}</p></div>
+          </li>
+        ))}
+      </ol>
+    </Container>
+  </PageSection>
+
+  <PageSection id="possible-formats" title={copy.formats.title}>
+    <Container class="consultation-copy">
+      <p>{copy.formats.introduction}</p>
+      <ul>{copy.formats.items.map((item) => <li>{item}</li>)}</ul>
+    </Container>
+  </PageSection>
+
+  <PageSection id="price-and-payment" title={copy.cost.title}>
+    <Container size="reading" class="consultation-copy">
+      <div data-no-site-payment>{copy.cost.paragraphs.map((paragraph) => <p>{paragraph}</p>)}</div>
+    </Container>
+  </PageSection>
+
+  <PageSection id="urgent-conditions" title={copy.urgent.title}>
+    <Container size="reading">
+      <aside class="urgent-notice" data-urgent-guidance aria-labelledby="consultation-urgent-title">
+        <h3 id="consultation-urgent-title">{copy.urgent.title}</h3>
+        <p>{copy.urgent.text}</p>
+        <p><strong>{copy.urgent.note}</strong></p>
+      </aside>
+    </Container>
+  </PageSection>
+
+  <PageSection id="consultation-application" title={copy.application.title}>
+    <Container size="wide" class="consultation-form-wrap">
+      <p class="consultation-form-intro">{copy.application.introduction}</p>
+      <form
+        class="contact-form consultation-form"
+        action={contactFormEndpoint}
+        method="POST"
+        accept-charset="UTF-8"
+        data-contact-form
+        data-consultation-form
+        data-required-message={copy.application.requiredError}
+        data-email-message={copy.application.emailError}
+        data-success-message={copy.application.success}
+        data-error-message={copy.application.error}
+      >
+        <div class="consultation-form__grid">
+          <div class="contact-form__field">
+            <label for={id('name')}>{copy.application.fields.name}</label>
+            <input id={id('name')} name="name" type="text" autocomplete="name" maxlength="120" required />
+          </div>
+          <div class="contact-form__field">
+            <label for={id('email')}>{copy.application.fields.email}</label>
+            <input id={id('email')} name="email" type="email" inputmode="email" autocomplete="email" maxlength="254" required />
+          </div>
+          <div class="contact-form__field">
+            <label for={id('countryOrRegion')}>{copy.application.fields.countryOrRegion}</label>
+            <input id={id('countryOrRegion')} name="countryOrRegion" type="text" autocomplete="country-name" maxlength="120" />
+          </div>
+          <div class="contact-form__field">
+            <label for={id('animalSpecies')}>{copy.application.fields.animalSpecies}</label>
+            <select id={id('animalSpecies')} name="animalSpecies" required>
+              <option value="" disabled selected>{copy.application.selectPlaceholder}</option>
+              {copy.application.species.map((option) => <option value={option.value}>{option.label}</option>)}
+            </select>
+          </div>
+          <div class="contact-form__field">
+            <label for={id('animalAge')}>{copy.application.fields.animalAge}</label>
+            <input id={id('animalAge')} name="animalAge" type="text" inputmode="decimal" maxlength="60" />
+          </div>
+          <div class="contact-form__field">
+            <label for={id('preferredLanguage')}>{copy.application.fields.preferredLanguage}</label>
+            <select id={id('preferredLanguage')} name="preferredLanguage">
+              <option value="" selected>{copy.application.selectPlaceholder}</option>
+              {copy.application.languages.map((option) => <option value={option.value}>{option.label}</option>)}
+            </select>
+          </div>
+          <div class="contact-form__field consultation-form__format">
+            <label for={id('preferredFormat')}>{copy.application.fields.preferredFormat}</label>
+            <select id={id('preferredFormat')} name="preferredFormat">
+              <option value="" selected>{copy.application.selectPlaceholder}</option>
+              {copy.application.formats.map((option) => <option value={option.value}>{option.label}</option>)}
+            </select>
+          </div>
+        </div>
+
+        <div class="contact-form__field">
+          <label for={id('inquirySummary')}>{copy.application.fields.inquirySummary}</label>
+          <textarea id={id('inquirySummary')} name="inquirySummary" placeholder={copy.application.fields.inquiryPlaceholder} maxlength="3000" rows="7" required></textarea>
+        </div>
+
+        <div class="consultation-form__consents">
+          <label class="consultation-checkbox" for={id('nonEmergencyConfirmation')}>
+            <input id={id('nonEmergencyConfirmation')} name="nonEmergencyConfirmation" type="checkbox" value="confirmed" required />
+            <span>{copy.application.fields.nonEmergencyConfirmation}</span>
+          </label>
+          <label class="consultation-checkbox" for={id('privacyConsent')}>
+            <input id={id('privacyConsent')} name="privacyConsent" type="checkbox" value="consent-given" required />
+            <span>{copy.application.fields.privacyConsentBefore}<a href={localizedPath(lang, 'privacy')}>{copy.application.fields.privacyConsentLink}</a>{copy.application.fields.privacyConsentAfter}</span>
+          </label>
+        </div>
+
+        <div class="contact-form__honeypot" aria-hidden="true">
+          <label for={id('gotcha')}>{copy.application.honeypot}</label>
+          <input id={id('gotcha')} name="_gotcha" type="text" autocomplete="off" tabindex="-1" />
+        </div>
+        <input type="hidden" name="source" value="online-consultation" />
+        <input type="hidden" name="subject" value={lang === 'ru' ? 'Новая заявка на онлайн-консультацию' : 'New online consultation application'} />
+        <input type="hidden" name="language" value={lang} />
+        <button class="button button--primary contact-form__submit" type="submit" data-idle-label={copy.application.submit} data-submitting-label={copy.application.submitting}>{copy.application.submit}</button>
+        <p class="contact-form__status" role="status" aria-live="polite" aria-atomic="true" tabindex="-1" data-contact-status></p>
+      </form>
+    </Container>
+  </PageSection>
+
+  <PageSection id="consultation-legal" title={copy.legal.title} density="compact">
+    <Container size="reading" class="consultation-legal">
+      <div data-legal-consistency>
+        <p>{copy.legal.text}</p>
+        <p class="consultation-legal__links">
+          <a href={localizedPath(lang, 'privacy')}>{copy.legal.links.privacy}</a>
+          <a href={localizedPath(lang, 'terms')}>{copy.legal.links.terms}</a>
+          <a href={localizedPath(lang, 'disclaimer')}>{copy.legal.links.disclaimer}</a>
+        </p>
+      </div>
+    </Container>
+  </PageSection>
+</div>
+<script is:inline src="/scripts/contact-form.js" defer></script>

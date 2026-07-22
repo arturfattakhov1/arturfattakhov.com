@@ -11,7 +11,7 @@ export const ui = {
     menu: 'Меню',
     closeMenu: 'Закрыть меню',
     search: 'Поиск',
-    consultation: 'Связаться',
+    consultation: 'Онлайн-консультация',
     menuPrimary: 'Основное',
     menuResources: 'Материалы и профили',
     footerNavigation: 'Дополнительная навигация',
@@ -35,7 +35,7 @@ export const ui = {
     menu: 'Menu',
     closeMenu: 'Close menu',
     search: 'Search',
-    consultation: 'Contact',
+    consultation: 'Online consultation',
     menuPrimary: 'Main',
     menuResources: 'Resources and profiles',
     footerNavigation: 'Secondary navigation',
@@ -74,6 +74,7 @@ export const secondaryNavigation = [
 
 export const footerCoreNavigation = [
   ...primaryNavigation,
+  { slug: 'consultation', label: { ru: 'Онлайн-консультация', en: 'Online consultation' } },
   { slug: 'knowledge', label: { ru: 'База знаний', en: 'Knowledge' } },
 ] as const;
 

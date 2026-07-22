@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import AboutPageContent from '../../components/AboutPageContent.astro';
 import ContactPageContent from '../../components/ContactPageContent.astro';
+import ConsultationPageContent from '../../components/ConsultationPageContent.astro';
 import KnowledgePageContent from '../../components/KnowledgePageContent.astro';
 import LegalPageContent from '../../components/LegalPageContent.astro';
 import MediaPageContent from '../../components/MediaPageContent.astro';
@@ -17,7 +18,7 @@ import { languages, localizedPath, type Language } from '../../i18n/config';
 import PageLayout from '../../layouts/PageLayout.astro';
 
 export function getStaticPaths() {
-  const pages: StandardPageSlug[] = ['about', 'practice', 'research', 'media', 'contact', 'profiles', 'knowledge', 'search', 'privacy', 'terms', 'disclaimer'];
+  const pages: StandardPageSlug[] = ['about', 'practice', 'research', 'media', 'contact', 'consultation', 'profiles', 'knowledge', 'search', 'privacy', 'terms', 'disclaimer'];
   return languages.flatMap((lang) =>
     pages.map((page) => ({ params: { lang, page }, props: { lang, page } })),
   );
@@ -35,10 +36,11 @@ const pageSchemaTypes: Partial<Record<StandardPageSlug, PageSchemaType>> = {
   research: 'AboutPage',
   profiles: 'CollectionPage',
   contact: 'ContactPage',
+  consultation: 'WebPage',
   knowledge: 'CollectionPage',
 };
 const schemaType = pageSchemaTypes[page];
-const searchablePages = new Set<StandardPageSlug>(['about', 'practice', 'research', 'media', 'profiles', 'knowledge']);
+const searchablePages = new Set<StandardPageSlug>(['about', 'practice', 'research', 'media', 'profiles', 'knowledge', 'consultation']);
 const searchTypeLabels: Partial<Record<StandardPageSlug, Record<Language, string>>> = {
   about: { ru: 'Профессиональный профиль', en: 'Professional profile' },
   practice: { ru: 'Ветеринарная практика', en: 'Veterinary practice' },
@@ -46,6 +48,7 @@ const searchTypeLabels: Partial<Record<StandardPageSlug, Record<Language, string
   media: { ru: 'Медиа', en: 'Media' },
   profiles: { ru: 'Профессиональные профили', en: 'Professional profiles' },
   knowledge: { ru: 'База знаний', en: 'Knowledge' },
+  consultation: { ru: 'Онлайн-консультация', en: 'Online consultation' },
 };
 let schemaItems: SchemaListItem[] | undefined;
 const knowledgeArticles = page === 'knowledge'
@@ -80,6 +83,7 @@ if (page === 'profiles') {
   {page === 'research' && <ResearchPageContent lang={lang} />}
   {page === 'profiles' && <ProfilesPageContent lang={lang} />}
   {page === 'contact' && <ContactPageContent lang={lang} />}
+  {page === 'consultation' && <ConsultationPageContent lang={lang} />}
   {page === 'media' && <MediaPageContent lang={lang} />}
   {page === 'knowledge' && <KnowledgePageContent lang={lang} articles={knowledgeArticles} />}
   {page === 'search' && <SearchPageContent lang={lang} />}
