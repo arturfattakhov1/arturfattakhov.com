@@ -8,6 +8,12 @@ export const ui = {
     skipToContent: 'Перейти к содержанию',
     languageLabel: 'Выбор языка',
     primaryNavigation: 'Основная навигация',
+    menu: 'Меню',
+    closeMenu: 'Закрыть меню',
+    search: 'Поиск',
+    consultation: 'Онлайн-консультация',
+    menuPrimary: 'Основное',
+    menuResources: 'Материалы и профили',
     footerNavigation: 'Дополнительная навигация',
     footerRole: 'Ветеринарный врач, исследователь и предприниматель.',
     footerCore: 'Основные разделы',
@@ -26,6 +32,12 @@ export const ui = {
     skipToContent: 'Skip to content',
     languageLabel: 'Language selection',
     primaryNavigation: 'Primary navigation',
+    menu: 'Menu',
+    closeMenu: 'Close menu',
+    search: 'Search',
+    consultation: 'Online consultation',
+    menuPrimary: 'Main',
+    menuResources: 'Resources and profiles',
     footerNavigation: 'Secondary navigation',
     footerRole: 'Veterinarian, researcher and entrepreneur.',
     footerCore: 'Core sections',
@@ -40,22 +52,30 @@ export const ui = {
   },
 } as const satisfies Record<Language, Record<string, string>>;
 
-export const primaryNavigation = [
+export const desktopNavigation = [
+  { slug: 'about', hash: 'professional-system', label: { ru: 'Практика', en: 'Practice' } },
   { slug: 'about', label: { ru: 'Обо мне', en: 'About' } },
-  { slug: 'research', label: { ru: 'Исследования', en: 'Research' } },
   { slug: 'publications', label: { ru: 'Публикации', en: 'Publications' } },
-  { slug: 'projects', label: { ru: 'Проекты', en: 'Projects' } },
+] as const;
+
+export const primaryNavigation = [
+  ...desktopNavigation,
   { slug: 'media', label: { ru: 'Медиа', en: 'Media' } },
   { slug: 'contact', label: { ru: 'Контакты', en: 'Contact' } },
 ] as const;
 
-export const footerCoreNavigation = [
-  ...primaryNavigation,
-  { slug: 'cv', label: { ru: 'CV', en: 'CV' } },
+export const secondaryNavigation = [
+  { slug: 'research', label: { ru: 'Исследования', en: 'Research' } },
+  { slug: 'knowledge', label: { ru: 'База знаний', en: 'Knowledge' } },
+  { slug: 'profiles', label: { ru: 'Профессиональные профили', en: 'Professional profiles' } },
 ] as const;
 
-export const footerReferenceNavigation = [
-  { slug: 'blog', label: { ru: 'Блог', en: 'Blog' } },
+export const footerCoreNavigation = [
+  ...primaryNavigation,
+  { slug: 'knowledge', label: { ru: 'База знаний', en: 'Knowledge' } },
+] as const;
+
+export const footerLegalNavigation = [
   { slug: 'privacy', label: { ru: 'Конфиденциальность', en: 'Privacy' } },
   { slug: 'terms', label: { ru: 'Условия', en: 'Terms' } },
   { slug: 'disclaimer', label: { ru: 'Отказ от ответственности', en: 'Disclaimer' } },

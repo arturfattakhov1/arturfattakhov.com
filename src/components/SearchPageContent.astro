@@ -1,0 +1,70 @@
+---
+import type { Language } from '../i18n/config';
+import Container from './Container.astro';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const copy = {
+  ru: {
+    introduction: 'Ищите по базе знаний, профессиональному профилю, исследованиям, публикациям, медиа и подтверждённым профилям.',
+    label: 'Поисковый запрос',
+    placeholder: 'Например: визуальная диагностика',
+    submit: 'Найти',
+    hint: 'Введите не менее двух символов.',
+    loading: 'Ищу…',
+    unavailable: 'Поиск временно недоступен. Откройте нужный раздел через меню.',
+    noResults: 'Ничего не найдено. Попробуйте более короткий или общий запрос.',
+    results: 'Результатов: {count}',
+  },
+  en: {
+    introduction: 'Search the Knowledge section, professional profile, research, publications, media, and verified profiles.',
+    label: 'Search query',
+    placeholder: 'For example: diagnostic imaging',
+    submit: 'Search',
+    hint: 'Enter at least two characters.',
+    loading: 'Searching…',
+    unavailable: 'Search is temporarily unavailable. Use the menu to open a section.',
+    noResults: 'No results found. Try a shorter or broader query.',
+    results: 'Results: {count}',
+  },
+} as const;
+const text = copy[lang];
+---
+
+<Container size="wide" class="search-page">
+  <p class="search-page__intro">{text.introduction}</p>
+  <form
+    class="search-form"
+    role="search"
+    data-search-form
+    data-lang={lang}
+    data-hint={text.hint}
+    data-loading={text.loading}
+    data-unavailable={text.unavailable}
+    data-empty={text.noResults}
+    data-results={text.results}
+  >
+    <label for={`site-search-${lang}`}>{text.label}</label>
+    <div class="search-form__controls">
+      <input
+        id={`site-search-${lang}`}
+        name="q"
+        type="search"
+        inputmode="search"
+        autocomplete="off"
+        minlength="2"
+        placeholder={text.placeholder}
+        data-search-input
+      />
+      <button class="button button--primary" type="submit">{text.submit}</button>
+    </div>
+  </form>
+  <p class="search-status" role="status" aria-live="polite" aria-atomic="true" data-search-status>{text.hint}</p>
+  <ol class="search-results" data-search-results></ol>
+  <noscript><p>{text.unavailable}</p></noscript>
+</Container>
+
+<script is:inline src="/scripts/search.js" type="module"></script>

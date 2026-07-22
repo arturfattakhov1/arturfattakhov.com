@@ -26,6 +26,8 @@ const { lang, record } = Astro.props;
   lang={lang}
   canonicalPath={publicationPath(lang, record.slug)}
   type="article"
+  searchable
+  searchType={lang === 'ru' ? 'Публикация' : 'Publication'}
 >
   <PublicationPageContent record={record} lang={lang} />
 </BaseLayout>

@@ -15,6 +15,8 @@ interface Props {
   schemaType?: PageSchemaType;
   schemaItems?: SchemaListItem[];
   showVerifiedProfiles?: boolean;
+  searchable?: boolean;
+  searchType?: string;
 }
 
 const {
@@ -27,6 +29,8 @@ const {
   schemaType,
   schemaItems,
   showVerifiedProfiles = true,
+  searchable = false,
+  searchType,
 } = Astro.props;
 ---
 
@@ -37,11 +41,13 @@ const {
   canonicalPath={canonicalPath}
   type={type}
   showVerifiedProfiles={showVerifiedProfiles}
+  searchable={searchable}
+  searchType={searchType}
 >
   {showBreadcrumbs && <Breadcrumbs lang={lang} items={[{ label: title }]} />}
   <article class:list={['page', { 'page--home': !showBreadcrumbs }]}>
     <header class="page-header">
-      <h1 id="page-title">{title}</h1>
+      <h1 id="page-title" data-pagefind-meta={searchable ? 'title' : undefined}>{title}</h1>
     </header>
     <div class="page-content">
       <slot />

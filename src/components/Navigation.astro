@@ -1,26 +1,53 @@
 ---
 import type { Language } from '../i18n/config';
 import { localizedPath } from '../i18n/config';
-import { primaryNavigation, ui } from '../i18n/ui';
+import { primaryNavigation, secondaryNavigation, ui } from '../i18n/ui';
 
 interface Props {
   lang: Language;
   currentPath: string;
+  id: string;
 }
 
-const { lang, currentPath } = Astro.props;
+const { lang, currentPath, id } = Astro.props;
+const hrefFor = (item: { slug: string; hash?: string }) => {
+  const href = localizedPath(lang, item.slug);
+  return item.hash ? `${href}#${item.hash}` : href;
+};
 ---
 
-<nav class="primary-navigation" aria-label={ui[lang].primaryNavigation}>
-  <ul class="primary-navigation__list">
-    {primaryNavigation.map((item) => {
-      const href = localizedPath(lang, item.slug);
-      const active = currentPath.startsWith(href);
-      return (
-        <li>
-          <a href={href} aria-current={active ? 'page' : undefined}>{item.label[lang]}</a>
-        </li>
-      );
-    })}
-  </ul>
+<nav class="menu-panel" id={id} aria-label={ui[lang].menu} data-menu-panel hidden>
+  <div class="menu-panel__grid">
+    <details class="menu-group" open>
+      <summary>{ui[lang].menuPrimary}</summary>
+      <ul role="list">
+        {primaryNavigation.map((item) => {
+          const href = hrefFor(item);
+          const active = !('hash' in item) && currentPath === localizedPath(lang, item.slug);
+          return (
+            <li><a href={href} aria-current={active ? 'page' : undefined}>{item.label[lang]}</a></li>
+          );
+        })}
+      </ul>
+    </details>
+
+    <details class="menu-group">
+      <summary>{ui[lang].menuResources}</summary>
+      <ul role="list">
+        {secondaryNavigation.map((item) => (
+          <li>
+            <a
+              href={localizedPath(lang, item.slug)}
+              aria-current={currentPath === localizedPath(lang, item.slug) ? 'page' : undefined}
+            >{item.label[lang]}</a>
+          </li>
+        ))}
+      </ul>
+    </details>
+
+    <div class="menu-panel__actions">
+      <a class="menu-panel__search" href={localizedPath(lang, 'search')}>{ui[lang].search}</a>
+      <a class="menu-panel__consultation" href={localizedPath(lang, 'contact')}>{ui[lang].consultation}</a>
+    </div>
+  </div>
 </nav>
