@@ -11,11 +11,11 @@ export const ui = {
     menu: 'Меню',
     closeMenu: 'Закрыть меню',
     search: 'Поиск',
-    consultation: 'Онлайн-консультация',
+    consultation: 'Связаться',
     menuPrimary: 'Основное',
     menuResources: 'Материалы и профили',
     footerNavigation: 'Дополнительная навигация',
-    footerRole: 'Ветеринарный врач, исследователь и предприниматель.',
+    footerRole: 'Ветеринарный врач и специалист визуальной диагностики.',
     footerCore: 'Основные разделы',
     footerVerification: 'Подтверждённые профили',
     footerReference: 'Справочная информация',
@@ -35,11 +35,11 @@ export const ui = {
     menu: 'Menu',
     closeMenu: 'Close menu',
     search: 'Search',
-    consultation: 'Online consultation',
+    consultation: 'Contact',
     menuPrimary: 'Main',
     menuResources: 'Resources and profiles',
     footerNavigation: 'Secondary navigation',
-    footerRole: 'Veterinarian, researcher and entrepreneur.',
+    footerRole: 'Veterinary Doctor and Diagnostic Imaging Specialist.',
     footerCore: 'Core sections',
     footerVerification: 'Verified profiles',
     footerReference: 'Reference',
@@ -53,7 +53,6 @@ export const ui = {
 } as const satisfies Record<Language, Record<string, string>>;
 
 export const desktopNavigation = [
-  { slug: 'about', hash: 'professional-system', label: { ru: 'Практика', en: 'Practice' } },
   { slug: 'about', label: { ru: 'Обо мне', en: 'About' } },
   { slug: 'publications', label: { ru: 'Публикации', en: 'Publications' } },
 ] as const;
