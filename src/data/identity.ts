@@ -48,6 +48,8 @@ export const identity = {
     { key: 'instagram', name: 'Instagram', url: 'https://www.instagram.com/dr.arturfattakhov/' },
     { key: 'threads', name: 'Threads', url: 'https://www.threads.com/@dr.arturfattakhov' },
     { key: 'youtube', name: 'YouTube', url: 'https://www.youtube.com/@dr.arturfattakhov' },
+    { key: 'dzen', name: 'Yandex Zen', url: 'https://dzen.ru/arturfattakhov' },
+    { key: 'spotify', name: 'Spotify', url: 'https://open.spotify.com/show/033OTXXuHSVlHqyxOQTUdm' },
     { key: 'facebook', name: 'Facebook', url: 'https://www.facebook.com/profile.php?id=61582287094595' },
   ],
 } as const;

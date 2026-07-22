@@ -1,21 +1,16 @@
 ---
-import type { Language } from '../i18n/config';
 import { profilesPageCopy } from '../data/profiles';
+import type { Language } from '../i18n/config';
 import PageIntro from './PageIntro.astro';
 import PageSection from './PageSection.astro';
-
-interface Props {
-  lang: Language;
-}
-
+interface Props { lang: Language; }
 const { lang } = Astro.props;
 const copy = profilesPageCopy[lang];
 ---
-
-<div class="section-stack profiles-sections profiles-sections--v2">
-  <PageIntro class="profiles-opening"><slot name="opening" /></PageIntro>
-  <PageSection id="research-identity" title={copy.groups.research.title}><slot name="research" /></PageSection>
-  <PageSection id="professional-presence" title={copy.groups.professional.title}><slot name="professional" /></PageSection>
-  <PageSection id="publishing-channels" title={copy.groups.publishing.title}><slot name="publishing" /></PageSection>
-  <PageSection id="profile-verification" title={copy.verification.title}><slot name="verification" /></PageSection>
+<div class="section-stack profiles-sections profiles-sections--compact">
+  <PageIntro><slot name="opening" /></PageIntro>
+  <PageSection id="profiles-scientific" title={copy.groups.scientific.title} density="compact"><slot name="scientific" /></PageSection>
+  <PageSection id="profiles-media" title={copy.groups.media.title} density="compact"><slot name="media" /></PageSection>
+  <PageSection id="profiles-social" title={copy.groups.social.title} density="compact"><slot name="social" /></PageSection>
+  <PageSection id="profiles-technical" title={copy.groups.technical.title} density="compact"><slot name="technical" /></PageSection>
 </div>

@@ -1,50 +1,10 @@
 ---
 import { identity } from '../data/identity';
-
 type IdentityProfile = (typeof identity.profiles)[number];
-
-interface Props {
-  profile: IdentityProfile;
-  role: string;
-  description: string;
-  openLabel: string;
-  externalLinkLabel: string;
-  identifier?: string;
-  identifierLabel?: string;
-  variant?: 'featured' | 'standard';
-}
-
-const {
-  profile,
-  role,
-  description,
-  openLabel,
-  externalLinkLabel,
-  identifier,
-  identifierLabel,
-  variant = 'standard',
-} = Astro.props;
+interface Props { profile: IdentityProfile; openLabel: string; externalLinkLabel: string; }
+const { profile, openLabel, externalLinkLabel } = Astro.props;
 ---
-
-<article class:list={['profile-record', `profile-record--${variant}`]}>
-  <div class="profile-record__identity">
-    <p class="profile-record__role">{role}</p>
-    <h3>{profile.name}</h3>
-    {identifier && (
-      <p class="profile-record__identifier">
-        {identifierLabel && <span>{identifierLabel}</span>}
-        <strong>{identifier}</strong>
-      </p>
-    )}
-  </div>
-  <p class="profile-record__description">{description}</p>
-  <a
-    class="profile-record__link"
-    href={profile.url}
-    target="_blank"
-    rel="me noopener noreferrer"
-    aria-label={`${openLabel} ${profile.name} (${externalLinkLabel})`}
-  >
-    {openLabel} {profile.name}<span aria-hidden="true"> ↗</span>
-  </a>
-</article>
+<a class="profile-icon-card" href={profile.url} target="_blank" rel="me noopener noreferrer" aria-label={`${openLabel}: ${profile.name} (${externalLinkLabel})`}>
+  <img src={`/icons/profiles/${profile.key}.svg`} width="28" height="28" alt="" aria-hidden="true" loading="lazy" />
+  <span>{profile.name}</span><span aria-hidden="true">↗</span>
+</a>

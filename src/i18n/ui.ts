@@ -52,22 +52,24 @@ export const ui = {
   },
 } as const satisfies Record<Language, Record<string, string>>;
 
-export const desktopNavigation = [
+export const primaryNavigation = [
   { slug: 'practice', label: { ru: 'Практика', en: 'Practice' } },
   { slug: 'about', label: { ru: 'Обо мне', en: 'About' } },
   { slug: 'publications', label: { ru: 'Публикации', en: 'Publications' } },
-] as const;
-
-export const primaryNavigation = [
-  ...desktopNavigation,
   { slug: 'media', label: { ru: 'Медиа', en: 'Media' } },
   { slug: 'contact', label: { ru: 'Контакты', en: 'Contact' } },
 ] as const;
 
+export const desktopNavigation = primaryNavigation;
+
 export const secondaryNavigation = [
-  { slug: 'research', label: { ru: 'Исследования', en: 'Research' } },
   { slug: 'knowledge', label: { ru: 'База знаний', en: 'Knowledge' } },
+  { slug: 'research', label: { ru: 'Исследования', en: 'Research' } },
   { slug: 'profiles', label: { ru: 'Профессиональные профили', en: 'Professional profiles' } },
+  { slug: 'privacy', label: { ru: 'Конфиденциальность', en: 'Privacy' } },
+  { slug: 'terms', label: { ru: 'Условия', en: 'Terms' } },
+  { slug: 'disclaimer', label: { ru: 'Отказ от ответственности', en: 'Disclaimer' } },
+  { slug: 'search', label: { ru: 'Поиск', en: 'Search' } },
 ] as const;
 
 export const footerCoreNavigation = [

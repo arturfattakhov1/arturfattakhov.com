@@ -11,7 +11,7 @@ interface Props {
 }
 
 const { lang, showVerifiedProfiles = true, showReferenceLinks = true } = Astro.props;
-const verifiedProfileKeys = new Set(['youtube', 'instagram', 'orcid', 'googleScholar']);
+const verifiedProfileKeys = new Set(['youtube', 'dzen', 'instagram', 'orcid']);
 const verifiedProfiles = identity.profiles.filter((profile) => verifiedProfileKeys.has(profile.key));
 ---
 

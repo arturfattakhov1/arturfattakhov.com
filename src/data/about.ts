@@ -1,234 +1,84 @@
 import type { Language } from '../i18n/config';
 
 interface AboutPageCopy {
-  opening: {
-    name: string;
-    roles: string[];
-    thesis: string;
-    introduction: string;
-    researchLink: string;
-  };
-  professionalSystem: {
-    introduction: string;
-    areas: Array<{ title: string; description: string }>;
-  };
-  education: {
-    introduction: string;
-    records: Array<{
-      institution: string;
-      qualificationLabel: string;
-      qualification: string;
-      completionLabel: string;
-      year: string;
-    }>;
-    conclusion: string;
-    cvLink: string;
-    timelineLink: string;
-  };
-  researchPath: {
-    introduction: string;
-    conclusion: string;
-    articleLabel: string;
-    patentLabel: string;
-    recordLink: string;
-    researchLink: string;
-    publicationsLink: string;
-  };
-  principles: {
-    introduction: string;
-    items: Array<{ title: string; description: string }>;
-  };
-  direction: {
-    paragraphs: string[];
-    linksLabel: string;
-    links: {
-      research: string;
-      publications: string;
-      knowledge: string;
-      faq: string;
-      profiles: string;
-      contact: string;
-    };
-  };
+  introduction: { roles: string[]; lead: string; body: string };
+  motivation: { body: string };
+  practice: { body: string; details: string[] };
+  imaging: { body: string; details: string[] };
+  entrepreneurship: { body: string };
+  qualification: { body: string; details: string[] };
+  vision: { body: string; principles: string[] };
+  timeline: { introduction: string; sourceLabel: string };
+  links: { practice: string; research: string; publications: string; contact: string };
 }
 
 export const aboutPageCopy: Record<Language, AboutPageCopy> = {
   ru: {
-    opening: {
-      name: 'Артур Фаттахов',
-      roles: ['Ветеринарный врач', 'Специалист визуальной диагностики', 'Исследователь', 'Предприниматель'],
-      thesis: 'Ветеринарная медицина, визуальная диагностика и исследования, направленные на более точное понимание здоровья животных.',
-      introduction: 'Профессиональная работа Артура Фаттахова объединяет клиническую ветеринарную медицину, визуальную диагностику и исследования. Эти направления дополняют друг друга в наблюдении, интерпретации данных и принятии ответственных клинических решений.',
-      researchLink: 'Перейти к исследованиям',
+    introduction: {
+      roles: ['Ветеринарный врач', 'Специалист визуальной диагностики', 'Предприниматель'],
+      lead: 'Я работаю на пересечении клинической ветеринарной медицины, визуальной диагностики и профессиональных проектов.',
+      body: 'Моя задача — собирать клинический контекст, точно интерпретировать доступные данные и ясно объяснять владельцу животного границы выводов и следующий практический шаг.',
     },
-    professionalSystem: {
-      introduction: 'Клиническая практика задаёт вопросы, визуальная диагностика помогает уточнять наблюдаемую картину, а исследовательская работа позволяет рассматривать методы и данные системно.',
-      areas: [
-        {
-          title: 'Клиническая ветеринарная медицина',
-          description: 'Работа с собаками и кошками требует учитывать анамнез, клинические признаки и доступные диагностические данные как единый контекст.',
-        },
-        {
-          title: 'Визуальная диагностика',
-          description: 'Результаты ультразвуковых и рентгенографических исследований рассматриваются не изолированно, а в связи с клиническим вопросом и другими сведениями о пациенте.',
-        },
-        {
-          title: 'Исследования',
-          description: 'Анатомия, морфометрия и диагностические методы формируют область, в которой клиническое наблюдение связано с проверяемыми данными и точным описанием результатов.',
-        },
-      ],
+    motivation: {
+      body: 'В ветеринарной медицине решение редко строится на одном симптоме или одном исследовании. Мне близка работа, в которой наблюдение, данные диагностики и ответственность перед животным и его владельцем соединяются в единый процесс.',
     },
-    education: {
-      introduction: 'Профессиональное образование последовательно соединило подготовку ветеринарного врача с завершённой квалификацией в области исследовательской и преподавательской работы.',
-      records: [
-        {
-          institution: 'СПбГУВМ',
-          qualificationLabel: 'Квалификация',
-          qualification: '«Ветеринарный врач»',
-          completionLabel: 'Год завершения',
-          year: '2021',
-        },
-        {
-          institution: 'МГАВМиБ имени К. И. Скрябина',
-          qualificationLabel: 'Квалификация',
-          qualification: '«Исследователь. Преподаватель-исследователь»',
-          completionLabel: 'Год завершения',
-          year: '2024',
-        },
-      ],
-      conclusion: 'Подробная хронология вынесена в отдельные справочные разделы, чтобы эта страница сохраняла формат профессионального профиля.',
-      cvLink: 'Открыть CV',
-      timelineLink: 'Открыть хронологию',
+    practice: {
+      body: 'В клинической практике я работаю с собаками и кошками. Рассматриваю анамнез, осмотр и результаты исследований вместе, а не как отдельные фрагменты.',
+      details: ['сбор анамнеза и клинический осмотр', 'ведение медицинской документации', 'коммуникация с владельцами животных'],
     },
-    researchPath: {
-      introduction: 'Исследовательский путь представлен работами по сравнительной анатомии, микроморфологии и рентгеноморфометрии дистального отдела конечностей крупного рогатого скота и лося. Проверяемыми результатами этого направления служат две научные публикации и зарегистрированный патент.',
-      conclusion: 'Полные библиографические сведения, авторский состав и идентификаторы доступны на отдельных страницах записей.',
-      articleLabel: 'Научная публикация',
-      patentLabel: 'Патент',
-      recordLink: 'Открыть запись',
-      researchLink: 'Исследовательские направления',
-      publicationsLink: 'Все публикации',
+    imaging: {
+      body: 'Визуальная диагностика помогает уточнять клинический вопрос. Я использую результаты ультразвуковых и рентгенографических исследований в связи с анамнезом, клиническими признаками и другими доступными данными.',
+      details: ['ультразвуковые исследования', 'рентгенографическая анатомия', 'диагностическая интерпретация в клиническом контексте'],
     },
-    principles: {
-      introduction: 'Связь практики и исследований выражается в требованиях к тому, как формулируются вопросы, оцениваются данные и сообщаются результаты.',
-      items: [
-        {
-          title: 'Диагностический контекст',
-          description: 'Данные визуализации оцениваются вместе с анамнезом, клиническими признаками и другими доступными сведениями.',
-        },
-        {
-          title: 'Проверяемость',
-          description: 'Профессиональные выводы должны опираться на доступные данные, а границы этих данных — оставаться явными.',
-        },
-        {
-          title: 'Точная коммуникация',
-          description: 'Методы и результаты требуют ясного описания без преувеличений и подмены фактов предположениями.',
-        },
-      ],
+    entrepreneurship: {
+      body: 'Предпринимательский опыт помогает мне проектировать понятный путь обращения, стандартизировать документацию и оценивать качество не только отдельного визита, но и всего сервиса. В публичном профиле я описываю этот опыт без раскрытия внутренних проектов и планов.',
     },
-    direction: {
-      paragraphs: [
-        'Текущее профессиональное направление сохраняет связь клинической ветеринарной практики, визуальной диагностики и исследовательской работы.',
-        'Этот сайт собирает проверенные сведения о публикациях, исследовательских интересах и официальном профессиональном присутствии, а также служит прямой точкой контакта.',
-      ],
-      linksLabel: 'Связанные разделы',
-      links: {
-        research: 'Исследования',
-        publications: 'Публикации',
-        knowledge: 'База знаний',
-        faq: 'Вопросы и ответы',
-        profiles: 'Официальные профили',
-        contact: 'Контакты',
-      },
+    qualification: {
+      body: 'В 2024 году я завершил подготовку с квалификацией «Исследователь. Преподаватель-исследователь». Она дополняет клиническую работу навыками постановки вопросов, анализа методов и точного представления результатов.',
+      details: ['сравнительная анатомия', 'ветеринарная морфология', 'рентгеноморфометрия'],
     },
+    vision: {
+      body: 'Выездная помощь, клиника, стационар и телемедицина решают разные задачи. Я считаю, что эти форматы должны дополнять друг друга и направлять пациента туда, где конкретная ситуация может быть решена безопаснее и точнее.',
+      principles: ['Технологии и ИИ могут помогать врачу работать с данными и процессами.', 'Они не заменяют клиническое мышление, осмотр и профессиональную ответственность.'],
+    },
+    timeline: {
+      introduction: 'Ключевые подтверждённые этапы собраны здесь как ориентир, а не как полный CV.',
+      sourceLabel: 'Проверенный этап',
+    },
+    links: { practice: 'Практика', research: 'Исследования', publications: 'Публикации', contact: 'Связаться' },
   },
   en: {
-    opening: {
-      name: 'Artur Fattakhov',
-      roles: ['Veterinary Doctor', 'Diagnostic Imaging Specialist', 'Researcher', 'Entrepreneur'],
-      thesis: 'Veterinary medicine, diagnostic imaging and research focused on a more precise understanding of animal health.',
-      introduction: 'Artur Fattakhov’s professional work connects clinical veterinary medicine, diagnostic imaging, and research. These areas complement one another in observation, interpretation of evidence, and responsible clinical decision-making.',
-      researchLink: 'Explore the research',
+    introduction: {
+      roles: ['Veterinary Doctor', 'Diagnostic Imaging Specialist', 'Entrepreneur'],
+      lead: 'I work at the intersection of clinical veterinary medicine, diagnostic imaging, and professional projects.',
+      body: 'My task is to assemble the clinical context, interpret the available evidence precisely, and explain the limits of each conclusion and the next practical step clearly to the animal owner.',
     },
-    professionalSystem: {
-      introduction: 'Clinical practice defines the questions, diagnostic imaging helps clarify what is observed, and research provides a systematic way to examine methods and evidence.',
-      areas: [
-        {
-          title: 'Clinical veterinary medicine',
-          description: 'Work with dogs and cats requires history, clinical signs, and available diagnostic evidence to be considered as one context.',
-        },
-        {
-          title: 'Diagnostic imaging',
-          description: 'Ultrasonographic and radiographic findings are interpreted in relation to the clinical question and the other information available about the patient.',
-        },
-        {
-          title: 'Research',
-          description: 'Anatomy, morphometry, and diagnostic methods form an area where clinical observation is connected with verifiable evidence and precise reporting.',
-        },
-      ],
+    motivation: {
+      body: 'In veterinary medicine, a decision rarely rests on one symptom or one investigation. I value work that brings observation, diagnostic evidence, and responsibility to the animal and its owner into one process.',
     },
-    education: {
-      introduction: 'Professional education progressed from veterinary medical training to a completed qualification in research and teaching.',
-      records: [
-        {
-          institution: 'Saint Petersburg State University of Veterinary Medicine',
-          qualificationLabel: 'Qualification',
-          qualification: 'Veterinary Doctor',
-          completionLabel: 'Graduated',
-          year: '2021',
-        },
-        {
-          institution: 'Moscow State Academy of Veterinary Medicine and Biotechnology named after K. I. Skryabin',
-          qualificationLabel: 'Qualification',
-          qualification: 'Qualification in research and teaching',
-          completionLabel: 'Completed',
-          year: '2024',
-        },
-      ],
-      conclusion: 'Detailed chronology is kept in separate reference sections so this page can remain a focused professional profile.',
-      cvLink: 'View CV',
-      timelineLink: 'View timeline',
+    practice: {
+      body: 'In clinical practice, I work with dogs and cats. I consider history, examination, and investigation results together rather than as separate fragments.',
+      details: ['history taking and clinical examination', 'medical documentation', 'communication with animal owners'],
     },
-    researchPath: {
-      introduction: 'The research path is represented by work in comparative anatomy, micromorphology, and X-ray morphometry of distal limb structures in cattle and moose. Two scientific publications and a registered patent provide the verified record of this direction.',
-      conclusion: 'Full bibliographic details, authorship, and identifiers are available on the individual record pages.',
-      articleLabel: 'Scientific publication',
-      patentLabel: 'Patent',
-      recordLink: 'Open record',
-      researchLink: 'Research directions',
-      publicationsLink: 'All publications',
+    imaging: {
+      body: 'Diagnostic imaging helps refine the clinical question. I interpret ultrasonographic and radiographic findings in relation to history, clinical signs, and the other evidence available.',
+      details: ['ultrasonography', 'radiographic anatomy', 'diagnostic interpretation in clinical context'],
     },
-    principles: {
-      introduction: 'The connection between practice and research is reflected in how questions are framed, evidence is assessed, and results are communicated.',
-      items: [
-        {
-          title: 'Diagnostic context',
-          description: 'Imaging findings are considered alongside history, clinical signs, and other available evidence.',
-        },
-        {
-          title: 'Verifiability',
-          description: 'Professional conclusions should be grounded in available evidence, with the limits of that evidence kept explicit.',
-        },
-        {
-          title: 'Precise communication',
-          description: 'Methods and results require clear reporting without exaggeration or the substitution of assumptions for facts.',
-        },
-      ],
+    entrepreneurship: {
+      body: 'My entrepreneurial experience helps me design a clear inquiry pathway, standardise documentation, and assess the quality of the whole service rather than a single visit. This public profile describes that experience without disclosing internal projects or plans.',
     },
-    direction: {
-      paragraphs: [
-        'The current professional direction maintains the connection between clinical veterinary practice, diagnostic imaging, and research.',
-        'This website brings together verified publications, research interests, and official professional profiles, while providing a direct contact route.',
-      ],
-      linksLabel: 'Related sections',
-      links: {
-        research: 'Research',
-        publications: 'Publications',
-        knowledge: 'Knowledge',
-        faq: 'FAQ',
-        profiles: 'Official profiles',
-        contact: 'Contact',
-      },
+    qualification: {
+      body: 'In 2024, I completed the qualification “Researcher. Research Teacher”. It complements clinical work with skills in framing questions, analysing methods, and reporting results precisely.',
+      details: ['comparative anatomy', 'veterinary morphology', 'radiomorphometry'],
     },
+    vision: {
+      body: 'Mobile care, clinics, hospitals, and telemedicine solve different problems. I believe these formats should complement one another and direct each patient to the setting where the specific situation can be managed more safely and precisely.',
+      principles: ['Technology and AI can help a clinician work with evidence and processes.', 'They do not replace clinical reasoning, examination, or professional responsibility.'],
+    },
+    timeline: {
+      introduction: 'Selected verified milestones are shown here as orientation rather than as a full CV.',
+      sourceLabel: 'Verified milestone',
+    },
+    links: { practice: 'Practice', research: 'Research', publications: 'Publications', contact: 'Contact' },
   },
 };

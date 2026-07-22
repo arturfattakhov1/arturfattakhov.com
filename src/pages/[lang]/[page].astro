@@ -1,8 +1,7 @@
 ---
+import { getCollection } from 'astro:content';
 import AboutPageContent from '../../components/AboutPageContent.astro';
 import ContactPageContent from '../../components/ContactPageContent.astro';
-import CvPageContent from '../../components/CvPageContent.astro';
-import FaqPageContent from '../../components/FaqPageContent.astro';
 import KnowledgePageContent from '../../components/KnowledgePageContent.astro';
 import LegalPageContent from '../../components/LegalPageContent.astro';
 import MediaPageContent from '../../components/MediaPageContent.astro';
@@ -10,19 +9,15 @@ import ProfilesPageContent from '../../components/ProfilesPageContent.astro';
 import PracticePageContent from '../../components/PracticePageContent.astro';
 import ResearchPageContent from '../../components/ResearchPageContent.astro';
 import SearchPageContent from '../../components/SearchPageContent.astro';
-import TimelinePageContent from '../../components/TimelinePageContent.astro';
-import UsesPageContent from '../../components/UsesPageContent.astro';
 import { pageContent, type StandardPageSlug } from '../../data/pages';
 import type { LegalPageSlug } from '../../data/legal';
 import { identity } from '../../data/identity';
-import { getKnowledgeSchemaItems } from '../../data/knowledge';
-import { getTimelineSchemaItems } from '../../data/timeline';
 import type { PageSchemaType, SchemaListItem } from '../../data/structured-data';
 import { languages, localizedPath, type Language } from '../../i18n/config';
 import PageLayout from '../../layouts/PageLayout.astro';
 
 export function getStaticPaths() {
-  const pages: StandardPageSlug[] = ['about', 'practice', 'research', 'media', 'contact', 'cv', 'profiles', 'uses', 'knowledge', 'timeline', 'faq', 'search', 'privacy', 'terms', 'disclaimer'];
+  const pages: StandardPageSlug[] = ['about', 'practice', 'research', 'media', 'contact', 'profiles', 'knowledge', 'search', 'privacy', 'terms', 'disclaimer'];
   return languages.flatMap((lang) =>
     pages.map((page) => ({ params: { lang, page }, props: { lang, page } })),
   );
@@ -41,7 +36,6 @@ const pageSchemaTypes: Partial<Record<StandardPageSlug, PageSchemaType>> = {
   profiles: 'CollectionPage',
   contact: 'ContactPage',
   knowledge: 'CollectionPage',
-  timeline: 'CollectionPage',
 };
 const schemaType = pageSchemaTypes[page];
 const searchablePages = new Set<StandardPageSlug>(['about', 'practice', 'research', 'media', 'profiles', 'knowledge']);
@@ -54,13 +48,17 @@ const searchTypeLabels: Partial<Record<StandardPageSlug, Record<Language, string
   knowledge: { ru: 'База знаний', en: 'Knowledge' },
 };
 let schemaItems: SchemaListItem[] | undefined;
+const knowledgeArticles = page === 'knowledge'
+  ? (await getCollection('knowledge', ({ data }) => data.lang === lang && data.status === 'published')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  : [];
 
 if (page === 'profiles') {
   schemaItems = identity.profiles.map((profile) => ({ name: profile.name, url: profile.url }));
-} else if (page === 'timeline') {
-  schemaItems = getTimelineSchemaItems(lang);
 } else if (page === 'knowledge') {
-  schemaItems = getKnowledgeSchemaItems(lang);
+  schemaItems = knowledgeArticles.map((article) => ({
+    name: article.data.title,
+    url: localizedPath(lang, `knowledge/${article.data.routeSlug}`),
+  }));
 }
 ---
 
@@ -83,11 +81,7 @@ if (page === 'profiles') {
   {page === 'profiles' && <ProfilesPageContent lang={lang} />}
   {page === 'contact' && <ContactPageContent lang={lang} />}
   {page === 'media' && <MediaPageContent lang={lang} />}
-  {page === 'cv' && <CvPageContent lang={lang} />}
-  {page === 'uses' && <UsesPageContent lang={lang} />}
-  {page === 'knowledge' && <KnowledgePageContent lang={lang} />}
-  {page === 'timeline' && <TimelinePageContent lang={lang} />}
-  {page === 'faq' && <FaqPageContent lang={lang} />}
+  {page === 'knowledge' && <KnowledgePageContent lang={lang} articles={knowledgeArticles} />}
   {page === 'search' && <SearchPageContent lang={lang} />}
   {(['privacy', 'terms', 'disclaimer'] as StandardPageSlug[]).includes(page) && (
     <LegalPageContent lang={lang} page={page as LegalPageSlug} />

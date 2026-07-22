@@ -1,31 +1,15 @@
 ---
 import type { Language } from '../i18n/config';
+import { mediaPageCopy } from '../data/media';
 import PageIntro from './PageIntro.astro';
 import PageSection from './PageSection.astro';
-
 interface Props { lang: Language; }
 const { lang } = Astro.props;
-const headings = {
-  ru: {
-    interview: 'Избранное интервью',
-    coverage: 'Освещение научного проекта',
-    owned: 'Авторские медиа',
-    context: 'Профессиональный контекст',
-  },
-  en: {
-    interview: 'Featured interview',
-    coverage: 'Scientific project coverage',
-    owned: 'Owned media',
-    context: 'Professional context',
-  },
-} as const satisfies Record<Language, Record<string, string>>;
-const copy = headings[lang];
+const copy = mediaPageCopy[lang];
 ---
-
-<div class="section-stack media-sections media-sections--v2">
-  <PageIntro><slot name="hero" /></PageIntro>
-  <PageSection id="featured-interview" title={copy.interview} density="editorial"><slot name="interview" /></PageSection>
-  <PageSection id="scientific-project-coverage" title={copy.coverage} density="editorial"><slot name="coverage" /></PageSection>
-  <PageSection id="owned-media" title={copy.owned} density="editorial"><slot name="owned" /></PageSection>
-  <PageSection id="media-context" title={copy.context} density="editorial"><slot name="context" /></PageSection>
+<div class="section-stack media-sections media-sections--professional">
+  <PageIntro><slot name="opening" /></PageIntro>
+  <PageSection id="interviews-and-comments" title={copy.sections.interviews} density="editorial"><slot name="interviews" /></PageSection>
+  <PageSection id="interdisciplinary-projects" title={copy.sections.projects} density="editorial"><slot name="projects" /></PageSection>
+  <PageSection id="authored-media" title={copy.sections.authored} density="editorial"><slot name="authored" /></PageSection>
 </div>

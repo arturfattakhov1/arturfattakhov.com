@@ -16,6 +16,7 @@ interface Props {
   showVerifiedProfiles?: boolean;
   searchable?: boolean;
   searchType?: string;
+  alternatePaths?: Record<Language, string>;
 }
 
 const {
@@ -29,6 +30,7 @@ const {
   showVerifiedProfiles = true,
   searchable = false,
   searchType,
+  alternatePaths,
 } = Astro.props;
 ---
 
@@ -47,6 +49,7 @@ const {
       type={type}
       publishedTime={publishedTime}
       modifiedTime={modifiedTime}
+      alternatePaths={alternatePaths}
     />
     {searchable && searchType && (
       <meta name="page-type" content={searchType} data-pagefind-meta="type[content]" />

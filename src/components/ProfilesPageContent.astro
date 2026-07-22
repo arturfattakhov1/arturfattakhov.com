@@ -2,128 +2,19 @@
 import { identity } from '../data/identity';
 import { profileGroups, profilesPageCopy, type ProfileKey } from '../data/profiles';
 import type { Language } from '../i18n/config';
-import { localizedPath } from '../i18n/config';
-import Button from './Button.astro';
 import Container from './Container.astro';
 import ProfileCard from './ProfileCard.astro';
 import ProfilesSections from './ProfilesSections.astro';
-
-interface Props {
-  lang: Language;
-}
-
-type IdentityProfile = (typeof identity.profiles)[number];
-
+interface Props { lang: Language; }
 const { lang } = Astro.props;
 const copy = profilesPageCopy[lang];
-const profilesByKey = new Map(identity.profiles.map((profile) => [profile.key, profile] as const));
-
-const selectProfiles = (keys: readonly ProfileKey[]) =>
-  keys
-    .map((key) => profilesByKey.get(key))
-    .filter((profile): profile is IdentityProfile => profile !== undefined);
-
-const researchProfiles = selectProfiles(profileGroups.research);
-const professionalProfiles = selectProfiles(profileGroups.professional);
-const publishingProfiles = selectProfiles(profileGroups.publishing);
-const orcidIdentifier = profilesByKey.get('orcid')?.url.split('/').filter(Boolean).at(-1);
+const byKey = new Map(identity.profiles.map((profile) => [profile.key, profile] as const));
+const select = (keys: readonly ProfileKey[]) => keys.map((key) => byKey.get(key)).filter((profile) => profile !== undefined);
 ---
-
 <ProfilesSections lang={lang}>
-  <Fragment slot="opening">
-    <Container class="profiles-opening__inner" size="reading">
-      <p class="eyebrow">{copy.opening.eyebrow}</p>
-      <p class="profiles-opening__lead">{copy.opening.lead}</p>
-      <p class="profiles-opening__context">{copy.opening.context}</p>
-      <Button href={localizedPath(lang, 'about')} variant="secondary">{copy.opening.aboutLink}</Button>
-    </Container>
-  </Fragment>
-
-  <Fragment slot="research">
-    <Container>
-      <p class="profiles-section-lead">{copy.groups.research.introduction}</p>
-      <ol class="profile-record-list profile-record-list--research">
-        {researchProfiles.map((profile) => (
-          <li>
-            <ProfileCard
-              profile={profile}
-              role={copy.profiles[profile.key].role}
-              description={copy.profiles[profile.key].description}
-              openLabel={copy.openLabel}
-              externalLinkLabel={copy.externalLinkLabel}
-              identifier={profile.key === 'orcid' ? orcidIdentifier : undefined}
-              identifierLabel={profile.key === 'orcid' ? copy.identifierLabel : undefined}
-              variant={profile.key === 'orcid' ? 'featured' : 'standard'}
-            />
-          </li>
-        ))}
-      </ol>
-    </Container>
-  </Fragment>
-
-  <Fragment slot="professional">
-    <Container>
-      <p class="profiles-section-lead">{copy.groups.professional.introduction}</p>
-      <ul class="profile-record-list" role="list">
-        {professionalProfiles.map((profile) => (
-          <li>
-            <ProfileCard
-              profile={profile}
-              role={copy.profiles[profile.key].role}
-              description={copy.profiles[profile.key].description}
-              openLabel={copy.openLabel}
-              externalLinkLabel={copy.externalLinkLabel}
-            />
-          </li>
-        ))}
-      </ul>
-    </Container>
-  </Fragment>
-
-  <Fragment slot="publishing">
-    <Container>
-      <p class="profiles-section-lead">{copy.groups.publishing.introduction}</p>
-      <ul class="profile-record-list" role="list">
-        {publishingProfiles.map((profile) => (
-          <li>
-            <ProfileCard
-              profile={profile}
-              role={copy.profiles[profile.key].role}
-              description={copy.profiles[profile.key].description}
-              openLabel={copy.openLabel}
-              externalLinkLabel={copy.externalLinkLabel}
-            />
-          </li>
-        ))}
-      </ul>
-    </Container>
-  </Fragment>
-
-  <Fragment slot="verification">
-    <Container class="profiles-verification" size="reading">
-      <div class="profiles-verification__copy">
-        <p>{copy.verification.explanation}</p>
-        <p>{copy.verification.sourceNote}</p>
-      </div>
-      <div class="profiles-context-groups">
-        <nav aria-label={copy.verification.primaryLinksLabel}>
-          <p>{copy.verification.primaryLinksLabel}</p>
-          <ul role="list">
-            <li><a href={localizedPath(lang, 'about')}>{copy.verification.links.about}</a></li>
-            <li><a href={localizedPath(lang, 'publications')}>{copy.verification.links.publications}</a></li>
-            <li><a href={localizedPath(lang, 'media')}>{copy.verification.links.media}</a></li>
-            <li><a href={localizedPath(lang, 'contact')}>{copy.verification.links.contact}</a></li>
-          </ul>
-        </nav>
-        <nav aria-label={copy.verification.referenceLinksLabel}>
-          <p>{copy.verification.referenceLinksLabel}</p>
-          <ul role="list">
-            <li><a href={localizedPath(lang, 'knowledge')}>{copy.verification.links.knowledge}</a></li>
-            <li><a href={localizedPath(lang, 'timeline')}>{copy.verification.links.timeline}</a></li>
-            <li><a href={localizedPath(lang, 'faq')}>{copy.verification.links.faq}</a></li>
-          </ul>
-        </nav>
-      </div>
-    </Container>
-  </Fragment>
+  <Fragment slot="opening"><Container size="reading" class="profiles-compact-intro"><p>{copy.opening}</p></Container></Fragment>
+  <Fragment slot="scientific"><Container><p class="profiles-group-description">{copy.groups.scientific.description}</p><ul class="profile-icon-grid" role="list">{select(profileGroups.scientific).map((profile) => <li><ProfileCard profile={profile} openLabel={copy.openLabel} externalLinkLabel={copy.externalLabel} /></li>)}</ul></Container></Fragment>
+  <Fragment slot="media"><Container><p class="profiles-group-description">{copy.groups.media.description}</p><ul class="profile-icon-grid" role="list">{select(profileGroups.media).map((profile) => <li><ProfileCard profile={profile} openLabel={copy.openLabel} externalLinkLabel={copy.externalLabel} /></li>)}</ul></Container></Fragment>
+  <Fragment slot="social"><Container><p class="profiles-group-description">{copy.groups.social.description}</p><ul class="profile-icon-grid" role="list">{select(profileGroups.social).map((profile) => <li><ProfileCard profile={profile} openLabel={copy.openLabel} externalLinkLabel={copy.externalLabel} /></li>)}</ul></Container></Fragment>
+  <Fragment slot="technical"><Container><p class="profiles-group-description">{copy.groups.technical.description}</p><ul class="profile-icon-grid" role="list">{select(profileGroups.technical).map((profile) => <li><ProfileCard profile={profile} openLabel={copy.openLabel} externalLinkLabel={copy.externalLabel} /></li>)}</ul></Container></Fragment>
 </ProfilesSections>

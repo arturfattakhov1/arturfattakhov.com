@@ -11,6 +11,7 @@ interface Props {
   type?: 'profile' | 'article' | 'website';
   publishedTime?: Date;
   modifiedTime?: Date;
+  alternatePaths?: Record<Language, string>;
 }
 
 const {
@@ -21,12 +22,13 @@ const {
   type = 'website',
   publishedTime,
   modifiedTime,
+  alternatePaths,
 } = Astro.props;
 
 const siteUrl = Astro.site ?? new URL(identity.url);
 const canonicalUrl = new URL(canonicalPath, siteUrl);
-const russianUrl = new URL(swapLanguage(canonicalPath, 'ru'), siteUrl);
-const englishUrl = new URL(swapLanguage(canonicalPath, 'en'), siteUrl);
+const russianUrl = new URL(alternatePaths?.ru ?? swapLanguage(canonicalPath, 'ru'), siteUrl);
+const englishUrl = new URL(alternatePaths?.en ?? swapLanguage(canonicalPath, 'en'), siteUrl);
 const isAboutPage = canonicalPath === `/${lang}/about/`;
 const isHomePage = canonicalPath === `/${lang}/`;
 const documentTitle = isHomePage ? title : `${title} — ${identity.name[lang]}`;

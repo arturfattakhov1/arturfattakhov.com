@@ -2,39 +2,19 @@
 import type { Language } from '../i18n/config';
 import PageSection from './PageSection.astro';
 
-interface Props {
-  lang: Language;
-}
-
+interface Props { lang: Language; }
 const { lang } = Astro.props;
-
 const headings = {
-  ru: {
-    opening: 'Профессиональная позиция',
-    system: 'Единая профессиональная система',
-    education: 'Образование и развитие',
-    research: 'Исследовательский путь',
-    principles: 'Принципы работы',
-    direction: 'Текущее направление',
-  },
-  en: {
-    opening: 'Professional position',
-    system: 'One professional system',
-    education: 'Education and development',
-    research: 'Research path',
-    principles: 'Professional principles',
-    direction: 'Current direction',
-  },
-} as const satisfies Record<Language, Record<string, string>>;
-
-const copy = headings[lang];
+  ru: ['Кратко обо мне', 'Почему ветеринарная медицина', 'Клиническая практика', 'Визуальная диагностика', 'Предпринимательский опыт', 'Исследовательская квалификация', 'Профессиональное видение', 'Профессиональная хронология'],
+  en: ['Professional introduction', 'Why veterinary medicine', 'Clinical practice', 'Diagnostic imaging', 'Entrepreneurial experience', 'Research qualification', 'Professional vision', 'Professional timeline'],
+} as const;
+const ids = ['introduction', 'why-veterinary-medicine', 'clinical-practice', 'diagnostic-imaging', 'entrepreneurial-experience', 'research-qualification', 'professional-vision', 'professional-timeline'] as const;
 ---
 
-<div class="section-stack about-sections about-sections--v2">
-  <PageSection id="professional-position" title={copy.opening} density="open"><slot name="opening" /></PageSection>
-  <PageSection id="professional-system" title={copy.system}><slot name="system" /></PageSection>
-  <PageSection id="education-and-development" title={copy.education}><slot name="education" /></PageSection>
-  <PageSection id="research-path" title={copy.research}><slot name="research" /></PageSection>
-  <PageSection id="professional-principles" title={copy.principles}><slot name="principles" /></PageSection>
-  <PageSection id="current-direction" title={copy.direction} density="open"><slot name="direction" /></PageSection>
+<div class="section-stack about-sections about-sections--professional">
+  {ids.map((id, index) => (
+    <PageSection id={id} title={headings[lang][index]} density={index === 0 || index === 6 ? 'open' : 'editorial'}>
+      <slot name={id} />
+    </PageSection>
+  ))}
 </div>
