@@ -36,8 +36,13 @@ const initializeContactForms = () => {
     };
 
     form.addEventListener('submit', async (event) => {
-      event.preventDefault();
       if (submitting) return;
+
+      // Keep the HTML action/method as the final fallback. If fetch is unavailable,
+      // or a previous enhanced request failed, allow the browser to submit natively.
+      if (typeof window.fetch !== 'function' || form.dataset.nativeFallback === 'true') return;
+
+      event.preventDefault();
 
       requiredFields.forEach(setFieldValidity);
       if (!form.checkValidity()) {
@@ -65,12 +70,17 @@ const initializeContactForms = () => {
           headers: { Accept: 'application/json' },
         });
 
-        if (!response.ok) throw new Error('Form submission failed');
+        const contentType = response.headers.get('content-type') ?? '';
+        if (!response.ok || !contentType.includes('application/json')) throw new Error('Form submission failed');
+
+        const payload = await response.json();
+        if (payload?.ok !== true) throw new Error('Form submission was not confirmed');
 
         form.reset();
         requiredFields.forEach((field) => field.setCustomValidity(''));
         showStatus(form.dataset.successMessage ?? 'Your message has been sent.', 'success');
       } catch {
+        form.dataset.nativeFallback = 'true';
         showStatus(form.dataset.errorMessage ?? 'The message could not be sent.', 'error');
       } finally {
         submitting = false;

@@ -92,9 +92,18 @@ for (const lang of languages) {
   for (const group of ['scientific', 'media', 'social', 'technical']) assert(profiles.includes(`id="profiles-${group}"`), `${lang}: profiles group missing ${group}`);
 
   const contact = readFileSync(htmlPath(lang, 'contact'), 'utf8');
-  for (const name of ['name', 'email', 'topic', 'message']) assert(contact.includes(`name="${name}"`), `${lang}: contact field missing ${name}`);
+  for (const name of ['name', 'email', 'topic', 'message']) {
+    const field = contact.match(new RegExp(`<(?:input|select|textarea)\\b[^>]*\\bname="${name}"[^>]*>`))?.[0];
+    assert(field, `${lang}: contact field missing ${name}`);
+    assert(/\brequired(?:[\s=>]|$)/.test(field), `${lang}: contact field ${name} must be required`);
+  }
   assert(!contact.includes('name="lastName"') && !contact.includes('type="file"'), `${lang}: contact contains a prohibited surname or upload field`);
   assert(contact.includes('action="https://formspree.io/f/xgogvvao"'), `${lang}: configured Formspree endpoint is missing`);
+  assert(contact.includes('method="POST"'), `${lang}: contact form must use POST`);
+  const confirmation = lang === 'ru'
+    ? 'Обращение принято. Если ответ требуется, я свяжусь с вами по указанному email.'
+    : 'Your inquiry has been received. If a response is required, I will contact you at the email provided.';
+  assert(contact.includes(confirmation), `${lang}: exact contact confirmation copy is missing`);
 
   const shell = readFileSync(htmlPath(lang, 'about'), 'utf8');
   for (const route of ['practice', 'about', 'publications', 'media', 'contact']) assert(shell.includes(`href="/${lang}/${route}/"`), `${lang}: primary navigation missing ${route}`);
@@ -142,6 +151,13 @@ const headers = read('public/_headers');
 assert(headers.includes("script-src 'self' 'wasm-unsafe-eval'"), 'Pagefind CSP allowance is missing');
 assert(!headers.includes("'unsafe-eval'"), 'ordinary unsafe-eval is prohibited');
 assert(headers.includes("font-src 'self'"), 'fonts must remain self-hosted');
+const csp = headers.match(/Content-Security-Policy:\s*([^\n]+)/)?.[1] ?? '';
+for (const directiveName of ['connect-src', 'form-action']) {
+  const directive = csp.split(';').map((part) => part.trim()).find((part) => part.startsWith(`${directiveName} `)) ?? '';
+  const sources = directive.split(/\s+/).slice(1);
+  assert(sources.includes('https://formspree.io'), `${directiveName} must allow the exact Formspree origin`);
+  assert(!sources.some((source) => source.includes('*')), `${directiveName} must not contain wildcard sources`);
+}
 
 const generatedHtml = walk(dist).filter((path) => path.endsWith('.html') && !path.includes('/pagefind/'));
 assert(generatedHtml.length === 46, `expected 46 HTML files including root redirect and 404, found ${generatedHtml.length}`);
