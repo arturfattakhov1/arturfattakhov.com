@@ -22,7 +22,7 @@ export const contactPageCopy: Record<Language, {
     success: 'Обращение принято. Если ответ требуется, я свяжусь с вами по указанному email.',
     error: 'Сообщение не отправлено из-за технической ошибки. Данные сохранены в форме — попробуйте отправить ещё раз позже.',
     requiredError: 'Заполните это поле.', emailError: 'Введите корректный адрес электронной почты.',
-    privacy: { before: 'Отправляя форму, вы соглашаетесь на ', link: 'обработку указанных данных', after: ' для ответа на обращение.' }, honeypot: 'Не заполняйте это поле',
+    privacy: { before: 'Форма передаётся через Formspree. Отправляя её, вы соглашаетесь на ', link: 'обработку указанных данных', after: ' для рассмотрения и ответа на обращение. Не прикладывайте медицинские файлы и не указывайте чувствительные данные.' }, honeypot: 'Не заполняйте это поле',
   },
   en: {
     introduction: 'Use the form for a veterinary question, media inquiry, lecture or workshop, professional project, or partnership. The form is not an emergency service.',
@@ -37,6 +37,6 @@ export const contactPageCopy: Record<Language, {
     success: 'Your inquiry has been received. If a response is required, I will contact you at the email provided.',
     error: 'The message was not sent because of a technical error. Your input remains in the form; please try again later.',
     requiredError: 'Complete this field.', emailError: 'Enter a valid email address.',
-    privacy: { before: 'By submitting the form, you consent to the ', link: 'processing of the information provided', after: ' for the purpose of responding.' }, honeypot: 'Leave this field empty',
+    privacy: { before: 'This form is transmitted through Formspree. By submitting it, you consent to the ', link: 'processing of the information provided', after: ' for inquiry review and response. Do not include medical files or sensitive information.' }, honeypot: 'Leave this field empty',
   },
 };

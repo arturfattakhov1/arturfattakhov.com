@@ -71,7 +71,10 @@ const copy = practicePageCopy[lang];
   <PageSection id="contact-practice" title={copy.contact.title} density="compact">
     <Container class="practice-contact">
       <p>{copy.contact.description}</p>
-      <Button href={localizedPath(lang, 'contact')}>{copy.contact.cta}</Button>
+      <div class="button-group">
+        <Button href={localizedPath(lang, 'consultation')}>{copy.contact.primaryCta}</Button>
+        <Button href={localizedPath(lang, 'contact')} variant="secondary">{copy.contact.secondaryCta}</Button>
+      </div>
     </Container>
   </PageSection>
 </div>

@@ -46,7 +46,7 @@ const hrefFor = (item: { slug: string; hash?: string }) => {
     </details>
 
     <div class="menu-panel__actions">
-      <a class="menu-panel__consultation" href={localizedPath(lang, 'contact')}>{ui[lang].consultation}</a>
+      <a class="menu-panel__consultation" href={localizedPath(lang, 'consultation')} aria-current={currentPath === localizedPath(lang, 'consultation') ? 'page' : undefined}>{ui[lang].consultation}</a>
     </div>
   </div>
 </nav>

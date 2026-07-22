@@ -35,10 +35,10 @@ export const legalPageCopy: Record<Language, Record<LegalPageSlug, LegalPageCopy
         },
         {
           id: 'contact',
-          title: 'Контактная форма',
+          title: 'Контактная форма и заявка на консультацию',
           paragraphs: [
-            'При отправке контактной формы обрабатываются имя, фамилия, email и текст сообщения. Эти данные используются для получения обращения, ответа на него и ведения связанной переписки.',
-            'Техническая передача и обработка формы выполняется через Formspree. Не следует отправлять через форму медицинские, финансовые или другие чувствительные данные. Данные формы не используются для рассылки без отдельного согласия.',
+            'При отправке контактной формы или заявки на консультацию обрабатываются имя, email и сведения, которые отправитель указывает в полях формы. Эти данные используются для рассмотрения обращения, ответа на него и ведения связанной переписки.',
+            'Техническая передача и обработка обеих форм выполняется через Formspree. Загрузка медицинских файлов отсутствует. Не следует указывать в формах медицинские архивы, платёжные, паспортные, страховые или другие чувствительные данные. Данные форм не используются для рассылки без отдельного согласия.',
           ],
         },
         {
@@ -83,6 +83,13 @@ export const legalPageCopy: Record<Language, Record<LegalPageSlug, LegalPageCopy
           ],
         },
         {
+          id: 'consultation-applications',
+          title: 'Заявки на консультацию',
+          paragraphs: [
+            'Отправка заявки не означает принятия случая, автоматического бронирования или возникновения платёжного обязательства. Возможность дистанционного формата, его объём и стоимость согласуются индивидуально до оплаты; оплата на сайте отсутствует.',
+          ],
+        },
+        {
           id: 'acceptable-use',
           title: 'Допустимое использование',
           paragraphs: [
@@ -113,7 +120,8 @@ export const legalPageCopy: Record<Language, Record<LegalPageSlug, LegalPageCopy
           title: 'Ветеринарная информация',
           paragraphs: [
             'Информация о здоровье животных предназначена только для общего ознакомления. Она не является диагнозом, назначением лечения или индивидуальной ветеринарной консультацией и не учитывает состояние конкретного животного.',
-            'При вопросах о здоровье животного следует обратиться к ветеринарному врачу. При признаках неотложного состояния необходимо без промедления связаться с доступной ветеринарной клиникой или экстренной службой.',
+            'Согласованный дистанционный формат не заменяет физикальный осмотр и без необходимых клинических данных не предназначен для постановки окончательного диагноза. Заявка служит только для предварительной оценки и сама по себе не означает принятия случая.',
+            'При затруднённом дыхании, потере сознания, судорогах, сильном кровотечении, невозможности мочеиспускания или резком ухудшении необходимо немедленно обратиться в ближайшую доступную ветеринарную клинику, предпочтительно круглосуточную. Онлайн-заявка не предназначена для экстренной помощи.',
           ],
         },
         {
@@ -161,10 +169,10 @@ export const legalPageCopy: Record<Language, Record<LegalPageSlug, LegalPageCopy
         },
         {
           id: 'contact',
-          title: 'Contact form',
+          title: 'Contact and consultation forms',
           paragraphs: [
-            'When the contact form is submitted, the first name, last name, email address, and message text are processed. This information is used to receive and respond to the inquiry and to manage related correspondence.',
-            'The form is technically transmitted and processed through Formspree. Medical, financial, or other sensitive information should not be submitted through the form. Form data is not used for mailing lists without separate consent.',
+            'When the contact form or consultation application is submitted, the name, email address, and information entered by the sender are processed. This information is used to review and respond to the inquiry and to manage related correspondence.',
+            'Both forms are technically transmitted and processed through Formspree. Medical file upload is not available. Medical archives, payment, passport, insurance, or other sensitive information should not be entered in the forms. Form data is not used for mailing lists without separate consent.',
           ],
         },
         {
@@ -209,6 +217,13 @@ export const legalPageCopy: Record<Language, Record<LegalPageSlug, LegalPageCopy
           ],
         },
         {
+          id: 'consultation-applications',
+          title: 'Consultation applications',
+          paragraphs: [
+            'Submitting an application does not mean that the case has been accepted, create an automatic booking, or create a payment obligation. The suitability, scope, and price of a remote format are agreed individually before payment; no payment is taken on this website.',
+          ],
+        },
+        {
           id: 'acceptable-use',
           title: 'Acceptable use',
           paragraphs: [
@@ -239,7 +254,8 @@ export const legalPageCopy: Record<Language, Record<LegalPageSlug, LegalPageCopy
           title: 'Veterinary information',
           paragraphs: [
             'Animal-health information is provided for general informational purposes only. It is not a diagnosis, treatment plan, or individual veterinary consultation and does not account for the condition of a particular animal.',
-            'Questions about an animal’s health should be addressed to a veterinary professional. If an animal may require urgent care, contact an available veterinary clinic or emergency service without delay.',
+            'An agreed remote format does not replace a physical examination and is not intended to provide a definitive diagnosis without the necessary clinical evidence. An application is for preliminary review only and does not itself mean that the case has been accepted.',
+            'If there is difficulty breathing, loss of consciousness, seizures, severe bleeding, inability to urinate, or sudden deterioration, seek immediate care at the nearest available veterinary clinic, preferably one open around the clock. The online application is not intended for emergency care.',
           ],
         },
         {

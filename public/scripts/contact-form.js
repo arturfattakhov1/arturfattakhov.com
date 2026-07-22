@@ -16,7 +16,9 @@ const initializeContactForms = () => {
       if (!(field instanceof HTMLInputElement || field instanceof HTMLSelectElement || field instanceof HTMLTextAreaElement)) return;
 
       field.setCustomValidity('');
-      if (field.required && field.value.trim() === '') {
+      if (field instanceof HTMLInputElement && ['checkbox', 'radio'].includes(field.type) && field.required && !field.checked) {
+        field.setCustomValidity(form.dataset.requiredMessage ?? 'Complete this field.');
+      } else if (field.required && field.value.trim() === '') {
         field.setCustomValidity(form.dataset.requiredMessage ?? 'Complete this field.');
       } else if (field instanceof HTMLInputElement && field.type === 'email' && field.validity.typeMismatch) {
         field.setCustomValidity(form.dataset.emailMessage ?? 'Enter a valid email address.');
@@ -25,6 +27,7 @@ const initializeContactForms = () => {
 
     requiredFields.forEach((field) => {
       field.addEventListener('input', () => setFieldValidity(field));
+      field.addEventListener('change', () => setFieldValidity(field));
       field.addEventListener('invalid', () => setFieldValidity(field));
     });
 
@@ -58,8 +61,7 @@ const initializeContactForms = () => {
       delete status.dataset.state;
 
       const formData = new FormData(form);
-      for (const fieldName of ['name', 'email', 'topic', 'message']) {
-        const value = formData.get(fieldName);
+      for (const [fieldName, value] of formData.entries()) {
         if (typeof value === 'string') formData.set(fieldName, value.trim());
       }
 

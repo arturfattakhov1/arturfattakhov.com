@@ -38,7 +38,7 @@ export const homePageCopy: Record<Language, HomePageCopy> = {
       benefit: 'Помогаю владельцам собак и кошек разобраться в состоянии животного, оценить имеющиеся данные и определить следующий обоснованный шаг.',
       context: 'В работе я соединяю клиническую практику, современные методы диагностики и ответственное применение технологий.',
       portraitAlt: 'Портрет ветеринарного врача Артура Фаттахова',
-      primaryCta: 'Связаться',
+      primaryCta: 'Онлайн-консультация',
       secondaryCta: 'Обо мне и опыт',
     },
     help: {
@@ -102,7 +102,7 @@ export const homePageCopy: Record<Language, HomePageCopy> = {
       benefit: 'I help dog and cat owners understand their animal’s condition, make sense of the available information, and identify the next well-founded step.',
       context: 'My work brings together clinical practice, modern diagnostic methods, and the responsible use of technology.',
       portraitAlt: 'Portrait of veterinary doctor Artur Fattakhov',
-      primaryCta: 'Contact',
+      primaryCta: 'Online consultation',
       secondaryCta: 'About and experience',
     },
     help: {
