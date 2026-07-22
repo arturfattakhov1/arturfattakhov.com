@@ -1,140 +1,48 @@
 ---
 import { aboutPageCopy } from '../data/about';
-import { publicationPath, publicationRecords } from '../data/publication-records';
+import { getTimelineEntries } from '../data/timeline';
 import type { Language } from '../i18n/config';
 import { localizedPath } from '../i18n/config';
 import AboutSections from './AboutSections.astro';
 import Button from './Button.astro';
 import Container from './Container.astro';
 
-interface Props {
-  lang: Language;
-}
-
+interface Props { lang: Language; }
 const { lang } = Astro.props;
 const copy = aboutPageCopy[lang];
-const researchRecordSlugs = [
-  'comparative-xray-morphometry-moose-cattle',
-  'hoof-capsule-cattle-moose',
-  'xray-morphometric-laminitis-cattle-patent',
-] as const;
-const researchRecords = researchRecordSlugs
-  .map((slug) => publicationRecords.find((record) => record.slug === slug))
-  .filter((record) => record !== undefined);
+const timelineIds = ['veterinary-education', 'research-teaching-qualification', 'private-practice', 'journal-publications-2025', 'patent-2025', 'diagnostic-imaging-qualification'];
+const timeline = getTimelineEntries(lang).filter((entry) => timelineIds.includes(entry.id));
 ---
 
 <AboutSections lang={lang}>
-  <Fragment slot="opening">
-    <Container class="about-opening" size="reading">
-      <p class="about-opening__name">{copy.opening.name}</p>
-      <ul class="about-role-list" role="list">
-        {copy.opening.roles.map((role) => <li>{role}</li>)}
-      </ul>
-      <p class="about-opening__thesis">{copy.opening.thesis}</p>
-      <p class="about-opening__introduction">{copy.opening.introduction}</p>
-      <Button href={localizedPath(lang, 'research')} variant="secondary">{copy.opening.researchLink}</Button>
+  <Fragment slot="introduction">
+    <Container size="reading" class="about-professional-intro">
+      <ul class="about-role-list" role="list">{copy.introduction.roles.map((role) => <li>{role}</li>)}</ul>
+      <p class="about-professional-intro__lead">{copy.introduction.lead}</p>
+      <p>{copy.introduction.body}</p>
     </Container>
   </Fragment>
-
-  <Fragment slot="system">
+  <Fragment slot="why-veterinary-medicine"><Container size="reading"><p class="section-lead-compact">{copy.motivation.body}</p></Container></Fragment>
+  <Fragment slot="clinical-practice">
+    <Container size="reading"><p class="section-lead-compact">{copy.practice.body}</p><ul class="compact-evidence-list">{copy.practice.details.map((item) => <li>{item}</li>)}</ul><a class="text-link" href={localizedPath(lang, 'practice')}>{copy.links.practice}<span aria-hidden="true"> →</span></a></Container>
+  </Fragment>
+  <Fragment slot="diagnostic-imaging">
+    <Container size="reading"><p class="section-lead-compact">{copy.imaging.body}</p><ul class="compact-evidence-list">{copy.imaging.details.map((item) => <li>{item}</li>)}</ul></Container>
+  </Fragment>
+  <Fragment slot="entrepreneurial-experience"><Container size="reading"><p class="section-lead-compact">{copy.entrepreneurship.body}</p></Container></Fragment>
+  <Fragment slot="research-qualification">
+    <Container size="reading"><p class="section-lead-compact">{copy.qualification.body}</p><ul class="compact-evidence-list">{copy.qualification.details.map((item) => <li>{item}</li>)}</ul><a class="text-link" href={localizedPath(lang, 'research')}>{copy.links.research}<span aria-hidden="true"> →</span></a></Container>
+  </Fragment>
+  <Fragment slot="professional-vision">
+    <Container size="reading" class="about-vision"><p class="section-lead-compact">{copy.vision.body}</p><ul class="compact-evidence-list">{copy.vision.principles.map((item) => <li>{item}</li>)}</ul><Button href={localizedPath(lang, 'contact')} variant="secondary">{copy.links.contact}</Button></Container>
+  </Fragment>
+  <Fragment slot="professional-timeline">
     <Container size="reading">
-      <p class="about-section-lead">{copy.professionalSystem.introduction}</p>
-      <ol class="about-system-list">
-        {copy.professionalSystem.areas.map((area, index) => (
-          <li>
-            <span class="about-list-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-            <div>
-              <h3>{area.title}</h3>
-              <p>{area.description}</p>
-            </div>
-          </li>
-        ))}
+      <p class="section-lead-compact">{copy.timeline.introduction}</p>
+      <ol class="about-inline-timeline">
+        {timeline.map((entry) => <li id={`about-${entry.id}`}><time datetime={entry.datetime}>{entry.period}</time><div><p>{copy.timeline.sourceLabel}</p><h3>{entry.title}</h3><span>{entry.summary}</span></div></li>)}
       </ol>
-    </Container>
-  </Fragment>
-
-  <Fragment slot="education">
-    <Container size="reading">
-      <p class="about-section-lead">{copy.education.introduction}</p>
-      <ol class="about-education-list">
-        {copy.education.records.map((record) => (
-          <li>
-            <p class="about-education-list__year">{record.year}</p>
-            <div>
-              <h3>{record.institution}</h3>
-              <dl>
-                <div>
-                  <dt>{record.qualificationLabel}</dt>
-                  <dd>{record.qualification}</dd>
-                </div>
-                <div>
-                  <dt>{record.completionLabel}</dt>
-                  <dd>{record.year}</dd>
-                </div>
-              </dl>
-            </div>
-          </li>
-        ))}
-      </ol>
-      <p class="about-supporting-copy">{copy.education.conclusion}</p>
-      <nav class="about-context-links" aria-label={lang === 'ru' ? 'Подробности об образовании' : 'Education details'}>
-        <a href={localizedPath(lang, 'cv')}>{copy.education.cvLink}</a>
-        <a href={localizedPath(lang, 'timeline')}>{copy.education.timelineLink}</a>
-      </nav>
-    </Container>
-  </Fragment>
-
-  <Fragment slot="research">
-    <Container size="reading">
-      <p class="about-section-lead">{copy.researchPath.introduction}</p>
-      <ol class="about-research-records">
-        {researchRecords.map((record) => (
-          <li>
-            <p class="about-record-type">{record.type === 'patent' ? copy.researchPath.patentLabel : copy.researchPath.articleLabel}</p>
-            <h3><a href={publicationPath(lang, record.slug)}>{record.title[lang]}</a></h3>
-            <p class="about-record-meta">{record.year}{record.patentNumber ? ` · ${record.patentNumber}` : record.doi ? ` · DOI ${record.doi}` : ''}</p>
-            <a class="about-record-link" href={publicationPath(lang, record.slug)}>{copy.researchPath.recordLink}</a>
-          </li>
-        ))}
-      </ol>
-      <p class="about-supporting-copy">{copy.researchPath.conclusion}</p>
-      <nav class="about-context-links" aria-label={lang === 'ru' ? 'Связанные исследовательские разделы' : 'Related research sections'}>
-        <a href={localizedPath(lang, 'research')}>{copy.researchPath.researchLink}</a>
-        <a href={localizedPath(lang, 'publications')}>{copy.researchPath.publicationsLink}</a>
-      </nav>
-    </Container>
-  </Fragment>
-
-  <Fragment slot="principles">
-    <Container size="reading">
-      <p class="about-section-lead">{copy.principles.introduction}</p>
-      <dl class="about-principles-list">
-        {copy.principles.items.map((item) => (
-          <div>
-            <dt>{item.title}</dt>
-            <dd>{item.description}</dd>
-          </div>
-        ))}
-      </dl>
-    </Container>
-  </Fragment>
-
-  <Fragment slot="direction">
-    <Container class="about-direction" size="reading">
-      <div class="about-direction__copy">
-        {copy.direction.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
-      </div>
-      <nav class="about-direction__links" aria-label={copy.direction.linksLabel}>
-        <p>{copy.direction.linksLabel}</p>
-        <ul role="list">
-          <li><a href={localizedPath(lang, 'research')}>{copy.direction.links.research}</a></li>
-          <li><a href={localizedPath(lang, 'publications')}>{copy.direction.links.publications}</a></li>
-          <li><a href={localizedPath(lang, 'knowledge')}>{copy.direction.links.knowledge}</a></li>
-          <li><a href={localizedPath(lang, 'faq')}>{copy.direction.links.faq}</a></li>
-          <li><a href={localizedPath(lang, 'profiles')}>{copy.direction.links.profiles}</a></li>
-          <li><a href={localizedPath(lang, 'contact')}>{copy.direction.links.contact}</a></li>
-        </ul>
-      </nav>
+      <nav class="compact-link-row" aria-label={lang === 'ru' ? 'Связанные разделы' : 'Related sections'}><a href={localizedPath(lang, 'publications')}>{copy.links.publications}</a><a href={localizedPath(lang, 'research')}>{copy.links.research}</a></nav>
     </Container>
   </Fragment>
 </AboutSections>

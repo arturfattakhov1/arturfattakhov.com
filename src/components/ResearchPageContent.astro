@@ -1,143 +1,55 @@
 ---
-import { researchPageCopy } from '../data/research';
 import { publicationPath, publicationRecords } from '../data/publication-records';
-import { identity } from '../data/identity';
 import type { Language } from '../i18n/config';
 import { localizedPath } from '../i18n/config';
 import Button from './Button.astro';
 import Container from './Container.astro';
 import ResearchSections from './ResearchSections.astro';
 
-interface Props {
-  lang: Language;
-}
-
+interface Props { lang: Language; }
 const { lang } = Astro.props;
-const copy = researchPageCopy[lang];
-type ProfileKey = (typeof identity.profiles)[number]['key'];
-const profilesByKey = new Map(identity.profiles.map((profile) => [profile.key, profile] as const));
-const profileKeys: ProfileKey[] = ['orcid', 'googleScholar', 'researchGate', 'webOfScience'];
-const academicProfiles = profileKeys
-  .map((key) => profilesByKey.get(key))
-  .filter((profile) => profile !== undefined);
-const featuredRecordSlugs = [
-  'comparative-xray-morphometry-moose-cattle',
-  'hoof-capsule-cattle-moose',
-  'xray-morphometric-laminitis-cattle-patent',
-] as const;
-const featuredRecords = featuredRecordSlugs
-  .map((slug) => publicationRecords.find((record) => record.slug === slug))
-  .filter((record) => record !== undefined);
+const relatedSlugs = ['comparative-xray-morphometry-moose-cattle', 'hoof-capsule-cattle-moose', 'xray-morphometric-laminitis-cattle-patent'];
+const related = publicationRecords.filter((record) => relatedSlugs.includes(record.slug));
+const copy = {
+  ru: {
+    opening: 'Я рассматриваю исследования как способ точнее формулировать вопросы, описывать методы и отделять проверенные данные от предположений.',
+    topics: [
+      ['Сравнительная анатомия', 'Сопоставление анатомических структур у разных видов животных.'],
+      ['Ветеринарная морфология', 'Описание макро- и микроморфологических характеристик.'],
+      ['Рентгеноморфометрия', 'Измерение и сопоставление структур по рентгенографическим данным.'],
+      ['Диагностические темы', 'Связь визуальных методов с конкретным клиническим вопросом.'],
+    ],
+    methods: 'В подтверждённых работах использованы сравнительный анатомический анализ, микроморфологическое описание и рентгеноморфометрия. Детали не расширяются за пределы опубликованных записей.',
+    outputs: 'Проверенный архив содержит 2 журнальные статьи, 6 публикаций в материалах конференций и 1 зарегистрированный патент.',
+    publications: 'Ниже — записи, наиболее прямо связанные со сравнительной анатомией, морфологией и рентгеноморфометрией.',
+    action: 'Открыть запись', all: 'Полный архив публикаций',
+    relevance: 'Исследовательская подготовка помогает мне точнее оценивать методы, качество данных и границы интерпретации. В практической работе это поддерживает клиническое мышление, но не подменяет осмотр и диагностику конкретного пациента.',
+  },
+  en: {
+    opening: 'I use research to frame questions more precisely, describe methods clearly, and separate verified evidence from assumptions.',
+    topics: [
+      ['Comparative anatomy', 'Comparison of anatomical structures across animal species.'],
+      ['Veterinary morphology', 'Description of macro- and micromorphological characteristics.'],
+      ['Radiomorphometry', 'Measurement and comparison of structures using radiographic evidence.'],
+      ['Diagnostic topics', 'Connecting imaging methods with a specific clinical question.'],
+    ],
+    methods: 'The verified work uses comparative anatomical analysis, micromorphological description, and radiomorphometry. Details are not extended beyond the published records.',
+    outputs: 'The verified archive contains 2 journal articles, 6 conference proceedings, and 1 registered patent.',
+    publications: 'These records connect most directly with comparative anatomy, morphology, and radiomorphometry.',
+    action: 'Open record', all: 'Complete publication archive',
+    relevance: 'Research training helps me assess methods, evidence quality, and the limits of interpretation more precisely. In practice, it supports clinical reasoning but does not replace examination or diagnostics for an individual patient.',
+  },
+} as const;
+const text = copy[lang];
 ---
 
 <ResearchSections lang={lang}>
-  <Fragment slot="opening">
-    <Container class="research-opening__inner" size="reading">
-      <p class="research-opening__statement">{copy.opening.statement}</p>
-      <p class="research-opening__intro">{copy.opening.introduction}</p>
-      <Button href={localizedPath(lang, 'publications')} variant="secondary">{copy.opening.publicationsLink}</Button>
-    </Container>
+  <Fragment slot="opening"><Container size="reading" class="research-compact-opening"><p>{text.opening}</p><Button href={localizedPath(lang, 'publications')} variant="secondary">{text.all}</Button></Container></Fragment>
+  <Fragment slot="research-topics"><Container size="reading"><dl class="research-topic-grid">{text.topics.map(([title, description]) => <div><dt>{title}</dt><dd>{description}</dd></div>)}</dl></Container></Fragment>
+  <Fragment slot="research-methods"><Container size="reading"><p class="section-lead-compact">{text.methods}</p></Container></Fragment>
+  <Fragment slot="verified-results"><Container size="reading"><p class="section-lead-compact" data-research-output-summary>{text.outputs}</p></Container></Fragment>
+  <Fragment slot="related-publications">
+    <Container size="reading"><p>{text.publications}</p><ol class="research-related-records">{related.map((record) => <li><span>{record.year} · {record.type === 'patent' ? (lang === 'ru' ? 'Патент' : 'Patent') : (lang === 'ru' ? 'Статья' : 'Article')}</span><h3><a href={publicationPath(lang, record.slug)}>{record.title[lang]}</a></h3><a class="text-link" href={publicationPath(lang, record.slug)}>{text.action}<span aria-hidden="true"> →</span></a></li>)}</ol><a class="text-link" href={localizedPath(lang, 'publications')}>{text.all}<span aria-hidden="true"> →</span></a></Container>
   </Fragment>
-
-  <Fragment slot="question">
-    <Container size="reading">
-      <p class="research-section-lead">{copy.question.introduction}</p>
-      <div class="research-text-flow">
-        {copy.question.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
-      </div>
-    </Container>
-  </Fragment>
-
-  <Fragment slot="focus">
-    <Container size="reading">
-      <p class="research-section-lead">{copy.focus.introduction}</p>
-      <ol class="research-focus-list">
-        {copy.focus.items.map((item, index) => (
-          <li>
-            <span class="research-list-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-            <div>
-              <h3>{item.title}</h3>
-              <p>{item.description}</p>
-            </div>
-          </li>
-        ))}
-      </ol>
-    </Container>
-  </Fragment>
-
-  <Fragment slot="approach">
-    <Container size="reading">
-      <p class="research-section-lead">{copy.approach.introduction}</p>
-      <dl class="research-approach-list">
-        {copy.approach.items.map((item) => (
-          <div>
-            <dt>{item.label}</dt>
-            <dd>{item.description}</dd>
-          </div>
-        ))}
-      </dl>
-    </Container>
-  </Fragment>
-
-  <Fragment slot="outputs">
-    <Container size="reading">
-      <p class="research-section-lead">{copy.outputs.introduction}</p>
-      <ol class="research-output-list">
-        {featuredRecords.map((record) => (
-          <li>
-            <p class="research-record-type">{record.type === 'patent' ? copy.outputs.patentLabel : copy.outputs.articleLabel} · {record.year}</p>
-            <h3><a href={publicationPath(lang, record.slug)}>{record.title[lang]}</a></h3>
-            {record.patentNumber && <p class="research-record-meta">{record.patentNumber}</p>}
-            <p>{copy.outputs.relevance[record.slug]}</p>
-            <a class="research-record-link" href={publicationPath(lang, record.slug)}>
-              {copy.outputs.recordLink}<span aria-hidden="true"> →</span>
-            </a>
-          </li>
-        ))}
-      </ol>
-      <p class="research-supporting-copy">
-        <a href={localizedPath(lang, 'publications')}>{copy.profiles.related.publications}<span aria-hidden="true"> →</span></a>
-      </p>
-    </Container>
-  </Fragment>
-
-  <Fragment slot="practice">
-    <Container size="reading">
-      <div class="research-text-flow research-text-flow--lead">
-        {copy.practice.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
-      </div>
-    </Container>
-  </Fragment>
-
-  <Fragment slot="profiles">
-    <Container size="reading">
-      <p class="research-section-lead">{copy.profiles.introduction}</p>
-      <ul class="research-profile-list" role="list">
-        {academicProfiles.map((profile) => (
-          <li>
-            <a
-              href={profile.url}
-              target="_blank"
-              rel="me noopener noreferrer"
-              aria-label={`${copy.profileLinkLabel}: ${profile.name} (${copy.externalLinkLabel})`}
-            >
-              {profile.name}<span aria-hidden="true"> ↗</span>
-            </a>
-          </li>
-        ))}
-      </ul>
-      <nav class="research-related-links" aria-label={copy.profiles.linksLabel}>
-        <p>{copy.profiles.linksLabel}</p>
-        <ul role="list">
-          <li><a href={localizedPath(lang, 'profiles')}>{copy.profiles.allProfiles}</a></li>
-          <li><a href={localizedPath(lang, 'publications')}>{copy.profiles.related.publications}</a></li>
-          <li><a href={localizedPath(lang, 'about')}>{copy.profiles.related.about}</a></li>
-          <li><a href={localizedPath(lang, 'knowledge')}>{copy.profiles.related.knowledge}</a></li>
-          <li><a href={localizedPath(lang, 'timeline')}>{copy.profiles.related.timeline}</a></li>
-          <li><a href={localizedPath(lang, 'faq')}>{copy.profiles.related.faq}</a></li>
-          <li><a href={localizedPath(lang, 'contact')}>{copy.profiles.related.contact}</a></li>
-        </ul>
-      </nav>
-    </Container>
-  </Fragment>
+  <Fragment slot="professional-relevance"><Container size="reading"><p class="section-lead-compact">{text.relevance}</p></Container></Fragment>
 </ResearchSections>

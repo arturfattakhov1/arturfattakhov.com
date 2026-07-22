@@ -2,53 +2,15 @@
 import type { Language } from '../i18n/config';
 import PageIntro from './PageIntro.astro';
 import PageSection from './PageSection.astro';
-
-interface Props {
-  lang: Language;
-}
-
+interface Props { lang: Language; }
 const { lang } = Astro.props;
-
 const headings = {
-  ru: {
-    question: 'Исследовательский вопрос',
-    focus: 'Фокус исследования',
-    approach: 'Материал и подход',
-    outputs: 'Проверенные научные результаты',
-    practice: 'Связь с профессиональной практикой',
-    profiles: 'Полная запись и профили',
-  },
-  en: {
-    question: 'Research question',
-    focus: 'Research focus',
-    approach: 'Material and approach',
-    outputs: 'Verified scholarly outputs',
-    practice: 'Research and professional practice',
-    profiles: 'Complete record and profiles',
-  },
-} as const satisfies Record<Language, Record<string, string>>;
-
-const copy = headings[lang];
+  ru: ['Темы', 'Методы', 'Проверенные результаты', 'Связанные публикации', 'Профессиональное значение'],
+  en: ['Topics', 'Methods', 'Verified outputs', 'Related publications', 'Professional relevance'],
+} as const;
+const ids = ['research-topics', 'research-methods', 'verified-results', 'related-publications', 'professional-relevance'] as const;
 ---
-
-<div class="section-stack research-sections research-sections--v2">
-  <PageIntro class="research-opening"><slot name="opening" /></PageIntro>
-  <PageSection id="research-question" title={copy.question} class="research-question" density="open">
-    <slot name="question" />
-  </PageSection>
-  <PageSection id="research-focus" title={copy.focus} class="research-focus" density="editorial">
-    <slot name="focus" />
-  </PageSection>
-  <PageSection id="material-and-approach" title={copy.approach} class="research-approach" density="editorial">
-    <slot name="approach" />
-  </PageSection>
-  <PageSection id="scholarly-outputs" title={copy.outputs} class="research-outputs" density="open">
-    <slot name="outputs" />
-  </PageSection>
-  <PageSection id="research-and-practice" title={copy.practice} class="research-practice" density="editorial">
-    <slot name="practice" />
-  </PageSection>
-  <PageSection id="complete-record" title={copy.profiles} class="research-profiles" density="editorial">
-    <slot name="profiles" />
-  </PageSection>
+<div class="section-stack research-sections research-sections--compact">
+  <PageIntro><slot name="opening" /></PageIntro>
+  {ids.map((id, index) => <PageSection id={id} title={headings[lang][index]} density="editorial"><slot name={id} /></PageSection>)}
 </div>
