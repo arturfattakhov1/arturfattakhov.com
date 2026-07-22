@@ -8,8 +8,14 @@ export const identity = {
   givenName: 'Artur',
   familyName: 'Fattakhov',
   url: 'https://arturfattakhov.com',
-  jobTitle: 'veterinary doctor, researcher, entrepreneur',
-  focus: 'AI-enabled home veterinary care for dogs and cats',
+  jobTitle: {
+    ru: 'Ветеринарный врач',
+    en: 'Veterinary Doctor',
+  },
+  description: {
+    ru: 'Ветеринарный врач и специалист визуальной диагностики.',
+    en: 'Veterinary Doctor and Diagnostic Imaging Specialist.',
+  },
   knowsAbout: [
     'veterinary medicine',
     'small animal veterinary medicine',
@@ -21,7 +27,10 @@ export const identity = {
     'artificial intelligence in veterinary medicine',
     'evidence-based veterinary medicine',
   ],
-  occupations: ['Veterinarian', 'Researcher', 'Entrepreneur'],
+  occupation: {
+    ru: 'Ветеринарный врач',
+    en: 'Veterinary Doctor',
+  },
   languages: {
     ru: { name: 'Russian', code: 'ru' },
     en: { name: 'English', code: 'en' },
@@ -52,8 +61,6 @@ export const schemaIds = {
   },
 } as const;
 
-export const identityDescription = `${identity.jobTitle} focused on ${identity.focus}.`;
-
 export function createPersonSchema() {
   const orcid = identity.profiles.find((profile) => profile.key === 'orcid');
 
@@ -66,13 +73,22 @@ export function createPersonSchema() {
     familyName: identity.familyName,
     url: identity.url,
     sameAs: identity.profiles.map((profile) => profile.url),
-    jobTitle: identity.jobTitle,
-    description: identityDescription,
+    jobTitle: [
+      { '@value': identity.jobTitle.ru, '@language': 'ru' },
+      { '@value': identity.jobTitle.en, '@language': 'en' },
+    ],
+    description: [
+      { '@value': identity.description.ru, '@language': 'ru' },
+      { '@value': identity.description.en, '@language': 'en' },
+    ],
     knowsAbout: identity.knowsAbout,
-    hasOccupation: identity.occupations.map((name) => ({
+    hasOccupation: [{
       '@type': 'Occupation',
-      name,
-    })),
+      name: [
+        { '@value': identity.occupation.ru, '@language': 'ru' },
+        { '@value': identity.occupation.en, '@language': 'en' },
+      ],
+    }],
     knowsLanguage: [
       { '@type': 'Language', name: identity.languages.ru.name, alternateName: identity.languages.ru.code },
       { '@type': 'Language', name: identity.languages.en.name, alternateName: identity.languages.en.code },

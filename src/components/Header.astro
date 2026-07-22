@@ -1,7 +1,7 @@
 ---
 import type { Language } from '../i18n/config';
 import { localizedPath } from '../i18n/config';
-import { ui } from '../i18n/ui';
+import { desktopNavigation, ui } from '../i18n/ui';
 import LanguageSwitcher from './LanguageSwitcher.astro';
 import Navigation from './Navigation.astro';
 
@@ -17,9 +17,48 @@ const { lang, currentPath } = Astro.props;
 <header class="site-header">
   <div class="site-header__inner">
     <div class="header-bar">
-      <a class="brand" href={localizedPath(lang)}>{ui[lang].siteName}</a>
-      <LanguageSwitcher lang={lang} currentPath={currentPath} />
+      <a
+        class="brand"
+        href={localizedPath(lang)}
+        aria-label={lang === 'ru' ? 'Артур Фаттахов — главная' : 'Artur Fattakhov — home'}
+      >AF</a>
+
+      <nav class="header-featured-navigation" aria-label={ui[lang].primaryNavigation}>
+        <ul role="list">
+          {desktopNavigation.map((item) => {
+            const baseHref = localizedPath(lang, item.slug);
+            const href = 'hash' in item ? `${baseHref}#${item.hash}` : baseHref;
+            const active = !('hash' in item) && currentPath === baseHref;
+            return (
+              <li><a href={href} aria-current={active ? 'page' : undefined}>{item.label[lang]}</a></li>
+            );
+          })}
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <a class="header-search" href={localizedPath(lang, 'search')} aria-label={ui[lang].search}>
+          <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
+            <circle cx="11" cy="11" r="6.5"></circle>
+            <path d="m16 16 4 4"></path>
+          </svg>
+        </a>
+        <LanguageSwitcher lang={lang} currentPath={currentPath} />
+        <a class="header-consultation" href={localizedPath(lang, 'contact')}>{ui[lang].consultation}</a>
+        <button
+          class="menu-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls={`site-menu-${lang}`}
+          data-menu-toggle
+          data-open-label={ui[lang].menu}
+          data-close-label={ui[lang].closeMenu}
+        >
+          <span data-menu-label>{ui[lang].menu}</span>
+          <span class="menu-toggle__icon" aria-hidden="true"></span>
+        </button>
+      </div>
     </div>
-    <Navigation lang={lang} currentPath={currentPath} />
+    <Navigation lang={lang} currentPath={currentPath} id={`site-menu-${lang}`} />
   </div>
 </header>

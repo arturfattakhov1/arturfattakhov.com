@@ -27,6 +27,8 @@ const schemaItems = publicationRecords.map((record) => ({
   canonicalPath={localizedPath(lang, 'publications')}
   schemaType="CollectionPage"
   schemaItems={schemaItems}
+  searchable
+  searchType={lang === 'ru' ? 'Публикации' : 'Publications'}
 >
   <PublicationsPageContent lang={lang} />
 </PageLayout>

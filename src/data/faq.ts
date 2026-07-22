@@ -6,7 +6,6 @@ import { cvPageCopy } from './cv';
 import { identity, schemaIds } from './identity';
 import { collectionPageContent, pageContent } from './pages';
 import { publicationPath, publicationRecords } from './publication-records';
-import { projectsPageCopy } from './remaining-pages';
 import { researchPageCopy } from './research';
 import { breadcrumbId, webpageId } from './structured-data';
 
@@ -16,7 +15,7 @@ export type FaqGroupId =
   | 'professional-profile'
   | 'veterinary-practice'
   | 'research-publications'
-  | 'projects-site-contact';
+  | 'site-contact';
 
 export type FaqQuestionId =
   | 'who-is-artur'
@@ -31,7 +30,6 @@ export type FaqQuestionId =
   | 'publication-record'
   | 'patent-record'
   | 'research-profiles'
-  | 'project-status'
   | 'website-sections'
   | 'timeline-purpose'
   | 'professional-contact';
@@ -47,7 +45,6 @@ export type FaqSource =
   | 'identity:profiles'
   | 'legal:disclaimer'
   | 'pages:routes'
-  | 'projects:record'
   | 'publications:records'
   | 'publications:patent'
   | 'research:focus'
@@ -191,21 +188,12 @@ function profileAnswer(lang: Language): string {
     : `Authorship and bibliographic records are presented in Publications. Professional Profiles collects the verified research identifiers and profiles: ${profiles}.`;
 }
 
-function projectAnswer(lang: Language): string {
-  const project = projectsPageCopy[lang].project;
-
-  return lang === 'ru'
-    ? `На странице «Проекты» представлен один безымянный проект: ${project.subject.toLowerCase()}. Статус — ${project.status.toLowerCase()}, роль Артура — ${project.role.toLowerCase()}. Предполагаемая модель — controlled marketplace; существуют только ранние материалы по анамнезу, клиническому осмотру и медицинской документации.`
-    : `Projects presents one unnamed project: ${project.subject.toLowerCase()}. Its status is ${project.status.toLowerCase()}, and Artur’s role is ${project.role}. The intended model is a controlled marketplace; only early materials for anamnesis, clinical examination, and medical documentation exist.`;
-}
-
 function websiteSectionsAnswer(lang: Language): string {
   const standard = pageContent[lang];
   const sections = [
     standard.about.title,
     standard.research.title,
     collectionPageContent.publications[lang].title,
-    collectionPageContent.projects[lang].title,
     standard.media.title,
     standard.cv.title,
     standard.contact.title,
@@ -345,20 +333,13 @@ const faqGroupDefinitions: readonly FaqGroupDefinition[] = [
     ],
   },
   {
-    id: 'projects-site-contact',
-    title: { ru: 'Проект, сайт и связь', en: 'Project, website, and contact' },
+    id: 'site-contact',
+    title: { ru: 'Сайт и связь', en: 'Website and contact' },
     introduction: {
-      ru: 'Статус проекта, разделы сайта и профессиональная связь.',
-      en: 'Project status, website sections, and professional contact.',
+      ru: 'Доступные разделы сайта и профессиональная связь.',
+      en: 'Available website sections and professional contact.',
     },
     items: [
-      {
-        id: 'project-status',
-        question: { ru: 'Какой проект представлен на сайте и каков его статус?', en: 'What project is presented on the website, and what is its status?' },
-        answer: projectAnswer,
-        sources: ['projects:record'],
-        link: pageLink('projects', { ru: 'Открыть страницу проекта', en: 'Open the project page' }),
-      },
       {
         id: 'website-sections',
         question: { ru: 'Какие основные разделы уже доступны?', en: 'Which main sections are already available?' },
@@ -389,7 +370,7 @@ const pageCopy = {
   ru: {
     opening: {
       eyebrow: 'Справочная страница',
-      lead: 'Краткие ответы о профессиональном профиле, ветеринарной практике, визуальной диагностике, исследованиях, публикациях и проекте Артура Фаттахова.',
+      lead: 'Краткие ответы о профессиональном профиле, ветеринарной практике, визуальной диагностике, исследованиях и публикациях Артура Фаттахова.',
       context: 'Полные подтверждённые записи находятся в профильных разделах сайта. FAQ помогает быстро найти нужный контекст, не заменяя About, CV, Research или Publications.',
     },
     topicsLabel: 'Темы частых вопросов',
@@ -408,7 +389,7 @@ const pageCopy = {
   en: {
     opening: {
       eyebrow: 'Reference page',
-      lead: 'Concise answers about Artur Fattakhov’s professional profile, veterinary practice, diagnostic imaging, research, publications, and project.',
+      lead: 'Concise answers about Artur Fattakhov’s professional profile, veterinary practice, diagnostic imaging, research, and publications.',
       context: 'Complete verified records are kept on the relevant pages. The FAQ provides a quick route to context without replacing About, the CV, Research, or Publications.',
     },
     topicsLabel: 'Frequently asked question topics',

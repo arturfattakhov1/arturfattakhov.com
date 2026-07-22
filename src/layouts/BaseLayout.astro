@@ -14,6 +14,8 @@ interface Props {
   publishedTime?: Date;
   modifiedTime?: Date;
   showVerifiedProfiles?: boolean;
+  searchable?: boolean;
+  searchType?: string;
 }
 
 const {
@@ -25,6 +27,8 @@ const {
   publishedTime,
   modifiedTime,
   showVerifiedProfiles = true,
+  searchable = false,
+  searchType,
 } = Astro.props;
 ---
 
@@ -44,14 +48,18 @@ const {
       publishedTime={publishedTime}
       modifiedTime={modifiedTime}
     />
+    {searchable && searchType && (
+      <meta name="page-type" content={searchType} data-pagefind-meta="type[content]" />
+    )}
   </head>
   <body>
     <div class="site-shell">
       <Header lang={lang} currentPath={canonicalPath} />
-      <main id="main-content" tabindex="-1">
+      <main id="main-content" tabindex="-1" data-pagefind-body={searchable ? true : undefined}>
         <slot />
       </main>
       <Footer lang={lang} showVerifiedProfiles={showVerifiedProfiles} />
     </div>
+    <script is:inline src="/scripts/navigation.js" defer></script>
   </body>
 </html>

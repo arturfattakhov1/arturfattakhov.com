@@ -5,12 +5,11 @@ import { fileURLToPath } from 'node:url';
 const root = new URL('../', import.meta.url);
 const domain = 'https://arturfattakhov.com';
 const languages = ['ru', 'en'];
-const routes = ['', 'about', 'research', 'publications', 'projects', 'media', 'blog', 'contact', 'cv', 'profiles', 'uses', 'now', 'knowledge', 'timeline', 'faq', 'privacy', 'terms', 'disclaimer'];
+const routes = ['', 'about', 'research', 'publications', 'media', 'blog', 'contact', 'cv', 'profiles', 'uses', 'knowledge', 'timeline', 'faq', 'search', 'privacy', 'terms', 'disclaimer'];
 const legalRoutes = ['privacy', 'terms', 'disclaimer'];
 const pageSchemaTypes = {
   research: 'AboutPage',
   publications: 'CollectionPage',
-  projects: 'WebPage',
   contact: 'ContactPage',
   profiles: 'CollectionPage',
   knowledge: 'CollectionPage',
@@ -43,7 +42,7 @@ const faqQuestionIdsByLanguage = new Map();
 const expectedTimelineEventCount = 10;
 const expectedKnowledgeThemeCount = 4;
 const expectedFaqGroupCount = 4;
-const expectedFaqQuestionCount = 16;
+const expectedFaqQuestionCount = 15;
 const prohibitedNames = [
   ['Move', 'trus'].join(''),
   ['ВЕТ', ' УЗИ', ' 47'].join(''),
@@ -55,7 +54,7 @@ function assert(condition, message) {
 
 function assertAccessibility(html, relativePath) {
   assert(html.includes('<a class="skip-link" href="#main-content">'), `${relativePath}: skip link missing`);
-  assert(html.includes('<main id="main-content" tabindex="-1">'), `${relativePath}: main skip-link target is not focusable`);
+  assert(/<main id="main-content" tabindex="-1"(?:\s[^>]*)?>/.test(html), `${relativePath}: main skip-link target is not focusable`);
 
   const headingLevels = [...html.matchAll(/<h([1-6])(?:\s|>)/g)].map((match) => Number(match[1]));
   assert(headingLevels[0] === 1, `${relativePath}: heading sequence does not start with h1`);
@@ -230,7 +229,11 @@ for (const lang of languages) {
     assert(new Set(person?.sameAs).size === person?.sameAs?.length, `${relativePath}: Person sameAs contains duplicates`);
     assert(person?.sameAs?.every((url) => typeof url === 'string' && url.startsWith('https://')), `${relativePath}: Person sameAs contains an invalid URL`);
     assert(Array.isArray(person?.knowsAbout) && person.knowsAbout.length >= 8, `${relativePath}: Person knowsAbout is incomplete`);
-    assert(Array.isArray(person?.hasOccupation) && person.hasOccupation.length === 3, `${relativePath}: Person occupations are incomplete`);
+    const jobTitles = Array.isArray(person?.jobTitle) ? person.jobTitle.map((value) => value?.['@value']) : [];
+    const descriptions = Array.isArray(person?.description) ? person.description.map((value) => value?.['@value']) : [];
+    assert(jobTitles.includes('Ветеринарный врач') && jobTitles.includes('Veterinary Doctor'), `${relativePath}: neutral bilingual Person jobTitle is incomplete`);
+    assert(descriptions.includes('Ветеринарный врач и специалист визуальной диагностики.') && descriptions.includes('Veterinary Doctor and Diagnostic Imaging Specialist.'), `${relativePath}: neutral bilingual Person description is incomplete`);
+    assert(Array.isArray(person?.hasOccupation) && person.hasOccupation.length === 1, `${relativePath}: Person occupation must remain limited to veterinary medicine`);
     assert(website?.about?.['@id'] === `${domain}/#person`, `${relativePath}: WebSite about relationship missing`);
     assert(website?.creator?.['@id'] === `${domain}/#person`, `${relativePath}: WebSite creator relationship missing`);
     assert(website?.publisher?.['@id'] === `${domain}/#person`, `${relativePath}: WebSite publisher relationship missing`);
@@ -332,9 +335,9 @@ for (const lang of languages) {
         assert(new Set(questionIds).size === questionIds.length, `${relativePath}: duplicate FAQ question IDs`);
         assert(questionSources.length === questionIds.length && questionSources.every(Boolean), `${relativePath}: FAQ source mapping is incomplete`);
         assert(new Set(questionLinks).size === questionLinks.length, `${relativePath}: duplicate FAQ link IDs`);
-        assert((html.match(/<details\b/g) ?? []).length === questionIds.length, `${relativePath}: FAQ details count does not match questions`);
-        assert((html.match(/<summary>/g) ?? []).length === questionIds.length, `${relativePath}: FAQ summary count does not match questions`);
-        assert((html.match(/<details\b[^>]*\sopen(?:\s|>)/g) ?? []).length === 0, `${relativePath}: FAQ must be initially collapsed for scanning`);
+        assert((faqMain.match(/<details\b/g) ?? []).length === questionIds.length, `${relativePath}: FAQ details count does not match questions`);
+        assert((faqMain.match(/<summary>/g) ?? []).length === questionIds.length, `${relativePath}: FAQ summary count does not match questions`);
+        assert((faqMain.match(/<details\b[^>]*\sopen(?:\s|>)/g) ?? []).length === 0, `${relativePath}: FAQ must be initially collapsed for scanning`);
         assert((faqMain.match(/class="card(?:\s|\")/g) ?? []).length === 0, `${relativePath}: legacy FAQ card layout remains`);
         assert(uniqueGroupIds.every((id) => faqMain.includes(`href="#${id}"`) && faqMain.includes(`id="${id}"`)), `${relativePath}: FAQ topic navigation is incomplete`);
         assert(schemaQuestions.length === questionIds.length, `${relativePath}: FAQPage question count does not match rendered FAQ`);
@@ -436,7 +439,6 @@ assert(JSON.stringify(ruFaqQuestionIds) === JSON.stringify(enFaqQuestionIds), 'F
 const faqSource = await readFile(new URL('src/data/faq.ts', root), 'utf8');
 assert(faqSource.includes("from './cv'"), 'FAQ must reuse centralized CV records');
 assert(faqSource.includes("from './publication-records'"), 'FAQ must reuse centralized publication records');
-assert(faqSource.includes("from './remaining-pages'"), 'FAQ must reuse centralized project records');
 assert(faqSource.includes("from './about'"), 'FAQ must reuse approved About terminology');
 assert(faqSource.includes('publicationRecords.filter'), 'FAQ publication counts must be derived from centralized records');
 assert(faqSource.includes('publicationPath(lang, patentRecord.slug)'), 'FAQ patent URL must come from the centralized publication record');
@@ -464,6 +466,65 @@ assert(contactFormScript.includes("if (submitting) return"), 'contact form dupli
 assert(contactFormScript.includes("form.reset()"), 'contact form success reset missing');
 assert(contactFormScript.includes("field.value.trim() === ''"), 'contact form whitespace validation missing');
 assert(contactFormScript.includes("document.addEventListener('astro:page-load'"), 'contact form page-load initialization missing');
+
+const navigationScriptPath = '/scripts/navigation.js';
+const navigationScript = await readFile(new URL(`public${navigationScriptPath}`, root), 'utf8');
+assert(navigationScript.includes("event.key === 'Escape'"), 'navigation Escape handler missing');
+assert(navigationScript.includes("close({ restoreFocus: true })"), 'navigation focus restoration missing');
+assert(navigationScript.includes("element.setAttribute('aria-expanded', 'true')"), 'navigation expanded state missing');
+
+const searchScriptPath = '/scripts/search.js';
+const searchScript = await readFile(new URL(`public${searchScriptPath}`, root), 'utf8');
+assert(searchScript.includes("import('/pagefind/pagefind.js')"), 'Pagefind browser import missing');
+assert(searchScript.includes('query.length < 2'), 'search minimum query length missing');
+assert(searchScript.includes('noWorker: true'), 'Pagefind no-worker CSP strategy missing');
+assert(searchScript.includes("event.key === 'ArrowDown'"), 'search keyboard result navigation missing');
+assert(searchScript.includes('window.location.assign(firstResult.href)'), 'search Enter result activation missing');
+
+for (const lang of languages) {
+  const searchPath = `/${lang}/search/`;
+  const searchHtml = pages.get(searchPath) ?? '';
+  const homeHtml = pages.get(`/${lang}/`) ?? '';
+  const siteHeader = matchOne(homeHtml, /<header class="site-header">([\s\S]*?)<\/header>/) ?? '';
+  const siteFooter = matchOne(homeHtml, /<footer class="site-footer">([\s\S]*?)<\/footer>/) ?? '';
+
+  assert(siteHeader.includes(lang === 'ru' ? 'aria-label="Артур Фаттахов — главная"' : 'aria-label="Artur Fattakhov — home"'), `${lang}: AF home mark accessible name missing`);
+  assert(siteHeader.includes('>AF</a>'), `${lang}: AF home mark missing`);
+  assert(siteHeader.includes(`href="/${lang}/search/"`), `${lang}: header search trigger missing`);
+  assert(siteHeader.includes(`class="header-search" href="/${lang}/search/" aria-label="${lang === 'ru' ? 'Поиск' : 'Search'}"`), `${lang}: icon-only search accessible name missing`);
+  assert(siteHeader.includes('aria-expanded="false"'), `${lang}: menu initial expanded state missing`);
+  assert(siteHeader.includes(`aria-controls="site-menu-${lang}"`), `${lang}: menu control relationship missing`);
+  assert(!siteHeader.includes(`href="/${lang}/projects/"`), `${lang}: Projects remains in global header navigation`);
+  assert(!siteHeader.includes(`href="/${lang}/now/"`), `${lang}: Now remains in global header navigation`);
+  assert(!siteHeader.includes(`href="/${lang}/about/#professional-system"`), `${lang}: temporary Practice anchor remains in navigation`);
+  assert(!siteHeader.includes(lang === 'ru' ? '>Практика<' : '>Practice<'), `${lang}: temporary Practice label remains in navigation`);
+  assert(siteHeader.includes(lang === 'ru'
+    ? 'class="header-consultation" href="/ru/contact/">Связаться</a>'
+    : 'class="header-consultation" href="/en/contact/">Contact</a>'), `${lang}: honest Contact CTA missing`);
+  assert(!siteHeader.includes(`href="/${lang}/cv/"`), `${lang}: CV remains in global header navigation`);
+  assert(!siteFooter.includes(`href="/${lang}/projects/"`), `${lang}: Projects remains in footer navigation`);
+  assert(!siteFooter.includes(`href="/${lang}/now/"`), `${lang}: Now remains in footer navigation`);
+  assert(!siteFooter.includes(`href="/${lang}/cv/"`), `${lang}: CV remains in footer navigation`);
+  assert(siteFooter.includes(lang === 'ru'
+    ? 'Ветеринарный врач и специалист визуальной диагностики.'
+    : 'Veterinary Doctor and Diagnostic Imaging Specialist.'), `${lang}: neutral footer positioning missing`);
+
+  const menuContactIndex = siteHeader.indexOf('menu-panel__consultation');
+  const menuSearchIndex = siteHeader.indexOf('menu-panel__search');
+  assert(menuContactIndex >= 0 && menuSearchIndex > menuContactIndex, `${lang}: mobile menu Contact CTA must precede search`);
+
+  assert(searchHtml.includes('data-search-form'), `${searchPath}: search form missing`);
+  assert(searchHtml.includes('minlength="2"'), `${searchPath}: search input minimum length missing`);
+  assert(searchHtml.includes(`<script src="${searchScriptPath}" type="module"></script>`), `${searchPath}: local search script missing`);
+  assert(!searchHtml.includes('data-pagefind-body'), `${searchPath}: search results page must not index itself`);
+
+  for (const indexedRoute of ['about', 'research', 'media', 'profiles', 'knowledge', 'publications']) {
+    assert(pages.get(`/${lang}/${indexedRoute}/`)?.includes('data-pagefind-body'), `${lang}/${indexedRoute}/: Pagefind body marker missing`);
+  }
+  for (const excludedRoute of ['contact', 'cv', 'uses', 'timeline', 'faq', 'search', 'privacy', 'terms', 'disclaimer']) {
+    assert(!pages.get(`/${lang}/${excludedRoute}/`)?.includes('data-pagefind-body'), `${lang}/${excludedRoute}/: excluded route is indexed`);
+  }
+}
 
 const privateRecipient = ['arturfattakhov1', 'gmail.com'].join('@');
 for (const lang of languages) {
@@ -545,7 +606,7 @@ for (const lang of languages) {
   const sameAs = profileNodes.find((node) => node['@id'] === `${domain}/#person`)?.sameAs ?? [];
   assert(sameAs.every((url) => profilesHtml?.includes(`href="${url.replaceAll('&', '&amp;')}"`)), `${profilesPath}: verified profile link missing from page`);
 
-  for (const sourceRoute of ['', 'about', 'research', 'projects', 'profiles']) {
+  for (const sourceRoute of ['', 'about', 'research', 'profiles']) {
     const sourcePath = sourceRoute ? `/${lang}/${sourceRoute}/` : `/${lang}/`;
     const sourceHtml = pages.get(sourcePath);
     for (const hubRoute of ['knowledge', 'timeline', 'faq']) {
@@ -553,7 +614,7 @@ for (const lang of languages) {
     }
   }
 
-  for (const sourceRoute of ['about', 'research', 'projects', 'knowledge', 'timeline']) {
+  for (const sourceRoute of ['about', 'research', 'knowledge', 'timeline']) {
     const sourcePath = `/${lang}/${sourceRoute}/`;
     assert(pages.get(sourcePath)?.includes(`href="/${lang}/publications/"`), `${sourcePath}: contextual Publications link missing`);
   }
@@ -563,10 +624,9 @@ for (const lang of languages) {
   assert(pages.get(patentPath)?.includes(`href="/${lang}/research/"`), `${patentPath}: Research link missing`);
 
   const entityLinkExpectations = {
-    about: ['research', 'publications', 'projects', 'profiles', 'contact', 'knowledge', 'timeline'],
+    about: ['research', 'publications', 'profiles', 'contact', 'knowledge', 'timeline'],
     research: ['about', 'publications', 'profiles', 'knowledge', 'timeline'],
     publications: ['about', 'research', 'profiles'],
-    projects: ['research', 'publications', 'contact', 'knowledge', 'timeline'],
     timeline: ['cv', 'research', 'publications'],
     knowledge: ['research', 'publications', 'faq', 'disclaimer'],
     profiles: ['about', 'publications', 'contact', 'knowledge', 'timeline'],
@@ -597,6 +657,10 @@ assert(redirect.includes('url=/ru/'), 'root redirect does not target /ru/');
 const redirects = await readFile(new URL('dist/_redirects', root), 'utf8');
 assert(redirects.includes('/contact /ru/contact/ 301'), '/contact redirect missing');
 assert(redirects.includes('/contact/ /ru/contact/ 301'), '/contact/ redirect missing');
+assert(redirects.includes('/ru/projects/ /ru/about/ 301'), '/ru/projects/ permanent redirect missing');
+assert(redirects.includes('/en/projects/ /en/about/ 301'), '/en/projects/ permanent redirect missing');
+assert(redirects.includes('/ru/now/ /ru/about/ 301'), '/ru/now/ permanent redirect missing');
+assert(redirects.includes('/en/now/ /en/about/ 301'), '/en/now/ permanent redirect missing');
 
 const notFoundPath = '404.html';
 const notFoundScriptPath = '/scripts/not-found.js';
@@ -620,7 +684,8 @@ for (const lang of languages) {
 }
 assert(notFound.includes(`<script src="${notFoundScriptPath}" defer></script>`), '404.html: local language script missing');
 const notFoundScriptSources = [...notFound.matchAll(/<script\b[^>]*\ssrc="([^"]+)"[^>]*>/g)].map((match) => match[1]);
-assert(notFoundScriptSources.length === 1 && notFoundScriptSources.every((source) => source.startsWith('/')), '404.html: external script found');
+assert(notFoundScriptSources.includes(notFoundScriptPath), '404.html: local language script source missing');
+assert(notFoundScriptSources.every((source) => source.startsWith('/')), '404.html: external script found');
 assert(!/<meta\s+http-equiv="refresh"/i.test(notFound), '404.html: meta refresh must not be used');
 assert(!/(?:mailto:|tel:|\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b)/i.test(notFound), '404.html: contact details must not be exposed');
 assert(!/(?:\/ru|\/en)\/(?:blog|uses|now)\//.test(notFound), '404.html: out-of-scope secondary link found');
@@ -645,8 +710,24 @@ assert(headers.includes('X-Frame-Options: DENY'), 'legacy frame protection missi
 assert(headers.includes("Content-Security-Policy: default-src 'self';"), 'content security policy missing');
 assert(headers.includes("frame-ancestors 'none'"), 'CSP frame protection missing');
 assert(headers.includes("script-src 'self'"), 'CSP script restriction missing');
+assert(headers.includes("script-src 'self' 'wasm-unsafe-eval'"), 'CSP Pagefind WebAssembly permission missing');
+assert(!/(?:^|\s)'unsafe-eval'(?=\s|;|$)/m.test(headers), 'CSP must not allow ordinary unsafe-eval');
 assert(headers.includes("form-action 'self' https://formspree.io"), 'CSP Formspree form-action permission missing');
 assert(headers.includes("connect-src 'self' https://formspree.io"), 'CSP Formspree connect-src permission missing');
+
+const pagefindEntry = JSON.parse(await readFile(new URL('dist/pagefind/pagefind-entry.json', root), 'utf8'));
+assert(pagefindEntry.version === '1.5.2', 'Pagefind version is not pinned to 1.5.2');
+assert(pagefindEntry.languages?.ru?.page_count === 15, 'Pagefind Russian index count is incorrect');
+assert(pagefindEntry.languages?.en?.page_count === 15, 'Pagefind English index count is incorrect');
+await readFile(new URL('dist/pagefind/pagefind.js', root), 'utf8');
+await readFile(new URL('dist/pagefind/wasm.ru.pagefind', root));
+await readFile(new URL('dist/pagefind/wasm.en.pagefind', root));
+assert(searchScript.includes("import('/pagefind/pagefind.js')"), 'Pagefind assets must remain self-hosted');
+assert(!/import\(['"]https?:\/\//i.test(searchScript), 'external Pagefind script origin found');
+
+const pagefindCspAdr = await readFile(new URL('docs/adr/pagefind-csp.md', root), 'utf8');
+assert(pagefindCspAdr.includes("'wasm-unsafe-eval'"), 'Pagefind CSP ADR must document the WebAssembly permission');
+assert(pagefindCspAdr.includes("ordinary `'unsafe-eval'"), 'Pagefind CSP ADR must reject ordinary unsafe-eval');
 
 const wranglerConfig = await readFile(new URL('wrangler.jsonc', root), 'utf8');
 assert(wranglerConfig.includes('"directory": "./dist"'), 'Wrangler static assets directory is incorrect');
@@ -657,6 +738,8 @@ assert(sitemapIndex.includes(`<loc>${domain}/sitemap-0.xml</loc>`), 'sitemap ind
 
 const sitemap = await readFile(new URL('dist/sitemap-0.xml', root), 'utf8');
 assert(!sitemap.includes('/404'), '404 page must not appear in sitemap');
+assert(!sitemap.includes('/projects/'), 'removed Projects route remains in sitemap');
+assert(!sitemap.includes('/now/'), 'removed Now route remains in sitemap');
 for (const lang of languages) {
   for (const route of routes) {
     const relativePath = route ? `${lang}/${route}/` : `${lang}/`;
@@ -679,6 +762,38 @@ async function sourceFiles(directory) {
     else files.push(entryPath);
   }
   return files;
+}
+
+for (const lang of languages) {
+  for (const route of ['projects', 'now']) {
+    let generated = true;
+    try {
+      await readFile(new URL(`dist/${lang}/${route}/index.html`, root), 'utf8');
+    } catch (error) {
+      if (error?.code === 'ENOENT') generated = false;
+      else throw error;
+    }
+    assert(!generated, `${lang}/${route}/: removed route still generates public HTML`);
+  }
+}
+
+const confidentialPublicPatterns = [
+  new RegExp(['controlled', 'marketplace'].join('\\s+'), 'i'),
+  new RegExp(['AI', 'enabled', 'home', 'veterinary', 'care'].join('[-\\s]+'), 'i'),
+  new RegExp(['vet', 'uzi', '47'].join('[\\s_-]*'), 'i'),
+  new RegExp(['move', 'trus'].join(''), 'i'),
+  /(?:launched|live|operational)\s+(?:veterinary\s+)?(?:platform|marketplace)/i,
+  /(?:запущен(?:а|о)?|действующ(?:ая|ее|ий))\s+(?:ветеринарн\w*\s+)?(?:платформ\w*|маркетплейс\w*)/i,
+];
+for (const file of (await sourceFiles(new URL('dist/', root))).filter((entry) => entry.endsWith('.html'))) {
+  const html = await readFile(file, 'utf8');
+  const relativePath = path.relative(fileURLToPath(new URL('dist/', root)), file);
+  assert(confidentialPublicPatterns.every((pattern) => !pattern.test(html)), `${relativePath}: confidential public claim found`);
+  assert(!html.includes('data-faq-id="project-status"'), `${relativePath}: removed FAQ project-status question found`);
+  assert(!/(?:href|action)="\/(?:ru|en)\/(?:projects|now)\//.test(html), `${relativePath}: internal link to a removed route found`);
+  assert(!/(?:Newsletter|Subscribe|Подписаться на обновления)/i.test(html), `${relativePath}: unimplemented newsletter CTA found`);
+  const scriptSources = [...html.matchAll(/<script\b[^>]*\ssrc="([^"]+)"[^>]*>/g)].map((match) => match[1]);
+  assert(scriptSources.every((source) => source.startsWith('/')), `${relativePath}: external script origin found`);
 }
 
 const forbiddenPatterns = [
