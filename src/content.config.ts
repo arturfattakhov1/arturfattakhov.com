@@ -5,16 +5,28 @@ import { z } from 'astro/zod';
 // Collections are intentionally empty until verified content is added manually.
 const language = z.enum(['ru', 'en']);
 
-const blog = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
+const relatedResource = z.object({
+  title: z.string(),
+  url: z.url(),
+});
+
+const knowledge = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/knowledge' }),
   schema: z.object({
     routeSlug: z.string(),
     lang: language,
+    translationKey: z.string(),
     title: z.string(),
-    description: z.string(),
-    publishDate: z.coerce.date(),
-    updatedDate: z.coerce.date().optional(),
-    draft: z.boolean().default(false),
+    excerpt: z.string(),
+    category: z.string(),
+    date: z.coerce.date(),
+    seoTitle: z.string(),
+    metaDescription: z.string(),
+    status: z.enum(['draft', 'published']),
+    featured: z.boolean().default(false),
+    relatedMedia: z.array(relatedResource).default([]),
+    relatedVideo: z.array(relatedResource).default([]),
+    relatedPodcast: z.array(relatedResource).default([]),
   }),
 });
 
@@ -45,4 +57,4 @@ const projects = defineCollection({
   }),
 });
 
-export const collections = { blog, publications, projects };
+export const collections = { knowledge, publications, projects };

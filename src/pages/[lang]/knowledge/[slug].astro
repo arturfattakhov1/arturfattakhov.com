@@ -1,0 +1,37 @@
+---
+import { getCollection, render } from 'astro:content';
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import { identity, schemaIds } from '../../../data/identity';
+import { localizedPath, type Language } from '../../../i18n/config';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('knowledge', ({ data }) => data.status === 'published');
+  return entries.map((article) => ({ params: { lang: article.data.lang, slug: article.data.routeSlug }, props: { article, entries } }));
+}
+
+const { article, entries } = Astro.props;
+const lang = article.data.lang as Language;
+const { Content } = await render(article);
+const canonicalPath = localizedPath(lang, `knowledge/${article.data.routeSlug}`);
+const translations = entries.filter((entry) => entry.data.translationKey === article.data.translationKey);
+const alternatePaths = Object.fromEntries(translations.map((entry) => [entry.data.lang, localizedPath(entry.data.lang, `knowledge/${entry.data.routeSlug}`)])) as Partial<Record<Language, string>>;
+const completeAlternates: Record<Language, string> = {
+  ru: alternatePaths.ru ?? localizedPath('ru', 'knowledge'),
+  en: alternatePaths.en ?? localizedPath('en', 'knowledge'),
+};
+const url = new URL(canonicalPath, identity.url).href;
+const articleSchema = {
+  '@context': 'https://schema.org', '@type': 'Article', '@id': `${url}#article`, url,
+  headline: article.data.title, description: article.data.metaDescription,
+  datePublished: article.data.date.toISOString(), inLanguage: lang,
+  author: { '@id': schemaIds.person }, publisher: { '@id': schemaIds.person },
+  isPartOf: { '@id': `${identity.url}/${lang}/knowledge/#webpage` },
+};
+---
+
+<BaseLayout title={article.data.seoTitle} description={article.data.metaDescription} lang={lang} canonicalPath={canonicalPath} alternatePaths={completeAlternates} type="article" publishedTime={article.data.date} searchable searchType={lang === 'ru' ? 'База знаний' : 'Knowledge'}>
+  <Breadcrumbs lang={lang} items={[{ label: lang === 'ru' ? 'База знаний' : 'Knowledge', href: localizedPath(lang, 'knowledge') }, { label: article.data.title }]} />
+  <article class="article knowledge-article"><header class="article-header"><p class="eyebrow">{article.data.category}</p><h1 data-pagefind-meta="title">{article.data.title}</h1><p class="lead">{article.data.excerpt}</p><time datetime={article.data.date.toISOString()}>{article.data.date.toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-GB')}</time></header><div class="prose"><Content /></div></article>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+</BaseLayout>
