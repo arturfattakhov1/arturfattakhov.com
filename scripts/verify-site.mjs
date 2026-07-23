@@ -44,6 +44,36 @@ function walk(directory) {
 
 assert(existsSync(dist), 'dist is missing; run npm run build first');
 
+const cmsConfig = read('.pages.yml');
+const cmsPaths = [...cmsConfig.matchAll(/^\s+path:\s+([^\n]+)$/gm)].map((match) => match[1].trim());
+assert(
+  JSON.stringify(cmsPaths) === JSON.stringify(['src/content/knowledge', 'src/data/cms/home-help.json']),
+  `CMS editable paths changed: ${cmsPaths.join(', ')}`,
+);
+assert(/^settings:\n\s+hide: true\n\s+content:\n\s+merge: true/m.test(cmsConfig), 'CMS must hide settings and preserve unmanaged content keys');
+assert(!/^media:/m.test(cmsConfig) && !/^actions:/m.test(cmsConfig), 'CMS media and action surfaces must remain disabled');
+assert(!/format:\s+(?:code|raw)\b/.test(cmsConfig), 'CMS must not expose a raw or code editor');
+assert(count(cmsConfig, /^\s+rename: false$/gm) === 2, 'CMS rename must be disabled for both editable surfaces');
+assert(count(cmsConfig, /^\s+delete: false$/gm) === 2, 'CMS delete must be disabled for both editable surfaces');
+assert(cmsConfig.includes('media: false'), 'Knowledge rich-text media uploads must remain disabled');
+
+const cmsHomeHelp = JSON.parse(read('src/data/cms/home-help.json'));
+assert(
+  JSON.stringify(Object.keys(cmsHomeHelp).sort()) === JSON.stringify(languages.toSorted()),
+  'CMS homepage section must contain only ru and en content',
+);
+for (const lang of languages) {
+  const section = cmsHomeHelp[lang];
+  assert(typeof section?.title === 'string' && section.title.length >= 5, `${lang}: CMS homepage section title is invalid`);
+  assert(typeof section?.introduction === 'string' && section.introduction.length >= 20, `${lang}: CMS homepage section introduction is invalid`);
+  assert(Array.isArray(section?.items) && section.items.length === 3, `${lang}: CMS homepage section must contain exactly three service summaries`);
+  for (const item of section.items) {
+    assert(typeof item.title === 'string' && item.title.length >= 3, `${lang}: CMS service title is invalid`);
+    assert(typeof item.description === 'string' && item.description.length >= 20, `${lang}: CMS service description is invalid`);
+  }
+  assert(typeof section.practiceCta === 'string' && typeof section.contactCta === 'string', `${lang}: CMS homepage link labels are invalid`);
+}
+
 const expectedPages = [];
 for (const lang of languages) {
   for (const route of standardRoutes) expectedPages.push({ lang, route, path: htmlPath(lang, route) });

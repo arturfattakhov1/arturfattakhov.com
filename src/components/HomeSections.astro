@@ -4,18 +4,17 @@ import PageSection from './PageSection.astro';
 
 interface Props {
   lang: Language;
+  helpTitle: string;
 }
 
-const { lang } = Astro.props;
+const { lang, helpTitle } = Astro.props;
 
 const headings = {
   ru: {
-    help: 'Как я могу помочь',
     profile: 'Профессиональный профиль',
     materials: 'Новые материалы',
   },
   en: {
-    help: 'How I can help',
     profile: 'Professional profile',
     materials: 'New material',
   },
@@ -28,7 +27,7 @@ const copy = headings[lang];
   <section class="home-opening" aria-labelledby="page-title">
     <slot name="hero" />
   </section>
-  <PageSection id="help" title={copy.help} class="home-help" density="editorial">
+  <PageSection id="help" title={helpTitle} class="home-help" density="editorial">
     <slot name="help" />
   </PageSection>
   <PageSection id="professional-profile" title={copy.profile} class="home-profile" density="editorial">

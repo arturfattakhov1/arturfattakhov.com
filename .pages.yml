@@ -1,0 +1,249 @@
+settings:
+  hide: true
+  content:
+    merge: true
+  commit:
+    identity: user
+    templates:
+      create: "content(cms): create {path}"
+      update: "content(cms): update {path}"
+      delete: "content(cms): delete {path}"
+      rename: "content(cms): rename {oldPath} to {newPath}"
+
+content:
+  - name: knowledge
+    label: Knowledge Base
+    type: collection
+    path: src/content/knowledge
+    format: yaml-frontmatter
+    subfolders: false
+    filename:
+      template: "{translationKey}-{lang}.md"
+      field: false
+    operations:
+      create: true
+      rename: false
+      delete: false
+    view:
+      fields: [title, lang, status, date]
+      primary: title
+      sort: [date, title]
+      search: [title, excerpt, translationKey]
+      default:
+        sort: date
+        order: desc
+    fields:
+      - name: translationKey
+        label: Translation key
+        type: string
+        required: true
+        pattern:
+          regex: "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          message: "Use lowercase Latin letters, digits, and hyphens."
+        description: "Use the same key for the Russian and English versions."
+      - name: lang
+        label: Language
+        type: select
+        required: true
+        options:
+          values:
+            - name: ru
+              label: Russian
+            - name: en
+              label: English
+      - name: routeSlug
+        label: URL slug
+        type: string
+        required: true
+        pattern:
+          regex: "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          message: "Use lowercase Latin letters, digits, and hyphens."
+        description: "Changing this value changes the article URL."
+      - name: title
+        label: Title
+        type: string
+        required: true
+        options:
+          minlength: 5
+          maxlength: 120
+      - name: excerpt
+        label: Excerpt
+        type: text
+        required: true
+        options:
+          minlength: 20
+          maxlength: 320
+      - name: category
+        label: Category
+        type: string
+        required: true
+        options:
+          minlength: 3
+          maxlength: 80
+      - name: date
+        label: Publication date
+        type: date
+        required: true
+        options:
+          format: "yyyy-MM-dd"
+      - name: seoTitle
+        label: SEO title
+        type: string
+        required: true
+        options:
+          minlength: 5
+          maxlength: 70
+      - name: metaDescription
+        label: Meta description
+        type: text
+        required: true
+        options:
+          minlength: 40
+          maxlength: 160
+      - name: status
+        label: Publication status
+        type: select
+        required: true
+        default: draft
+        options:
+          values:
+            - name: draft
+              label: Draft
+            - name: published
+              label: Published
+        description: "Keep Draft until editorial and medical review is complete."
+      - name: body
+        label: Article body
+        type: rich-text
+        required: true
+        options:
+          format: markdown
+          media: false
+          switcher: true
+
+  - name: homepage-help
+    label: "Homepage: How I can help"
+    type: file
+    path: src/data/cms/home-help.json
+    format: json
+    operations:
+      create: false
+      rename: false
+      delete: false
+    fields:
+      - name: ru
+        label: Russian
+        type: object
+        required: true
+        fields:
+          - name: title
+            label: Section title
+            type: string
+            required: true
+            options:
+              minlength: 5
+              maxlength: 80
+          - name: introduction
+            label: Introduction
+            type: text
+            required: true
+            options:
+              minlength: 20
+              maxlength: 320
+          - name: items
+            label: Service summaries
+            type: object
+            required: true
+            list:
+              min: 3
+              max: 3
+              collapsible:
+                collapsed: false
+                summary: "{title}"
+            fields:
+              - name: title
+                label: Title
+                type: string
+                required: true
+                options:
+                  minlength: 3
+                  maxlength: 80
+              - name: description
+                label: Description
+                type: text
+                required: true
+                options:
+                  minlength: 20
+                  maxlength: 240
+          - name: practiceCta
+            label: Practice link label
+            type: string
+            required: true
+            options:
+              minlength: 3
+              maxlength: 60
+          - name: contactCta
+            label: Contact link label
+            type: string
+            required: true
+            options:
+              minlength: 3
+              maxlength: 60
+      - name: en
+        label: English
+        type: object
+        required: true
+        fields:
+          - name: title
+            label: Section title
+            type: string
+            required: true
+            options:
+              minlength: 5
+              maxlength: 80
+          - name: introduction
+            label: Introduction
+            type: text
+            required: true
+            options:
+              minlength: 20
+              maxlength: 320
+          - name: items
+            label: Service summaries
+            type: object
+            required: true
+            list:
+              min: 3
+              max: 3
+              collapsible:
+                collapsed: false
+                summary: "{title}"
+            fields:
+              - name: title
+                label: Title
+                type: string
+                required: true
+                options:
+                  minlength: 3
+                  maxlength: 80
+              - name: description
+                label: Description
+                type: text
+                required: true
+                options:
+                  minlength: 20
+                  maxlength: 240
+          - name: practiceCta
+            label: Practice link label
+            type: string
+            required: true
+            options:
+              minlength: 3
+              maxlength: 60
+          - name: contactCta
+            label: Contact link label
+            type: string
+            required: true
+            options:
+              minlength: 3
+              maxlength: 60

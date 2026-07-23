@@ -42,7 +42,7 @@ const featuredRecords = featuredSlugs.map((slug) => {
   canonicalPath={localizedPath(lang)}
 >
   <article class="page page--home home-page">
-    <HomeSections lang={lang}>
+    <HomeSections lang={lang} helpTitle={copy.help.title}>
       <Fragment slot="hero">
         <Container class="home-hero">
           <div class="home-hero__copy">
