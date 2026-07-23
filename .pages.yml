@@ -112,6 +112,50 @@ content:
             - name: published
               label: Published
         description: "Keep Draft until editorial and medical review is complete."
+      - name: featured
+        label: false
+        type: boolean
+        hidden: true
+        default: false
+      - name: relatedMedia
+        label: false
+        type: object
+        hidden: true
+        default: []
+        list: true
+        fields:
+          - name: title
+            type: string
+            required: true
+          - name: url
+            type: string
+            required: true
+      - name: relatedVideo
+        label: false
+        type: object
+        hidden: true
+        default: []
+        list: true
+        fields:
+          - name: title
+            type: string
+            required: true
+          - name: url
+            type: string
+            required: true
+      - name: relatedPodcast
+        label: false
+        type: object
+        hidden: true
+        default: []
+        list: true
+        fields:
+          - name: title
+            type: string
+            required: true
+          - name: url
+            type: string
+            required: true
       - name: body
         label: Article body
         type: rich-text
