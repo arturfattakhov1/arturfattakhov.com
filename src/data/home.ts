@@ -1,4 +1,13 @@
 import type { Language } from '../i18n/config';
+import homeHelpContent from './cms/home-help.json';
+
+interface HomeHelpCopy {
+  title: string;
+  introduction: string;
+  items: Array<{ title: string; description: string }>;
+  practiceCta: string;
+  contactCta: string;
+}
 
 interface HomePageCopy {
   hero: {
@@ -9,13 +18,7 @@ interface HomePageCopy {
     primaryCta: string;
     secondaryCta: string;
   };
-  help: {
-    title: string;
-    introduction: string;
-    items: Array<{ title: string; description: string }>;
-    practiceCta: string;
-    contactCta: string;
-  };
+  help: HomeHelpCopy;
   profile: {
     title: string;
     introduction: string;
@@ -31,6 +34,8 @@ interface HomePageCopy {
   };
 }
 
+const cmsHomeHelp = homeHelpContent satisfies Record<Language, HomeHelpCopy>;
+
 export const homePageCopy: Record<Language, HomePageCopy> = {
   ru: {
     hero: {
@@ -41,26 +46,7 @@ export const homePageCopy: Record<Language, HomePageCopy> = {
       primaryCta: 'Онлайн-консультация',
       secondaryCta: 'Обо мне и опыт',
     },
-    help: {
-      title: 'Как я могу помочь',
-      introduction: 'Работаю с владельцами собак и кошек в частной ветеринарной практике — очно и дистанционно в пределах задач, которые безопасно решать без осмотра.',
-      items: [
-        {
-          title: 'Выездная и очная помощь',
-          description: 'Выездная ветеринарная помощь и очное взаимодействие по предварительному согласованию.',
-        },
-        {
-          title: 'Обсуждение имеющихся данных',
-          description: 'Дистанционно можно обсудить медицинскую информацию о животном и определить обоснованный следующий шаг.',
-        },
-        {
-          title: 'Визуальная диагностика',
-          description: 'Использую визуальную диагностику как часть клинической оценки, а не отдельно от анамнеза и осмотра.',
-        },
-      ],
-      practiceCta: 'Подробнее о практике',
-      contactCta: 'Связаться',
-    },
+    help: cmsHomeHelp.ru,
     profile: {
       title: 'Профессиональный профиль',
       introduction: 'Мой профессиональный путь объединяет ветеринарное образование, практическую работу, визуальную диагностику, исследования и предпринимательский опыт.',
@@ -105,26 +91,7 @@ export const homePageCopy: Record<Language, HomePageCopy> = {
       primaryCta: 'Online consultation',
       secondaryCta: 'About and experience',
     },
-    help: {
-      title: 'How I can help',
-      introduction: 'I work with dog and cat owners through private veterinary practice, both in person and remotely where the question can be handled safely without an examination.',
-      items: [
-        {
-          title: 'Mobile and in-person care',
-          description: 'Mobile veterinary care and in-person appointments by prior arrangement.',
-        },
-        {
-          title: 'Reviewing available information',
-          description: 'A remote discussion can help make sense of existing medical information and define a well-founded next step.',
-        },
-        {
-          title: 'Diagnostic imaging',
-          description: 'I use diagnostic imaging as part of a clinical assessment, not in isolation from history and examination.',
-        },
-      ],
-      practiceCta: 'Explore the practice',
-      contactCta: 'Contact',
-    },
+    help: cmsHomeHelp.en,
     profile: {
       title: 'Professional profile',
       introduction: 'My professional path combines veterinary education, clinical work, diagnostic imaging, research, and entrepreneurial experience.',

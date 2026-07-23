@@ -42,7 +42,84 @@ function walk(directory) {
   });
 }
 
+function frontmatterKeys(source, path) {
+  const frontmatter = source.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/)?.[1];
+  assert(frontmatter, `${path}: YAML frontmatter is missing or malformed`);
+  return [...frontmatter.matchAll(/^([A-Za-z][A-Za-z0-9]*):/gm)].map((match) => match[1]);
+}
+
 assert(existsSync(dist), 'dist is missing; run npm run build first');
+
+const cmsConfig = read('.pages.yml');
+const cmsPaths = [...cmsConfig.matchAll(/^\s+path:\s+([^\n]+)$/gm)].map((match) => match[1].trim());
+assert(
+  JSON.stringify(cmsPaths) === JSON.stringify(['src/content/knowledge', 'src/data/cms/home-help.json']),
+  `CMS editable paths changed: ${cmsPaths.join(', ')}`,
+);
+assert(/^settings:\n\s+hide: true\n\s+content:\n\s+merge: true/m.test(cmsConfig), 'CMS must hide settings and preserve unmanaged content keys');
+assert(!/^media:/m.test(cmsConfig) && !/^actions:/m.test(cmsConfig), 'CMS media and action surfaces must remain disabled');
+assert(!/format:\s+(?:code|raw)\b/.test(cmsConfig), 'CMS must not expose a raw or code editor');
+assert(count(cmsConfig, /^\s+rename: false$/gm) === 2, 'CMS rename must be disabled for both editable surfaces');
+assert(count(cmsConfig, /^\s+delete: false$/gm) === 2, 'CMS delete must be disabled for both editable surfaces');
+assert(cmsConfig.includes('media: false'), 'Knowledge rich-text media uploads must remain disabled');
+
+const cmsKnowledgeBlock = cmsConfig.match(/^  - name: knowledge\n[\s\S]*?(?=^  - name: homepage-help$)/m)?.[0];
+assert(cmsKnowledgeBlock, 'CMS Knowledge Base schema is missing');
+const cmsKnowledgeFields = [...cmsKnowledgeBlock.matchAll(/^      - name: ([A-Za-z][A-Za-z0-9]*)$/gm)].map((match) => match[1]);
+const expectedKnowledgeFrontmatterFields = [
+  'routeSlug', 'lang', 'translationKey', 'title', 'excerpt', 'category', 'date',
+  'seoTitle', 'metaDescription', 'status', 'featured', 'relatedMedia', 'relatedVideo', 'relatedPodcast',
+];
+assert(
+  JSON.stringify(cmsKnowledgeFields.toSorted()) === JSON.stringify([...expectedKnowledgeFrontmatterFields, 'body'].toSorted()),
+  `CMS Knowledge fields do not match the content contract: ${cmsKnowledgeFields.join(', ')}`,
+);
+const hiddenKnowledgeFields = ['featured', 'relatedMedia', 'relatedVideo', 'relatedPodcast'];
+function cmsKnowledgeFieldBlock(field) {
+  const marker = `      - name: ${field}\n`;
+  const start = cmsKnowledgeBlock.indexOf(marker);
+  if (start === -1) return '';
+  const next = cmsKnowledgeBlock.indexOf('\n      - name: ', start + marker.length);
+  return cmsKnowledgeBlock.slice(start, next === -1 ? undefined : next);
+}
+for (const field of hiddenKnowledgeFields) {
+  const fieldBlock = cmsKnowledgeFieldBlock(field);
+  assert(fieldBlock?.includes('\n        hidden: true'), `CMS technical field must remain hidden: ${field}`);
+  assert(fieldBlock?.includes('\n        label: false'), `CMS technical field label must remain hidden: ${field}`);
+}
+for (const field of ['relatedMedia', 'relatedVideo', 'relatedPodcast']) {
+  const fieldBlock = cmsKnowledgeFieldBlock(field);
+  assert(fieldBlock?.includes('\n        type: object'), `CMS related field must remain structured: ${field}`);
+  assert(fieldBlock?.includes('\n        default: []') && fieldBlock?.includes('\n        list: true'), `CMS related field must preserve an array: ${field}`);
+}
+
+const knowledgeSources = walk(join(root, 'src/content/knowledge')).filter((path) => path.endsWith('.md'));
+for (const path of knowledgeSources) {
+  const relativePath = relative(root, path);
+  const keys = frontmatterKeys(readFileSync(path, 'utf8'), relativePath);
+  assert(keys.length === new Set(keys).size, `${relativePath}: duplicate frontmatter key`);
+  assert(
+    JSON.stringify(keys.toSorted()) === JSON.stringify(expectedKnowledgeFrontmatterFields.toSorted()),
+    `${relativePath}: frontmatter keys do not match the CMS schema: ${keys.join(', ')}`,
+  );
+}
+
+const cmsHomeHelp = JSON.parse(read('src/data/cms/home-help.json'));
+assert(
+  JSON.stringify(Object.keys(cmsHomeHelp).sort()) === JSON.stringify(languages.toSorted()),
+  'CMS homepage section must contain only ru and en content',
+);
+for (const lang of languages) {
+  const section = cmsHomeHelp[lang];
+  assert(typeof section?.title === 'string' && section.title.length >= 5, `${lang}: CMS homepage section title is invalid`);
+  assert(typeof section?.introduction === 'string' && section.introduction.length >= 20, `${lang}: CMS homepage section introduction is invalid`);
+  assert(Array.isArray(section?.items) && section.items.length === 3, `${lang}: CMS homepage section must contain exactly three service summaries`);
+  for (const item of section.items) {
+    assert(typeof item.title === 'string' && item.title.length >= 3, `${lang}: CMS service title is invalid`);
+    assert(typeof item.description === 'string' && item.description.length >= 20, `${lang}: CMS service description is invalid`);
+  }
+  assert(typeof section.practiceCta === 'string' && typeof section.contactCta === 'string', `${lang}: CMS homepage link labels are invalid`);
+}
 
 const expectedPages = [];
 for (const lang of languages) {
@@ -170,7 +247,7 @@ const requiredRedirects = [
 for (const rule of requiredRedirects) assert(redirects.includes(rule), `redirect missing: ${rule}`);
 for (const lang of languages) for (const route of legacyRoutes) assert(!existsSync(htmlPath(lang, route)), `legacy route still generated: /${lang}/${route}/`);
 
-const draftSources = walk(join(root, 'src/content/knowledge')).filter((path) => path.endsWith('.md'));
+const draftSources = knowledgeSources;
 assert(draftSources.length === 6, 'expected six bilingual draft Knowledge records');
 for (const path of draftSources) assert(readFileSync(path, 'utf8').includes('status: draft'), `${relative(root, path)} must remain draft-only`);
 

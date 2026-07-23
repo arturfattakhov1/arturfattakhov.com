@@ -1,0 +1,42 @@
+{
+  "ru": {
+    "title": "Как я могу помочь",
+    "introduction": "Работаю с владельцами собак и кошек в частной ветеринарной практике — очно и дистанционно в пределах задач, которые безопасно решать без осмотра.",
+    "items": [
+      {
+        "title": "Выездная и очная помощь",
+        "description": "Выездная ветеринарная помощь и очное взаимодействие по предварительному согласованию."
+      },
+      {
+        "title": "Обсуждение имеющихся данных",
+        "description": "Дистанционно можно обсудить медицинскую информацию о животном и определить обоснованный следующий шаг."
+      },
+      {
+        "title": "Визуальная диагностика",
+        "description": "Использую визуальную диагностику как часть клинической оценки, а не отдельно от анамнеза и осмотра."
+      }
+    ],
+    "practiceCta": "Подробнее о практике",
+    "contactCta": "Связаться"
+  },
+  "en": {
+    "title": "How I can help",
+    "introduction": "I work with dog and cat owners through private veterinary practice, both in person and remotely where the question can be handled safely without an examination.",
+    "items": [
+      {
+        "title": "Mobile and in-person care",
+        "description": "Mobile veterinary care and in-person appointments by prior arrangement."
+      },
+      {
+        "title": "Reviewing available information",
+        "description": "A remote discussion can help make sense of existing medical information and define a well-founded next step."
+      },
+      {
+        "title": "Diagnostic imaging",
+        "description": "I use diagnostic imaging as part of a clinical assessment, not in isolation from history and examination."
+      }
+    ],
+    "practiceCta": "Explore the practice",
+    "contactCta": "Contact"
+  }
+}
