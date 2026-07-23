@@ -99,7 +99,7 @@ Merge is never automated. Direct writes to `main`, force pushes, rebase and prod
 
 Do not perform this test on behalf of the owner.
 
-1. Create a dedicated content branch from current `main` and select it in Pages CMS.
+1. Before this Slice is merged, select `v2/cms-owner-operations` in Pages CMS, or use a temporary test branch created from its current head. After an approved merge, use a dedicated content branch from current `main`.
 2. Open “Media records”, choose an existing published record and make one harmless RU/EN summary change without changing its URLs, type or status.
 3. Save, wait for CI and Cloudflare Preview, and verify the change on `/ru/media/` and `/en/media/`.
 4. Revert the Media text in Pages CMS, save and confirm Preview is restored.
