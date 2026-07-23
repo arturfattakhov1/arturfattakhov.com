@@ -2,7 +2,7 @@
 routeSlug: chtenie-analizov-bez-samodiagnostiki
 lang: ru
 translationKey: lab-results-without-self-diagnosis
-title: Чтение анализов без самодиагностики [OAT]
+title: Чтение анализов без самодиагностики
 excerpt: Будущий материал о роли лабораторных результатов в общем клиническом контексте.
 category: Владельцам животных
 date: 2026-07-22
