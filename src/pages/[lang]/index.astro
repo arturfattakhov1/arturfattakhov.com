@@ -4,6 +4,7 @@ import portrait from '../../assets/images/artur-fattakhov-homepage.jpg';
 import Button from '../../components/Button.astro';
 import Container from '../../components/Container.astro';
 import HomeSections from '../../components/HomeSections.astro';
+import homeMaterials from '../../data/cms/home-materials.json';
 import { homePageCopy } from '../../data/home';
 import { homeContent } from '../../data/pages';
 import { publicationPath, publicationRecords } from '../../data/publication-records';
@@ -23,12 +24,7 @@ interface Props {
 const { lang } = Astro.props as Props;
 const content = homeContent[lang];
 const copy = homePageCopy[lang];
-const featuredSlugs = [
-  'hoof-capsule-cattle-moose',
-  'comparative-xray-morphometry-moose-cattle',
-  'xray-morphometric-laminitis-cattle-patent',
-] as const;
-const featuredRecords = featuredSlugs.map((slug) => {
+const featuredRecords = homeMaterials.featuredPublicationSlugs.map((slug) => {
   const record = publicationRecords.find((item) => item.slug === slug);
   if (!record) throw new Error(`Missing verified homepage publication record: ${slug}`);
   return record;

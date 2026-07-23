@@ -1,0 +1,137 @@
+{
+  "records": [
+    {
+      "id": "c1fed632-6f64-43e6-96c2-c3fca2a07734",
+      "type": "interview",
+      "status": "published",
+      "order": 10,
+      "title": {
+        "ru": "Последний жест любви",
+        "en": "Последний жест любви"
+      },
+      "summary": {
+        "ru": "Интервью о теме эвтаназии животных и сложном решении, с которым может столкнуться владелец.",
+        "en": "An interview about animal euthanasia and the difficult decision an animal owner may face."
+      },
+      "externalLinks": [
+        {
+          "source": {
+            "ru": "VK",
+            "en": "VK"
+          },
+          "url": "https://vk.ru/@875007413-poslednii-zhest-lubvi"
+        }
+      ]
+    },
+    {
+      "id": "d62b47a4-652d-4351-8d5e-9f3359770dd6",
+      "type": "project",
+      "status": "published",
+      "order": 20,
+      "title": {
+        "ru": "Биоэквивалент мочеточника: экспериментальная имплантация",
+        "en": "Ureter bioequivalent: experimental implantation"
+      },
+      "summary": {
+        "ru": "Три внешних материала освещают один проект и поэтому объединены в одну запись.",
+        "en": "Three external reports cover the same project and are therefore grouped into one record."
+      },
+      "role": {
+        "ru": "В проекте я отвечал за анестезиологическое сопровождение и совместно с командой формировал план предоперационного и послеоперационного ведения животного.",
+        "en": "In the project, I was responsible for anaesthetic support and worked with the team to develop the animal’s preoperative and postoperative management plan."
+      },
+      "externalLinks": [
+        {
+          "source": {
+            "ru": "Основной материал «Известий»",
+            "en": "Primary Izvestia article"
+          },
+          "url": "https://iz.ru/1823909/maria-neduk/vyiti-v-drenaz-ucenye-vpervye-peresadili-iskusstvennyi-mocetocnik-svine"
+        },
+        {
+          "source": {
+            "ru": "Короткая новость «Известий»",
+            "en": "Short Izvestia news item"
+          },
+          "url": "https://iz.ru/1824936/2025-01-20/v-rossii-vpervye-peresadili-bioinzenernyi-mocetocnik-svine"
+        },
+        {
+          "source": {
+            "ru": "Материал Naked Science",
+            "en": "Naked Science article"
+          },
+          "url": "https://naked-science.ru/article/column/svine-bioekvivalent-moche"
+        }
+      ]
+    },
+    {
+      "id": "871bafda-d391-420d-b9fd-e3112d22a5c7",
+      "type": "video",
+      "status": "published",
+      "order": 30,
+      "title": {
+        "ru": "Авторские видео",
+        "en": "Authored videos"
+      },
+      "summary": {
+        "ru": "Профессиональные и образовательные видеоматериалы о ветеринарной медицине без неподтверждённых показателей аудитории.",
+        "en": "Professional and educational video material on veterinary medicine, without unverified audience figures."
+      },
+      "externalLinks": [
+        {
+          "source": {
+            "ru": "YouTube",
+            "en": "YouTube"
+          },
+          "url": "https://www.youtube.com/@dr.arturfattakhov"
+        }
+      ]
+    },
+    {
+      "id": "a2b55ca1-5c22-4e2a-9298-e4bd248832d5",
+      "type": "article",
+      "status": "published",
+      "order": 40,
+      "title": {
+        "ru": "Авторские материалы",
+        "en": "Authored material"
+      },
+      "summary": {
+        "ru": "Профессиональные объяснения тем, связанных со здоровьем животных и ветеринарной практикой.",
+        "en": "Professional explanations of topics related to animal health and veterinary practice."
+      },
+      "externalLinks": [
+        {
+          "source": {
+            "ru": "Яндекс Дзен",
+            "en": "Yandex Zen"
+          },
+          "url": "https://dzen.ru/arturfattakhov"
+        }
+      ]
+    },
+    {
+      "id": "d722d60c-f0aa-483d-bc0b-297fe312b023",
+      "type": "podcast",
+      "status": "published",
+      "order": 50,
+      "title": {
+        "ru": "Подкаст",
+        "en": "Podcast"
+      },
+      "summary": {
+        "ru": "Страница подкаста в Spotify. Отдельные эпизоды будут показаны только после их подтверждённой публикации.",
+        "en": "The podcast page in Spotify. Individual episodes will only appear after verified publication."
+      },
+      "externalLinks": [
+        {
+          "source": {
+            "ru": "Spotify podcast",
+            "en": "Spotify podcast"
+          },
+          "url": "https://open.spotify.com/show/033OTXXuHSVlHqyxOQTUdm"
+        }
+      ]
+    }
+  ]
+}

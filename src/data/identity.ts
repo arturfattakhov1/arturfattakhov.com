@@ -1,4 +1,33 @@
 import type { Language } from '../i18n/config';
+import profileContent from './cms/profiles.json';
+
+export const profileKeys = [
+  'orcid',
+  'googleScholar',
+  'researchGate',
+  'webOfScience',
+  'github',
+  'instagram',
+  'threads',
+  'youtube',
+  'dzen',
+  'spotify',
+  'facebook',
+] as const;
+
+export type ProfileKey = (typeof profileKeys)[number];
+
+export interface IdentityProfile {
+  key: ProfileKey;
+  name: string;
+  url: string;
+  order: number;
+  active: boolean;
+}
+
+const activeProfiles = (profileContent.profiles as IdentityProfile[])
+  .filter((profile) => profile.active)
+  .toSorted((a, b) => a.order - b.order);
 
 export const identity = {
   name: {
@@ -39,19 +68,7 @@ export const identity = {
     city: 'Saint Petersburg',
     country: 'Russia',
   },
-  profiles: [
-    { key: 'orcid', name: 'ORCID', url: 'https://orcid.org/0000-0003-4142-0469' },
-    { key: 'googleScholar', name: 'Google Scholar', url: 'https://scholar.google.com/citations?user=eAu1IAsAAAAJ&hl=ru' },
-    { key: 'researchGate', name: 'ResearchGate', url: 'https://www.researchgate.net/profile/Artur-Fattakhov-2' },
-    { key: 'webOfScience', name: 'Web of Science', url: 'https://www.webofscience.com/wos/author/record/QOA-6820-2026' },
-    { key: 'github', name: 'GitHub', url: 'https://github.com/arturfattakhov1' },
-    { key: 'instagram', name: 'Instagram', url: 'https://www.instagram.com/dr.arturfattakhov/' },
-    { key: 'threads', name: 'Threads', url: 'https://www.threads.com/@dr.arturfattakhov' },
-    { key: 'youtube', name: 'YouTube', url: 'https://www.youtube.com/@dr.arturfattakhov' },
-    { key: 'dzen', name: 'Yandex Zen', url: 'https://dzen.ru/arturfattakhov' },
-    { key: 'spotify', name: 'Spotify', url: 'https://open.spotify.com/show/033OTXXuHSVlHqyxOQTUdm' },
-    { key: 'facebook', name: 'Facebook', url: 'https://www.facebook.com/profile.php?id=61582287094595' },
-  ],
+  profiles: activeProfiles,
 } as const;
 
 export const schemaIds = {
