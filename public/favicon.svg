@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="AF">
+  <circle cx="32" cy="32" r="32" fill="#0f4d38" />
+  <path
+    fill="#f7f8f5"
+    fill-rule="evenodd"
+    d="M12 44 22 20h5l9 24h-5.5l-2-5.5h-8.3L18.2 44H12Zm10-10h4.8l-2.3-6.7L22 34Z"
+  />
+  <path fill="#f7f8f5" d="M39 20h14v5h-8.5v5.5H52v5h-7.5V44H39V20Z" />
+</svg>
