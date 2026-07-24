@@ -34,7 +34,7 @@ const timeline = getTimelineEntries(lang).filter((entry) => timelineIds.includes
     <Container size="reading"><p class="section-lead-compact">{copy.qualification.body}</p><ul class="compact-evidence-list">{copy.qualification.details.map((item) => <li>{item}</li>)}</ul><a class="text-link" href={localizedPath(lang, 'research')}>{copy.links.research}<span aria-hidden="true"> →</span></a></Container>
   </Fragment>
   <Fragment slot="professional-vision">
-    <Container size="reading" class="about-vision"><p class="section-lead-compact">{copy.vision.body}</p><ul class="compact-evidence-list">{copy.vision.principles.map((item) => <li>{item}</li>)}</ul><Button href={localizedPath(lang, 'contact')} variant="secondary">{copy.links.contact}</Button></Container>
+    <Container size="reading" class="about-vision"><p class="section-lead-compact">{copy.vision.body}</p><ul class="compact-evidence-list">{copy.vision.principles.map((item) => <li>{item}</li>)}</ul><a class="text-link" href={localizedPath(lang, 'cases/bsava-manual-ultrasonography')}>{copy.links.caseStudy}<span aria-hidden="true"> →</span></a><Button href={localizedPath(lang, 'contact')} variant="secondary">{copy.links.contact}</Button></Container>
   </Fragment>
   <Fragment slot="professional-timeline">
     <Container size="reading">

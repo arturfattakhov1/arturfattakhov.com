@@ -1,0 +1,79 @@
+---
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import BsavaCaseStudyPageContent from '../../../components/BsavaCaseStudyPageContent.astro';
+import {
+  bsavaCasePublishedDate,
+  bsavaCaseSlug,
+  bsavaCaseStudyCopy,
+} from '../../../data/bsava-case-study';
+import { identity, schemaIds } from '../../../data/identity';
+import { webpageId } from '../../../data/structured-data';
+import { languages, localizedPath, type Language } from '../../../i18n/config';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang }, props: { lang } }));
+}
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const copy = bsavaCaseStudyCopy[lang];
+const canonicalPath = localizedPath(lang, `cases/${bsavaCaseSlug}`);
+const pageUrl = new URL(canonicalPath, identity.url).href;
+const publishedTime = new Date(`${bsavaCasePublishedDate}T00:00:00Z`);
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  '@id': `${pageUrl}#article`,
+  url: pageUrl,
+  headline: copy.h1,
+  description: copy.description,
+  datePublished: bsavaCasePublishedDate,
+  dateModified: bsavaCasePublishedDate,
+  inLanguage: identity.languages[lang].code,
+  author: { '@id': schemaIds.person },
+  publisher: { '@id': schemaIds.person },
+  mainEntityOfPage: { '@id': webpageId(canonicalPath) },
+  isPartOf: { '@id': schemaIds.website },
+  about: [
+    'BSAVA Manual of Canine and Feline Ultrasonography',
+    'Veterinary ultrasonography',
+    'Legacy software',
+    'Veterinary technology',
+    'Apple Silicon',
+    'Windows 11 ARM',
+    'Flash',
+    'JW Player',
+    'FLV',
+    'HTML5 video',
+    'Artificial intelligence in veterinary medicine',
+  ].map((name) => ({ '@type': 'Thing', name })),
+};
+---
+
+<BaseLayout
+  title={copy.seoTitle}
+  description={copy.description}
+  lang={lang}
+  canonicalPath={canonicalPath}
+  type="article"
+  publishedTime={publishedTime}
+  modifiedTime={publishedTime}
+  appendSiteName={false}
+  searchable
+  searchType={lang === 'ru' ? 'Кейс' : 'Case study'}
+>
+  <Breadcrumbs lang={lang} items={[{ label: copy.h1 }]} />
+  <article class="case-study">
+    <header class="case-study__header">
+      <p class="eyebrow">{copy.label}</p>
+      <h1 data-pagefind-meta="title">{copy.h1}</h1>
+      <p class="lead">{copy.lead}</p>
+    </header>
+    <BsavaCaseStudyPageContent lang={lang} />
+  </article>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+</BaseLayout>

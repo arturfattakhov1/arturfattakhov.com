@@ -7,6 +7,12 @@ const dist = join(root, 'dist');
 const site = 'https://arturfattakhov.com';
 const languages = ['ru', 'en'];
 const standardRoutes = ['', 'about', 'practice', 'research', 'publications', 'media', 'contact', 'consultation', 'profiles', 'knowledge', 'search', 'privacy', 'terms', 'disclaimer'];
+const searchableStandardRoutes = ['about', 'practice', 'research', 'publications', 'media', 'consultation', 'profiles', 'knowledge'];
+const bsavaCaseRoute = 'cases/bsava-manual-ultrasonography';
+const bsavaCaseSeoTitles = {
+  ru: 'BSAVA Manual of Canine and Feline Ultrasonography: M1 и Windows 11',
+  en: 'BSAVA Manual of Canine and Feline Ultrasonography: Apple Silicon and Windows 11',
+};
 const publicationSlugs = [
   'comparative-xray-morphometry-moose-cattle', 'hoof-capsule-cattle-moose', 'diagnostic-imaging-distal-limb-cattle',
   'distal-limb-disorders-cattle', 'digitalization-cattle-farming', 'ovariectomy-ovariohysterectomy-cats',
@@ -449,12 +455,24 @@ assert(
 
 const expectedPages = [];
 for (const lang of languages) {
-  for (const route of standardRoutes) expectedPages.push({ lang, route, path: htmlPath(lang, route) });
-  for (const slug of publicationSlugs) expectedPages.push({ lang, route: `publications/${slug}`, path: htmlPath(lang, `publications/${slug}`) });
+  for (const route of standardRoutes) {
+    expectedPages.push({ lang, route, path: htmlPath(lang, route), searchable: searchableStandardRoutes.includes(route) });
+  }
+  for (const slug of publicationSlugs) {
+    expectedPages.push({ lang, route: `publications/${slug}`, path: htmlPath(lang, `publications/${slug}`), searchable: true });
+  }
+  expectedPages.push({
+    lang,
+    route: bsavaCaseRoute,
+    path: htmlPath(lang, bsavaCaseRoute),
+    searchable: true,
+    article: true,
+    bsavaCase: true,
+  });
 }
 for (const record of publishedKnowledgeRecords) {
   const route = `knowledge/${record.routeSlug}`;
-  expectedPages.push({ lang: record.lang, route, path: htmlPath(record.lang, route), knowledgeArticle: true });
+  expectedPages.push({ lang: record.lang, route, path: htmlPath(record.lang, route), searchable: true, article: true, knowledgeArticle: true });
 }
 
 for (const page of expectedPages) {
@@ -467,7 +485,24 @@ for (const page of expectedPages) {
   assert(html.includes('hreflang="ru"') && html.includes('hreflang="en"') && html.includes('hreflang="x-default"'), `${routePath}: hreflang set is incomplete`);
   assert(html.includes('"@type":"Person"') && html.includes('"@type":"WebSite"'), `${routePath}: identity structured data is missing`);
   if (page.route) assert(html.includes('"@type":"BreadcrumbList"'), `${routePath}: BreadcrumbList is missing`);
-  if (page.knowledgeArticle) assert(html.includes('"@type":"Article"'), `${routePath}: Article structured data is missing`);
+  if (page.article) assert(html.includes('"@type":"Article"'), `${routePath}: Article structured data is missing`);
+  if (page.bsavaCase) {
+    assert(html.includes(`<title>${bsavaCaseSeoTitles[page.lang]}</title>`), `${routePath}: exact SEO title is missing`);
+    assert(html.includes('"datePublished":"2026-07-24"') && html.includes('"dateModified":"2026-07-24"'), `${routePath}: Article dates are missing`);
+    assert(html.includes('"mainEntityOfPage"') && html.includes('"isPartOf"') && html.includes('"about"'), `${routePath}: Article relationships are incomplete`);
+    assert(html.includes('data-pagefind-body'), `${routePath}: BSAVA case must be indexed by Pagefind`);
+    assert(!/<meta\b[^>]*name="robots"[^>]*noindex/i.test(html), `${routePath}: BSAVA case must not be noindex`);
+    assert(!/<a\b[^>]*(?:download\b|href="[^"]+\.(?:flv|mp4)(?:[?#"][^>]*)?)/i.test(html), `${routePath}: downloadable BSAVA media detected`);
+    assert(!/Approved by BSAVA|recommended by BSAVA|collaboration with BSAVA|partnership with BSAVA/i.test(html), `${routePath}: prohibited BSAVA relationship wording detected`);
+    const validationCopy = page.lang === 'ru'
+      ? 'Были извлечены и конвертированы все 120 обнаруженных видеофрагментов'
+      : 'All 120 identified video clips were extracted and converted';
+    const validationBoundary = page.lang === 'ru'
+      ? 'не означает, что каждый из 120 роликов был полностью просмотрен вручную'
+      : 'does not mean that all 120 clips were watched manually in full';
+    assert(html.includes(validationCopy), `${routePath}: exact 120 validation claim is missing`);
+    assert(html.includes(validationBoundary), `${routePath}: manual-review limitation is missing`);
+  }
   assert(!/<script\b[^>]*\bsrc="https?:\/\//i.test(html), `${routePath}: external script detected`);
   assert(!/<link\b[^>]*href="https?:\/\/[^\"]+\.(?:css|woff2?)/i.test(html), `${routePath}: external stylesheet or font detected`);
 }
@@ -476,6 +511,7 @@ for (const lang of languages) {
   const about = readFileSync(htmlPath(lang, 'about'), 'utf8');
   assert(about.includes('id="professional-timeline"'), `${lang}: About timeline anchor is missing`);
   assert(count(about, /<section\b[^>]*class="[^"]*page-section/g) >= 8, `${lang}: About does not contain the required sections`);
+  assert(about.includes(`href="/${lang}/${bsavaCaseRoute}/"`), `${lang}: About incoming link to the BSAVA case is missing`);
 
   const publications = readFileSync(htmlPath(lang, 'publications'), 'utf8');
   const publicationMarkers = [...publications.matchAll(/data-publication-record="([^"]+)"/g)].map((match) => match[1]);
@@ -628,6 +664,7 @@ assert(
   `sitemap must contain ${expectedPages.length} unique public URLs, found ${sitemapUrls.length}`,
 );
 for (const lang of languages) assert(sitemap.includes(`${site}/${lang}/consultation/`), `${lang}: Consultation is missing from sitemap`);
+for (const lang of languages) assert(sitemapUrls.includes(`${site}/${lang}/${bsavaCaseRoute}/`), `${lang}: BSAVA case is missing from sitemap`);
 for (const record of publishedKnowledgeRecords) {
   const url = `${site}/${record.lang}/knowledge/${record.routeSlug}/`;
   assert(sitemapUrls.includes(url), `published Knowledge route is missing from sitemap: ${url}`);
@@ -640,10 +677,9 @@ for (const marker of draftMediaMarkers) assert(!sitemap.includes(marker), `draft
 for (const route of legacyRoutes) assert(!sitemap.includes(`/${route}/`), `legacy route leaked into sitemap: ${route}`);
 
 const pagefindEntry = JSON.parse(read('dist/pagefind/pagefind-entry.json'));
-const baselinePagefindCount = 17;
 const expectedPagefindCounts = Object.fromEntries(languages.map((lang) => [
   lang,
-  baselinePagefindCount + publishedKnowledgeRecords.filter((record) => record.lang === lang).length,
+  expectedPages.filter((page) => page.lang === lang && page.searchable).length,
 ]));
 for (const lang of languages) {
   assert(
@@ -678,6 +714,10 @@ for (const record of publishedKnowledgeRecords) {
     indexedContent.includes(`/${record.lang}/knowledge/${record.routeSlug}/`),
     `published Knowledge route is missing from Pagefind: ${record.routeSlug}`,
   );
+}
+for (const lang of languages) {
+  const indexedContent = pagefindFragmentsByLanguage[lang].join('\n');
+  assert(indexedContent.includes(`/${lang}/${bsavaCaseRoute}/`), `${lang}: BSAVA case is missing from Pagefind`);
 }
 
 const htmlOutput = expectedPages.map((page) => readFileSync(page.path, 'utf8')).join('\n');
