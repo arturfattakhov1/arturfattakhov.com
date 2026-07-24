@@ -48,78 +48,403 @@ function frontmatterKeys(source, path) {
   return [...frontmatter.matchAll(/^([A-Za-z][A-Za-z0-9]*):/gm)].map((match) => match[1]);
 }
 
+function exactKeys(value, expected, label) {
+  assert(value && typeof value === 'object' && !Array.isArray(value), `${label}: expected an object`);
+  const keys = Object.keys(value);
+  assert(
+    JSON.stringify(keys.toSorted()) === JSON.stringify(expected.toSorted()),
+    `${label}: keys do not match the CMS schema: ${keys.join(', ')}`,
+  );
+}
+
+function assertNoDuplicateJsonKeys(source, path) {
+  let cursor = 0;
+  const whitespace = () => {
+    while (/\s/.test(source[cursor] ?? '')) cursor += 1;
+  };
+  const parseString = () => {
+    const start = cursor;
+    assert(source[cursor] === '"', `${path}: invalid JSON string at ${cursor}`);
+    cursor += 1;
+    while (cursor < source.length) {
+      if (source[cursor] === '\\') {
+        cursor += 2;
+      } else if (source[cursor] === '"') {
+        cursor += 1;
+        return JSON.parse(source.slice(start, cursor));
+      } else {
+        cursor += 1;
+      }
+    }
+    throw new Error(`${path}: unterminated JSON string`);
+  };
+  const parseValue = () => {
+    whitespace();
+    if (source[cursor] === '{') {
+      cursor += 1;
+      whitespace();
+      const keys = new Set();
+      if (source[cursor] === '}') {
+        cursor += 1;
+        return;
+      }
+      while (cursor < source.length) {
+        whitespace();
+        const key = parseString();
+        assert(!keys.has(key), `${path}: duplicate JSON key "${key}"`);
+        keys.add(key);
+        whitespace();
+        assert(source[cursor] === ':', `${path}: expected ":" after "${key}"`);
+        cursor += 1;
+        parseValue();
+        whitespace();
+        if (source[cursor] === '}') {
+          cursor += 1;
+          return;
+        }
+        assert(source[cursor] === ',', `${path}: expected "," in object`);
+        cursor += 1;
+      }
+    } else if (source[cursor] === '[') {
+      cursor += 1;
+      whitespace();
+      if (source[cursor] === ']') {
+        cursor += 1;
+        return;
+      }
+      while (cursor < source.length) {
+        parseValue();
+        whitespace();
+        if (source[cursor] === ']') {
+          cursor += 1;
+          return;
+        }
+        assert(source[cursor] === ',', `${path}: expected "," in array`);
+        cursor += 1;
+      }
+    } else if (source[cursor] === '"') {
+      parseString();
+    } else {
+      const token = source.slice(cursor).match(/^(?:true|false|null|-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?)/)?.[0];
+      assert(token, `${path}: invalid JSON value at ${cursor}`);
+      cursor += token.length;
+    }
+  };
+  parseValue();
+  whitespace();
+  assert(cursor === source.length, `${path}: unexpected JSON content at ${cursor}`);
+}
+
+function readJson(path) {
+  const source = read(path);
+  assertNoDuplicateJsonKeys(source, path);
+  return JSON.parse(source);
+}
+
+function cmsContentBlock(config, name) {
+  const marker = `  - name: ${name}\n`;
+  const start = config.indexOf(marker);
+  assert(start !== -1, `CMS content schema is missing: ${name}`);
+  const next = config.indexOf('\n  - name: ', start + marker.length);
+  return config.slice(start, next === -1 ? undefined : next);
+}
+
+function cmsFieldDescriptors(block) {
+  const lines = block.split('\n');
+  const descriptors = [];
+  const stack = [];
+  for (let index = 0; index < lines.length; index += 1) {
+    const match = lines[index].match(/^(\s*)- name: ([A-Za-z][A-Za-z0-9]*)$/);
+    if (!match) continue;
+    const indent = match[1].length;
+    if (indent < 6) continue;
+    let hasType = false;
+    for (let lookahead = index + 1; lookahead < lines.length; lookahead += 1) {
+      const nextIndent = lines[lookahead].match(/^(\s*)/)?.[1].length ?? 0;
+      if (lines[lookahead].trim() && nextIndent <= indent) break;
+      if (lines[lookahead].startsWith(`${' '.repeat(indent + 2)}type:`)) {
+        hasType = true;
+        break;
+      }
+    }
+    if (!hasType) continue;
+    while (stack.length && stack.at(-1).indent >= indent) stack.pop();
+    const parent = stack.at(-1);
+    const path = parent ? `${parent.path}.${match[2]}` : match[2];
+    const descriptor = { name: match[2], path, indent, index, hidden: false, readonly: false, ownBlock: '', subtreeBlock: '' };
+    descriptors.push(descriptor);
+    stack.push(descriptor);
+  }
+  for (let index = 0; index < descriptors.length; index += 1) {
+    const current = descriptors[index];
+    const nextIndex = descriptors[index + 1]?.index ?? lines.length;
+    const ownBlock = lines.slice(current.index, nextIndex).join('\n');
+    const nextSibling = descriptors.slice(index + 1).find((candidate) => candidate.indent <= current.indent);
+    current.ownBlock = ownBlock;
+    current.subtreeBlock = lines.slice(current.index, nextSibling?.index ?? lines.length).join('\n');
+    current.hidden = new RegExp(`^${' '.repeat(current.indent + 2)}hidden: true$`, 'm').test(ownBlock);
+    current.readonly = new RegExp(`^${' '.repeat(current.indent + 2)}readonly: true$`, 'm').test(ownBlock);
+  }
+  return descriptors;
+}
+
+function assertCmsFieldPaths(block, expected, label) {
+  const descriptors = cmsFieldDescriptors(block);
+  const paths = descriptors.map((field) => field.path);
+  assert(paths.length === new Set(paths).size, `${label}: duplicate CMS field path`);
+  assert(
+    JSON.stringify(paths.toSorted()) === JSON.stringify(expected.toSorted()),
+    `${label}: CMS field paths do not match the data contract: ${paths.join(', ')}`,
+  );
+  return descriptors;
+}
+
+function editableLeafPaths(descriptors) {
+  return descriptors
+    .filter((field) => !descriptors.some((candidate) => candidate.path.startsWith(`${field.path}.`)))
+    .filter((field) => {
+      const ancestors = descriptors.filter((candidate) => field.path === candidate.path || field.path.startsWith(`${candidate.path}.`));
+      return !ancestors.some((candidate) => candidate.hidden || candidate.readonly);
+    })
+    .map((field) => field.path);
+}
+
+function assertEditablePaths(descriptors, expected, label) {
+  const editable = editableLeafPaths(descriptors);
+  assert(
+    JSON.stringify(editable.toSorted()) === JSON.stringify(expected.toSorted()),
+    `${label}: editable CMS paths changed: ${editable.join(', ')}`,
+  );
+}
+
 assert(existsSync(dist), 'dist is missing; run npm run build first');
 
 const cmsConfig = read('.pages.yml');
 const cmsPaths = [...cmsConfig.matchAll(/^\s+path:\s+([^\n]+)$/gm)].map((match) => match[1].trim());
+const expectedCmsPaths = [
+  'src/content/knowledge',
+  'src/data/cms/home-help.json',
+  'src/data/cms/media.json',
+  'src/data/cms/profiles.json',
+  'src/data/cms/home-materials.json',
+];
 assert(
-  JSON.stringify(cmsPaths) === JSON.stringify(['src/content/knowledge', 'src/data/cms/home-help.json']),
+  JSON.stringify(cmsPaths) === JSON.stringify(expectedCmsPaths),
   `CMS editable paths changed: ${cmsPaths.join(', ')}`,
 );
 assert(/^settings:\n\s+hide: true\n\s+content:\n\s+merge: true/m.test(cmsConfig), 'CMS must hide settings and preserve unmanaged content keys');
 assert(!/^media:/m.test(cmsConfig) && !/^actions:/m.test(cmsConfig), 'CMS media and action surfaces must remain disabled');
-assert(!/format:\s+(?:code|raw)\b/.test(cmsConfig), 'CMS must not expose a raw or code editor');
-assert(count(cmsConfig, /^\s+rename: false$/gm) === 2, 'CMS rename must be disabled for both editable surfaces');
-assert(count(cmsConfig, /^\s+delete: false$/gm) === 2, 'CMS delete must be disabled for both editable surfaces');
+assert(!/(?:format|type):\s+(?:code|raw)\b/.test(cmsConfig), 'CMS must not expose a raw or code editor');
+assert(count(cmsConfig, /^\s+rename: false$/gm) === expectedCmsPaths.length, 'CMS rename must be disabled for every editable surface');
+assert(count(cmsConfig, /^\s+delete: false$/gm) === expectedCmsPaths.length, 'CMS delete must be disabled for every editable surface');
 assert(cmsConfig.includes('media: false'), 'Knowledge rich-text media uploads must remain disabled');
+const cmsContentNames = [...cmsConfig.matchAll(/^  - name: ([A-Za-z][A-Za-z0-9-]*)$/gm)].map((match) => match[1]);
+assert(
+  JSON.stringify(cmsContentNames) === JSON.stringify(['knowledge', 'homepage-help', 'media-records', 'profiles', 'homepage-materials']),
+  `CMS content surfaces changed: ${cmsContentNames.join(', ')}`,
+);
+for (const path of cmsPaths) {
+  assert(!/(?:components|pages|routes|legal|consultation|forms?|formspree|headers|redirects|workflows?|cloudflare|package\.json|deployment)/i.test(path), `CMS protected path exposed: ${path}`);
+}
 
-const cmsKnowledgeBlock = cmsConfig.match(/^  - name: knowledge\n[\s\S]*?(?=^  - name: homepage-help$)/m)?.[0];
-assert(cmsKnowledgeBlock, 'CMS Knowledge Base schema is missing');
-const cmsKnowledgeFields = [...cmsKnowledgeBlock.matchAll(/^      - name: ([A-Za-z][A-Za-z0-9]*)$/gm)].map((match) => match[1]);
+const cmsKnowledgeBlock = cmsContentBlock(cmsConfig, 'knowledge');
 const expectedKnowledgeFrontmatterFields = [
   'routeSlug', 'lang', 'translationKey', 'title', 'excerpt', 'category', 'date',
   'seoTitle', 'metaDescription', 'status', 'featured', 'relatedMedia', 'relatedVideo', 'relatedPodcast',
 ];
-assert(
-  JSON.stringify(cmsKnowledgeFields.toSorted()) === JSON.stringify([...expectedKnowledgeFrontmatterFields, 'body'].toSorted()),
-  `CMS Knowledge fields do not match the content contract: ${cmsKnowledgeFields.join(', ')}`,
-);
-const hiddenKnowledgeFields = ['featured', 'relatedMedia', 'relatedVideo', 'relatedPodcast'];
-function cmsKnowledgeFieldBlock(field) {
-  const marker = `      - name: ${field}\n`;
-  const start = cmsKnowledgeBlock.indexOf(marker);
-  if (start === -1) return '';
-  const next = cmsKnowledgeBlock.indexOf('\n      - name: ', start + marker.length);
-  return cmsKnowledgeBlock.slice(start, next === -1 ? undefined : next);
-}
-for (const field of hiddenKnowledgeFields) {
-  const fieldBlock = cmsKnowledgeFieldBlock(field);
-  assert(fieldBlock?.includes('\n        hidden: true'), `CMS technical field must remain hidden: ${field}`);
-  assert(fieldBlock?.includes('\n        label: false'), `CMS technical field label must remain hidden: ${field}`);
+const expectedKnowledgeCmsPaths = [
+  ...expectedKnowledgeFrontmatterFields,
+  'relatedMedia.title', 'relatedMedia.url',
+  'relatedVideo.title', 'relatedVideo.url',
+  'relatedPodcast.title', 'relatedPodcast.url',
+  'body',
+];
+const knowledgeDescriptors = assertCmsFieldPaths(cmsKnowledgeBlock, expectedKnowledgeCmsPaths, 'Knowledge');
+assertEditablePaths(knowledgeDescriptors, [
+  'routeSlug', 'lang', 'translationKey', 'title', 'excerpt', 'category', 'date',
+  'seoTitle', 'metaDescription', 'status', 'body',
+], 'Knowledge');
+for (const field of ['featured', 'relatedMedia', 'relatedVideo', 'relatedPodcast']) {
+  const descriptor = knowledgeDescriptors.find((candidate) => candidate.path === field);
+  assert(descriptor?.hidden && descriptor.ownBlock.includes('label: false'), `CMS technical field must remain hidden: ${field}`);
 }
 for (const field of ['relatedMedia', 'relatedVideo', 'relatedPodcast']) {
-  const fieldBlock = cmsKnowledgeFieldBlock(field);
-  assert(fieldBlock?.includes('\n        type: object'), `CMS related field must remain structured: ${field}`);
-  assert(fieldBlock?.includes('\n        default: []') && fieldBlock?.includes('\n        list: true'), `CMS related field must preserve an array: ${field}`);
+  const fieldBlock = knowledgeDescriptors.find((candidate) => candidate.path === field)?.ownBlock ?? '';
+  assert(fieldBlock.includes('type: object'), `CMS related field must remain structured: ${field}`);
+  assert(fieldBlock.includes('default: []') && fieldBlock.includes('list: true'), `CMS related field must preserve an array: ${field}`);
 }
 
 const knowledgeSources = walk(join(root, 'src/content/knowledge')).filter((path) => path.endsWith('.md'));
+const knowledgeTranslations = new Map();
 for (const path of knowledgeSources) {
   const relativePath = relative(root, path);
-  const keys = frontmatterKeys(readFileSync(path, 'utf8'), relativePath);
+  const source = readFileSync(path, 'utf8');
+  const keys = frontmatterKeys(source, relativePath);
   assert(keys.length === new Set(keys).size, `${relativePath}: duplicate frontmatter key`);
   assert(
     JSON.stringify(keys.toSorted()) === JSON.stringify(expectedKnowledgeFrontmatterFields.toSorted()),
     `${relativePath}: frontmatter keys do not match the CMS schema: ${keys.join(', ')}`,
   );
+  for (const field of ['relatedMedia', 'relatedVideo', 'relatedPodcast']) {
+    const inlineArray = source.match(new RegExp(`^${field}:\\s*(\\[[^\\n]*\\])$`, 'm'))?.[1];
+    assert(inlineArray === '[]', `${relativePath}: ${field} must remain a structured array`);
+  }
+  const translationKey = source.match(/^translationKey:\s*([^\n]+)$/m)?.[1].trim();
+  const lang = source.match(/^lang:\s*(ru|en)$/m)?.[1];
+  const status = source.match(/^status:\s*(draft|published)$/m)?.[1];
+  assert(translationKey && lang && status, `${relativePath}: translation metadata is invalid`);
+  const pair = knowledgeTranslations.get(translationKey) ?? [];
+  pair.push({ lang, status, relativePath });
+  knowledgeTranslations.set(translationKey, pair);
+}
+for (const [translationKey, pair] of knowledgeTranslations) {
+  assert(pair.length === 2 && new Set(pair.map((entry) => entry.lang)).size === 2, `${translationKey}: Knowledge RU/EN pair is incomplete`);
+  assert(new Set(pair.map((entry) => entry.status)).size === 1, `${translationKey}: Knowledge RU/EN publication status differs`);
 }
 
-const cmsHomeHelp = JSON.parse(read('src/data/cms/home-help.json'));
-assert(
-  JSON.stringify(Object.keys(cmsHomeHelp).sort()) === JSON.stringify(languages.toSorted()),
-  'CMS homepage section must contain only ru and en content',
-);
+const cmsHomeHelpBlock = cmsContentBlock(cmsConfig, 'homepage-help');
+const expectedHomeHelpPaths = languages.flatMap((lang) => [
+  lang, `${lang}.title`, `${lang}.introduction`, `${lang}.items`,
+  `${lang}.items.title`, `${lang}.items.description`, `${lang}.practiceCta`, `${lang}.contactCta`,
+]);
+const homeHelpDescriptors = assertCmsFieldPaths(cmsHomeHelpBlock, expectedHomeHelpPaths, 'Homepage help');
+assertEditablePaths(homeHelpDescriptors, expectedHomeHelpPaths.filter((path) => !languages.includes(path) && !path.endsWith('.items')), 'Homepage help');
+const cmsHomeHelp = readJson('src/data/cms/home-help.json');
+exactKeys(cmsHomeHelp, languages, 'CMS homepage help');
 for (const lang of languages) {
   const section = cmsHomeHelp[lang];
+  exactKeys(section, ['title', 'introduction', 'items', 'practiceCta', 'contactCta'], `${lang}: CMS homepage help`);
   assert(typeof section?.title === 'string' && section.title.length >= 5, `${lang}: CMS homepage section title is invalid`);
   assert(typeof section?.introduction === 'string' && section.introduction.length >= 20, `${lang}: CMS homepage section introduction is invalid`);
   assert(Array.isArray(section?.items) && section.items.length === 3, `${lang}: CMS homepage section must contain exactly three service summaries`);
-  for (const item of section.items) {
+  for (const [index, item] of section.items.entries()) {
+    exactKeys(item, ['title', 'description'], `${lang}: CMS service summary ${index + 1}`);
     assert(typeof item.title === 'string' && item.title.length >= 3, `${lang}: CMS service title is invalid`);
     assert(typeof item.description === 'string' && item.description.length >= 20, `${lang}: CMS service description is invalid`);
   }
   assert(typeof section.practiceCta === 'string' && typeof section.contactCta === 'string', `${lang}: CMS homepage link labels are invalid`);
 }
+
+const cmsMediaBlock = cmsContentBlock(cmsConfig, 'media-records');
+const expectedMediaPaths = [
+  'records', 'records.id', 'records.type', 'records.status', 'records.order',
+  'records.title', 'records.title.ru', 'records.title.en',
+  'records.summary', 'records.summary.ru', 'records.summary.en',
+  'records.role', 'records.role.ru', 'records.role.en',
+  'records.externalLinks', 'records.externalLinks.source',
+  'records.externalLinks.source.ru', 'records.externalLinks.source.en', 'records.externalLinks.url',
+];
+const mediaDescriptors = assertCmsFieldPaths(cmsMediaBlock, expectedMediaPaths, 'Media');
+assertEditablePaths(mediaDescriptors, [
+  'records.type', 'records.status', 'records.order',
+  'records.title.ru', 'records.title.en', 'records.summary.ru', 'records.summary.en',
+  'records.externalLinks.source.ru', 'records.externalLinks.source.en', 'records.externalLinks.url',
+], 'Media');
+const mediaIdDescriptor = mediaDescriptors.find((field) => field.path === 'records.id');
+assert(mediaIdDescriptor?.hidden && mediaIdDescriptor.ownBlock.includes('label: false'), 'Media technical id must remain hidden');
+const mediaRoleDescriptor = mediaDescriptors.find((field) => field.path === 'records.role');
+assert(mediaRoleDescriptor?.hidden && mediaRoleDescriptor.ownBlock.includes('label: false'), 'Media existing role field must remain hidden');
+const allowedMediaTypes = ['interview', 'project', 'video', 'article', 'podcast'];
+const configuredMediaTypes = [...(mediaDescriptors.find((field) => field.path === 'records.type')?.subtreeBlock ?? '').matchAll(/^\s+- name: (interview|project|video|article|podcast)$/gm)].map((match) => match[1]);
+assert(JSON.stringify(configuredMediaTypes) === JSON.stringify(allowedMediaTypes), 'CMS Media type values changed');
+const cmsMedia = readJson('src/data/cms/media.json');
+exactKeys(cmsMedia, ['records'], 'CMS Media');
+assert(Array.isArray(cmsMedia.records) && cmsMedia.records.length > 0, 'CMS Media records are missing');
+const mediaIds = new Set();
+const mediaOrders = new Set();
+for (const [index, record] of cmsMedia.records.entries()) {
+  const label = `CMS Media record ${index + 1}`;
+  const recordKeys = ['id', 'type', 'status', 'order', 'title', 'summary', 'externalLinks'];
+  exactKeys(record, Object.hasOwn(record, 'role') ? [...recordKeys, 'role'] : recordKeys, label);
+  assert(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(record.id), `${label}: invalid UUID`);
+  assert(!mediaIds.has(record.id), `${label}: duplicate id`);
+  mediaIds.add(record.id);
+  assert(allowedMediaTypes.includes(record.type), `${label}: unsupported type ${record.type}`);
+  assert(['draft', 'published'].includes(record.status), `${label}: unsupported status ${record.status}`);
+  assert(Number.isInteger(record.order) && record.order > 0 && !mediaOrders.has(record.order), `${label}: display order must be a unique positive integer`);
+  mediaOrders.add(record.order);
+  exactKeys(record.title, languages, `${label} title`);
+  exactKeys(record.summary, languages, `${label} summary`);
+  if (record.role !== undefined) exactKeys(record.role, languages, `${label} role`);
+  for (const lang of languages) {
+    assert(typeof record.title[lang] === 'string' && record.title[lang].length >= 3, `${label}: ${lang} title is invalid`);
+    assert(typeof record.summary[lang] === 'string' && record.summary[lang].length >= 20, `${label}: ${lang} summary is invalid`);
+    if (record.role !== undefined) assert(typeof record.role[lang] === 'string' && record.role[lang].length >= 20, `${label}: ${lang} role is invalid`);
+  }
+  assert(Array.isArray(record.externalLinks) && record.externalLinks.length > 0 && record.externalLinks.length <= 5, `${label}: external links are invalid`);
+  for (const [linkIndex, link] of record.externalLinks.entries()) {
+    exactKeys(link, ['source', 'url'], `${label} link ${linkIndex + 1}`);
+    exactKeys(link.source, languages, `${label} link ${linkIndex + 1} source`);
+    for (const lang of languages) assert(typeof link.source[lang] === 'string' && link.source[lang].length >= 2, `${label}: ${lang} source is invalid`);
+    const url = new URL(link.url);
+    assert(url.protocol === 'https:' && url.hostname, `${label}: external link must use HTTPS`);
+  }
+}
+
+const cmsProfilesBlock = cmsContentBlock(cmsConfig, 'profiles');
+const expectedProfilePaths = ['profiles', 'profiles.key', 'profiles.name', 'profiles.url', 'profiles.order', 'profiles.active'];
+const profileDescriptors = assertCmsFieldPaths(cmsProfilesBlock, expectedProfilePaths, 'Profiles');
+assertEditablePaths(profileDescriptors, ['profiles.url', 'profiles.order', 'profiles.active'], 'Profiles');
+for (const path of ['profiles.key', 'profiles.name']) {
+  assert(profileDescriptors.find((field) => field.path === path)?.readonly, `CMS Profile technical field must remain readonly: ${path}`);
+}
+const allowedProfileHosts = {
+  orcid: 'orcid.org',
+  googleScholar: 'scholar.google.com',
+  researchGate: 'www.researchgate.net',
+  webOfScience: 'www.webofscience.com',
+  github: 'github.com',
+  instagram: 'www.instagram.com',
+  threads: 'www.threads.com',
+  youtube: 'www.youtube.com',
+  dzen: 'dzen.ru',
+  spotify: 'open.spotify.com',
+  facebook: 'www.facebook.com',
+};
+const profileKeys = Object.keys(allowedProfileHosts);
+const configuredProfileKeys = [...(profileDescriptors.find((field) => field.path === 'profiles.key')?.subtreeBlock ?? '').matchAll(/^\s+- (orcid|googleScholar|researchGate|webOfScience|github|instagram|threads|youtube|dzen|spotify|facebook)$/gm)].map((match) => match[1]);
+assert(JSON.stringify(configuredProfileKeys) === JSON.stringify(profileKeys), 'CMS Profile platform values changed');
+const expectedProfileNames = {
+  orcid: 'ORCID', googleScholar: 'Google Scholar', researchGate: 'ResearchGate', webOfScience: 'Web of Science',
+  github: 'GitHub', instagram: 'Instagram', threads: 'Threads', youtube: 'YouTube', dzen: 'Yandex Zen',
+  spotify: 'Spotify', facebook: 'Facebook',
+};
+const cmsProfiles = readJson('src/data/cms/profiles.json');
+exactKeys(cmsProfiles, ['profiles'], 'CMS Profiles');
+assert(Array.isArray(cmsProfiles.profiles) && cmsProfiles.profiles.length === profileKeys.length, 'CMS Profiles must contain exactly the supported platforms');
+const seenProfileKeys = new Set();
+const profileOrders = new Set();
+for (const profile of cmsProfiles.profiles) {
+  exactKeys(profile, ['key', 'name', 'url', 'order', 'active'], `CMS Profile ${profile.key ?? 'unknown'}`);
+  assert(profileKeys.includes(profile.key) && !seenProfileKeys.has(profile.key), `CMS Profile platform is missing, unsupported, or duplicated: ${profile.key}`);
+  seenProfileKeys.add(profile.key);
+  assert(profile.name === expectedProfileNames[profile.key], `CMS Profile name changed for ${profile.key}`);
+  const url = new URL(profile.url);
+  assert(url.protocol === 'https:' && url.hostname === allowedProfileHosts[profile.key], `CMS Profile URL is not allowed for ${profile.key}`);
+  assert(Number.isInteger(profile.order) && profile.order > 0 && !profileOrders.has(profile.order), `CMS Profile display order must be unique: ${profile.key}`);
+  profileOrders.add(profile.order);
+  assert(typeof profile.active === 'boolean', `CMS Profile active flag is invalid: ${profile.key}`);
+}
+assert(seenProfileKeys.size === profileKeys.length, 'CMS Profile platform set is incomplete');
+
+const cmsHomepageMaterialsBlock = cmsContentBlock(cmsConfig, 'homepage-materials');
+const homeMaterialsDescriptors = assertCmsFieldPaths(cmsHomepageMaterialsBlock, ['featuredPublicationSlugs'], 'Homepage materials');
+assertEditablePaths(homeMaterialsDescriptors, ['featuredPublicationSlugs'], 'Homepage materials');
+const configuredPublicationSlugs = [...(homeMaterialsDescriptors[0]?.subtreeBlock ?? '').matchAll(/^\s+- name: ([a-z0-9]+(?:-[a-z0-9]+)*)$/gm)].map((match) => match[1]);
+assert(JSON.stringify(configuredPublicationSlugs) === JSON.stringify(publicationSlugs), 'CMS Homepage publication options do not match the catalogue');
+const cmsHomepageMaterials = readJson('src/data/cms/home-materials.json');
+exactKeys(cmsHomepageMaterials, ['featuredPublicationSlugs'], 'CMS Homepage materials');
+assert(
+  Array.isArray(cmsHomepageMaterials.featuredPublicationSlugs)
+    && cmsHomepageMaterials.featuredPublicationSlugs.length >= 1
+    && cmsHomepageMaterials.featuredPublicationSlugs.length <= 3,
+  'CMS Homepage must select one to three publications',
+);
+assert(
+  cmsHomepageMaterials.featuredPublicationSlugs.length === new Set(cmsHomepageMaterials.featuredPublicationSlugs).size
+    && cmsHomepageMaterials.featuredPublicationSlugs.every((slug) => publicationSlugs.includes(slug)),
+  'CMS Homepage selection contains a duplicate or unknown publication',
+);
 
 const expectedPages = [];
 for (const lang of languages) {
@@ -159,13 +484,33 @@ for (const lang of languages) {
   assert(knowledge.includes('data-published-count="0"') && knowledge.includes('data-knowledge-empty'), `${lang}: empty owner Knowledge Base state is incorrect`);
 
   const media = readFileSync(htmlPath(lang, 'media'), 'utf8');
-  for (const url of ['https://dzen.ru/arturfattakhov', 'https://open.spotify.com/show/033OTXXuHSVlHqyxOQTUdm', 'https://www.youtube.com/@dr.arturfattakhov']) {
-    assert(media.includes(url), `${lang}: media channel missing ${url}`);
+  for (const record of cmsMedia.records) {
+    for (const link of record.externalLinks) {
+      if (record.status === 'published') {
+        assert(
+          media.includes(link.url)
+            && media.includes(record.title[lang])
+            && media.includes(record.summary[lang])
+            && (!record.role || media.includes(record.role[lang])),
+          `${lang}: published Media content is incomplete ${record.id}`,
+        );
+      } else {
+        assert(!media.includes(link.url) && !media.includes(record.title[lang]), `${lang}: draft Media record leaked ${record.id}`);
+      }
+    }
   }
   assert(count(media, /https:\/\/iz\.ru\/182(?:3909|4936)/g) === 2 && media.includes('https://naked-science.ru/'), `${lang}: grouped interdisciplinary coverage is incomplete`);
 
   const profiles = readFileSync(htmlPath(lang, 'profiles'), 'utf8');
-  assert(count(profiles, /src="\/icons\/profiles\/[^"]+\.svg"/g) === 11, `${lang}: local profile icon count must be 11`);
+  const activeProfiles = cmsProfiles.profiles.filter((profile) => profile.active);
+  assert(count(profiles, /src="\/icons\/profiles\/[^"]+\.svg"/g) === activeProfiles.length, `${lang}: local profile icon count must match active profiles`);
+  for (const profile of cmsProfiles.profiles) {
+    if (profile.active) {
+      assert(profiles.includes(profile.url), `${lang}: active Profile link is missing ${profile.key}`);
+    } else {
+      assert(!profiles.includes(profile.url), `${lang}: inactive Profile leaked ${profile.key}`);
+    }
+  }
   for (const group of ['scientific', 'media', 'social', 'technical']) assert(profiles.includes(`id="profiles-${group}"`), `${lang}: profiles group missing ${group}`);
 
   const contact = readFileSync(htmlPath(lang, 'contact'), 'utf8');
@@ -213,6 +558,10 @@ for (const lang of languages) {
   const home = readFileSync(htmlPath(lang, ''), 'utf8');
   assert(new RegExp(`class="button button--primary" href="/${lang}/consultation/"`).test(home), `${lang}: homepage primary CTA must lead to Consultation`);
   assert(new RegExp(`class="button button--secondary" href="/${lang}/about/"`).test(home), `${lang}: homepage secondary CTA must lead to About`);
+  assert(count(home, /class="home-record-list__type"/g) === cmsHomepageMaterials.featuredPublicationSlugs.length, `${lang}: Homepage selected publication count is incorrect`);
+  for (const slug of cmsHomepageMaterials.featuredPublicationSlugs) {
+    assert(home.includes(`/${lang}/publications/${slug}/`), `${lang}: selected Homepage publication is missing ${slug}`);
+  }
 
   const practice = readFileSync(htmlPath(lang, 'practice'), 'utf8');
   assert(practice.includes(`href="/${lang}/consultation/"`) && practice.includes(`href="/${lang}/contact/"`), `${lang}: Practice CTAs must lead to Consultation and Contact`);
@@ -253,9 +602,16 @@ for (const path of draftSources) assert(readFileSync(path, 'utf8').includes('sta
 
 const sitemap = read('dist/sitemap-0.xml');
 const sitemapUrls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
+const draftMediaMarkers = cmsMedia.records
+  .filter((record) => record.status === 'draft')
+  .flatMap((record) => [
+    ...languages.flatMap((lang) => [record.title[lang], record.summary[lang], record.role?.[lang]].filter(Boolean)),
+    ...record.externalLinks.map((link) => link.url),
+  ]);
 assert(sitemapUrls.length === 46 && new Set(sitemapUrls).size === 46, `sitemap must contain 46 unique public URLs, found ${sitemapUrls.length}`);
 for (const lang of languages) assert(sitemap.includes(`${site}/${lang}/consultation/`), `${lang}: Consultation is missing from sitemap`);
 for (const slug of draftSlugs) assert(!sitemap.includes(slug), `draft leaked into sitemap: ${slug}`);
+for (const marker of draftMediaMarkers) assert(!sitemap.includes(marker), `draft Media record leaked into sitemap: ${marker}`);
 for (const route of legacyRoutes) assert(!sitemap.includes(`/${route}/`), `legacy route leaked into sitemap: ${route}`);
 
 const pagefindEntry = JSON.parse(read('dist/pagefind/pagefind-entry.json'));
@@ -267,9 +623,14 @@ for (const path of pagefindFragments) {
   const lang = relative(join(dist, 'pagefind/fragment'), path).split('_')[0];
   assert(fragment.includes(`/${lang}/`), `Pagefind fragment crossed language index: ${relative(root, path)}`);
   for (const slug of draftSlugs) assert(!fragment.includes(slug), `draft leaked into Pagefind: ${slug}`);
+  for (const marker of draftMediaMarkers) assert(!fragment.includes(marker), `draft Media record leaked into Pagefind: ${marker}`);
 }
 
 const htmlOutput = expectedPages.map((page) => readFileSync(page.path, 'utf8')).join('\n');
+for (const marker of draftMediaMarkers) assert(!htmlOutput.includes(marker), `draft Media record leaked into public HTML: ${marker}`);
+for (const profile of cmsProfiles.profiles.filter((entry) => !entry.active)) {
+  assert(!htmlOutput.includes(profile.url), `inactive Profile leaked into public HTML or JSON-LD: ${profile.key}`);
+}
 const prohibited = [/ВЕТ УЗИ 47/i, /Movetrus/i, /controlled marketplace/i, /диссертац/i, /research pause/i, /пауза в исслед/i, /кандидат наук/i, /\bPhD\b/i, /профессор/i, /врач УЗИ/i, /специалист УЗИ/i, /active AI platform/i, /действующ[^<]{0,30}AI-платформ/i];
 for (const pattern of prohibited) assert(!pattern.test(htmlOutput), `confidential or unsupported public term detected: ${pattern}`);
 

@@ -291,3 +291,256 @@ content:
             options:
               minlength: 3
               maxlength: 60
+
+  - name: media-records
+    label: Media records
+    type: file
+    path: src/data/cms/media.json
+    format: json
+    operations:
+      create: false
+      rename: false
+      delete: false
+    fields:
+      - name: records
+        label: Media records
+        type: object
+        required: true
+        list:
+          min: 1
+          max: 50
+          collapsible:
+            collapsed: true
+            summary: "{title.en} — {status}"
+        fields:
+          - name: id
+            label: false
+            type: uuid
+            hidden: true
+            required: true
+            options:
+              editable: false
+          - name: type
+            label: Record type
+            type: select
+            required: true
+            default: interview
+            options:
+              values:
+                - name: interview
+                  label: Interview
+                - name: project
+                  label: Project
+                - name: video
+                  label: Video channel
+                - name: article
+                  label: Article channel
+                - name: podcast
+                  label: Podcast
+          - name: status
+            label: Publication status
+            type: select
+            required: true
+            default: draft
+            options:
+              values:
+                - name: draft
+                  label: Draft
+                - name: published
+                  label: Published
+          - name: order
+            label: Display order
+            type: number
+            required: true
+            default: 100
+            options:
+              min: 1
+              max: 999
+          - name: title
+            label: Title
+            type: object
+            required: true
+            fields:
+              - name: ru
+                label: Russian title
+                type: string
+                required: true
+                options:
+                  minlength: 3
+                  maxlength: 160
+              - name: en
+                label: English title
+                type: string
+                required: true
+                options:
+                  minlength: 3
+                  maxlength: 160
+          - name: summary
+            label: Summary
+            type: object
+            required: true
+            fields:
+              - name: ru
+                label: Russian summary
+                type: text
+                required: true
+                options:
+                  minlength: 20
+                  maxlength: 700
+              - name: en
+                label: English summary
+                type: text
+                required: true
+                options:
+                  minlength: 20
+                  maxlength: 700
+          - name: role
+            label: false
+            type: object
+            hidden: true
+            fields:
+              - name: ru
+                type: text
+                required: true
+              - name: en
+                type: text
+                required: true
+          - name: externalLinks
+            label: External links
+            type: object
+            required: true
+            list:
+              min: 1
+              max: 5
+              collapsible:
+                collapsed: true
+                summary: "{source.en}"
+            fields:
+              - name: source
+                label: Source
+                type: object
+                required: true
+                fields:
+                  - name: ru
+                    label: Russian source label
+                    type: string
+                    required: true
+                    options:
+                      minlength: 2
+                      maxlength: 100
+                  - name: en
+                    label: English source label
+                    type: string
+                    required: true
+                    options:
+                      minlength: 2
+                      maxlength: 100
+              - name: url
+                label: External URL
+                type: string
+                required: true
+                pattern:
+                  regex: "^https://[^\\s]+$"
+                  message: "Use a complete HTTPS URL."
+
+  - name: profiles
+    label: Profiles
+    type: file
+    path: src/data/cms/profiles.json
+    format: json
+    operations:
+      create: false
+      rename: false
+      delete: false
+    fields:
+      - name: profiles
+        label: Supported profiles
+        type: object
+        required: true
+        list:
+          min: 11
+          max: 11
+          collapsible:
+            collapsed: true
+            summary: "{name}"
+        fields:
+          - name: key
+            label: Platform type
+            type: select
+            readonly: true
+            required: true
+            options:
+              values:
+                - orcid
+                - googleScholar
+                - researchGate
+                - webOfScience
+                - github
+                - instagram
+                - threads
+                - youtube
+                - dzen
+                - spotify
+                - facebook
+          - name: name
+            label: Platform name
+            type: string
+            readonly: true
+            required: true
+          - name: url
+            label: Profile URL
+            type: string
+            required: true
+            pattern:
+              regex: "^https://[^\\s]+$"
+              message: "Use a complete HTTPS URL."
+          - name: order
+            label: Display order
+            type: number
+            required: true
+            options:
+              min: 1
+              max: 999
+          - name: active
+            label: Active
+            type: boolean
+            required: true
+
+  - name: homepage-materials
+    label: "Homepage: Featured publications"
+    type: file
+    path: src/data/cms/home-materials.json
+    format: json
+    operations:
+      create: false
+      rename: false
+      delete: false
+    fields:
+      - name: featuredPublicationSlugs
+        label: Existing publications
+        type: select
+        required: true
+        description: "Choose one to three existing verified publications. Their RU/EN titles come from the publication catalogue."
+        options:
+          multiple: true
+          min: 1
+          max: 3
+          values:
+            - name: comparative-xray-morphometry-moose-cattle
+              label: Comparative X-ray morphometry of moose and cattle
+            - name: hoof-capsule-cattle-moose
+              label: Micromorphological characteristics of the hoof capsule
+            - name: diagnostic-imaging-distal-limb-cattle
+              label: Diagnostic imaging of distal limb disorders in cattle
+            - name: distal-limb-disorders-cattle
+              label: Structure of distal limb disorders in cattle
+            - name: digitalization-cattle-farming
+              label: Digitalization of cattle farming
+            - name: ovariectomy-ovariohysterectomy-cats
+              label: Ovariectomy and ovariohysterectomy in cats
+            - name: feline-calicivirus-saint-petersburg
+              label: Feline calicivirus prevalence in Saint Petersburg
+            - name: urethral-intussusception-cat
+              label: Urethral intussusception in a cat
+            - name: xray-morphometric-laminitis-cattle-patent
+              label: X-ray morphometric diagnosis of laminitis in cattle

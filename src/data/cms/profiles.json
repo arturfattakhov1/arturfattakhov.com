@@ -1,0 +1,81 @@
+{
+  "profiles": [
+    {
+      "key": "orcid",
+      "name": "ORCID",
+      "url": "https://orcid.org/0000-0003-4142-0469",
+      "order": 10,
+      "active": true
+    },
+    {
+      "key": "googleScholar",
+      "name": "Google Scholar",
+      "url": "https://scholar.google.com/citations?user=eAu1IAsAAAAJ&hl=ru",
+      "order": 20,
+      "active": true
+    },
+    {
+      "key": "researchGate",
+      "name": "ResearchGate",
+      "url": "https://www.researchgate.net/profile/Artur-Fattakhov-2",
+      "order": 30,
+      "active": true
+    },
+    {
+      "key": "webOfScience",
+      "name": "Web of Science",
+      "url": "https://www.webofscience.com/wos/author/record/QOA-6820-2026",
+      "order": 40,
+      "active": true
+    },
+    {
+      "key": "github",
+      "name": "GitHub",
+      "url": "https://github.com/arturfattakhov1",
+      "order": 110,
+      "active": true
+    },
+    {
+      "key": "instagram",
+      "name": "Instagram",
+      "url": "https://www.instagram.com/dr.arturfattakhov/",
+      "order": 80,
+      "active": true
+    },
+    {
+      "key": "threads",
+      "name": "Threads",
+      "url": "https://www.threads.com/@dr.arturfattakhov",
+      "order": 90,
+      "active": true
+    },
+    {
+      "key": "youtube",
+      "name": "YouTube",
+      "url": "https://www.youtube.com/@dr.arturfattakhov",
+      "order": 50,
+      "active": true
+    },
+    {
+      "key": "dzen",
+      "name": "Yandex Zen",
+      "url": "https://dzen.ru/arturfattakhov",
+      "order": 60,
+      "active": true
+    },
+    {
+      "key": "spotify",
+      "name": "Spotify",
+      "url": "https://open.spotify.com/show/033OTXXuHSVlHqyxOQTUdm",
+      "order": 70,
+      "active": true
+    },
+    {
+      "key": "facebook",
+      "name": "Facebook",
+      "url": "https://www.facebook.com/profile.php?id=61582287094595",
+      "order": 100,
+      "active": true
+    }
+  ]
+}

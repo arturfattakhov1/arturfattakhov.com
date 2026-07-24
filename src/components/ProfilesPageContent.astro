@@ -9,7 +9,10 @@ interface Props { lang: Language; }
 const { lang } = Astro.props;
 const copy = profilesPageCopy[lang];
 const byKey = new Map(identity.profiles.map((profile) => [profile.key, profile] as const));
-const select = (keys: readonly ProfileKey[]) => keys.map((key) => byKey.get(key)).filter((profile) => profile !== undefined);
+const select = (keys: readonly ProfileKey[]) => keys
+  .map((key) => byKey.get(key))
+  .filter((profile) => profile !== undefined)
+  .toSorted((a, b) => a.order - b.order);
 ---
 <ProfilesSections lang={lang}>
   <Fragment slot="opening"><Container size="reading" class="profiles-compact-intro"><p>{copy.opening}</p></Container></Fragment>
