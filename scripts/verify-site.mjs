@@ -13,11 +13,6 @@ const publicationSlugs = [
   'feline-calicivirus-saint-petersburg', 'urethral-intussusception-cat', 'xray-morphometric-laminitis-cattle-patent',
 ];
 const legacyRoutes = ['timeline', 'cv', 'blog', 'faq', 'uses'];
-const draftSlugs = [
-  'podgotovka-k-onlayn-konsultatsii', 'preparing-for-an-online-consultation',
-  'priznaki-srochnogo-obrashcheniya', 'signs-that-need-urgent-veterinary-attention',
-  'chtenie-analizov-bez-samodiagnostiki', 'reading-lab-results-without-self-diagnosis',
-];
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -275,6 +270,7 @@ for (const field of ['relatedMedia', 'relatedVideo', 'relatedPodcast']) {
 }
 
 const knowledgeSources = walk(join(root, 'src/content/knowledge')).filter((path) => path.endsWith('.md'));
+const knowledgeRecords = [];
 const knowledgeTranslations = new Map();
 for (const path of knowledgeSources) {
   const relativePath = relative(root, path);
@@ -291,16 +287,21 @@ for (const path of knowledgeSources) {
   }
   const translationKey = source.match(/^translationKey:\s*([^\n]+)$/m)?.[1].trim();
   const lang = source.match(/^lang:\s*(ru|en)$/m)?.[1];
+  const routeSlug = source.match(/^routeSlug:\s*([^\n]+)$/m)?.[1].trim();
   const status = source.match(/^status:\s*(draft|published)$/m)?.[1];
-  assert(translationKey && lang && status, `${relativePath}: translation metadata is invalid`);
+  assert(translationKey && lang && routeSlug && status, `${relativePath}: translation metadata is invalid`);
+  const record = { translationKey, lang, routeSlug, status, relativePath };
+  knowledgeRecords.push(record);
   const pair = knowledgeTranslations.get(translationKey) ?? [];
-  pair.push({ lang, status, relativePath });
+  pair.push(record);
   knowledgeTranslations.set(translationKey, pair);
 }
 for (const [translationKey, pair] of knowledgeTranslations) {
   assert(pair.length === 2 && new Set(pair.map((entry) => entry.lang)).size === 2, `${translationKey}: Knowledge RU/EN pair is incomplete`);
   assert(new Set(pair.map((entry) => entry.status)).size === 1, `${translationKey}: Knowledge RU/EN publication status differs`);
 }
+const publishedKnowledgeRecords = knowledgeRecords.filter((record) => record.status === 'published');
+const draftKnowledgeRecords = knowledgeRecords.filter((record) => record.status === 'draft');
 
 const cmsHomeHelpBlock = cmsContentBlock(cmsConfig, 'homepage-help');
 const expectedHomeHelpPaths = languages.flatMap((lang) => [
@@ -451,6 +452,10 @@ for (const lang of languages) {
   for (const route of standardRoutes) expectedPages.push({ lang, route, path: htmlPath(lang, route) });
   for (const slug of publicationSlugs) expectedPages.push({ lang, route: `publications/${slug}`, path: htmlPath(lang, `publications/${slug}`) });
 }
+for (const record of publishedKnowledgeRecords) {
+  const route = `knowledge/${record.routeSlug}`;
+  expectedPages.push({ lang: record.lang, route, path: htmlPath(record.lang, route), knowledgeArticle: true });
+}
 
 for (const page of expectedPages) {
   assert(existsSync(page.path), `missing generated page: /${page.lang}/${page.route}`);
@@ -462,6 +467,7 @@ for (const page of expectedPages) {
   assert(html.includes('hreflang="ru"') && html.includes('hreflang="en"') && html.includes('hreflang="x-default"'), `${routePath}: hreflang set is incomplete`);
   assert(html.includes('"@type":"Person"') && html.includes('"@type":"WebSite"'), `${routePath}: identity structured data is missing`);
   if (page.route) assert(html.includes('"@type":"BreadcrumbList"'), `${routePath}: BreadcrumbList is missing`);
+  if (page.knowledgeArticle) assert(html.includes('"@type":"Article"'), `${routePath}: Article structured data is missing`);
   assert(!/<script\b[^>]*\bsrc="https?:\/\//i.test(html), `${routePath}: external script detected`);
   assert(!/<link\b[^>]*href="https?:\/\/[^\"]+\.(?:css|woff2?)/i.test(html), `${routePath}: external stylesheet or font detected`);
 }
@@ -481,7 +487,20 @@ for (const lang of languages) {
   assert(publications.includes('data-record-count="9"') && publications.includes('data-patent-count="1"'), `${lang}: computed publication count markers are incorrect`);
 
   const knowledge = readFileSync(htmlPath(lang, 'knowledge'), 'utf8');
-  assert(knowledge.includes('data-published-count="0"') && knowledge.includes('data-knowledge-empty'), `${lang}: empty owner Knowledge Base state is incorrect`);
+  const publishedForLang = publishedKnowledgeRecords.filter((record) => record.lang === lang);
+  const draftForLang = draftKnowledgeRecords.filter((record) => record.lang === lang);
+  assert(knowledge.includes(`data-published-count="${publishedForLang.length}"`), `${lang}: published Knowledge count is incorrect`);
+  if (publishedForLang.length === 0) {
+    assert(knowledge.includes('data-knowledge-empty'), `${lang}: empty Knowledge state is missing`);
+  } else {
+    assert(!knowledge.includes('data-knowledge-empty'), `${lang}: empty Knowledge state is visible with published articles`);
+  }
+  for (const record of publishedForLang) {
+    assert(knowledge.includes(`/${lang}/knowledge/${record.routeSlug}/`), `${lang}: published Knowledge article is missing ${record.routeSlug}`);
+  }
+  for (const record of draftForLang) {
+    assert(!knowledge.includes(`/${lang}/knowledge/${record.routeSlug}/`), `${lang}: draft Knowledge article leaked ${record.routeSlug}`);
+  }
 
   const media = readFileSync(htmlPath(lang, 'media'), 'utf8');
   for (const record of cmsMedia.records) {
@@ -596,10 +615,6 @@ const requiredRedirects = [
 for (const rule of requiredRedirects) assert(redirects.includes(rule), `redirect missing: ${rule}`);
 for (const lang of languages) for (const route of legacyRoutes) assert(!existsSync(htmlPath(lang, route)), `legacy route still generated: /${lang}/${route}/`);
 
-const draftSources = knowledgeSources;
-assert(draftSources.length === 6, 'expected six bilingual draft Knowledge records');
-for (const path of draftSources) assert(readFileSync(path, 'utf8').includes('status: draft'), `${relative(root, path)} must remain draft-only`);
-
 const sitemap = read('dist/sitemap-0.xml');
 const sitemapUrls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
 const draftMediaMarkers = cmsMedia.records
@@ -608,22 +623,61 @@ const draftMediaMarkers = cmsMedia.records
     ...languages.flatMap((lang) => [record.title[lang], record.summary[lang], record.role?.[lang]].filter(Boolean)),
     ...record.externalLinks.map((link) => link.url),
   ]);
-assert(sitemapUrls.length === 46 && new Set(sitemapUrls).size === 46, `sitemap must contain 46 unique public URLs, found ${sitemapUrls.length}`);
+assert(
+  sitemapUrls.length === expectedPages.length && new Set(sitemapUrls).size === expectedPages.length,
+  `sitemap must contain ${expectedPages.length} unique public URLs, found ${sitemapUrls.length}`,
+);
 for (const lang of languages) assert(sitemap.includes(`${site}/${lang}/consultation/`), `${lang}: Consultation is missing from sitemap`);
-for (const slug of draftSlugs) assert(!sitemap.includes(slug), `draft leaked into sitemap: ${slug}`);
+for (const record of publishedKnowledgeRecords) {
+  const url = `${site}/${record.lang}/knowledge/${record.routeSlug}/`;
+  assert(sitemapUrls.includes(url), `published Knowledge route is missing from sitemap: ${url}`);
+}
+for (const record of draftKnowledgeRecords) {
+  const url = `${site}/${record.lang}/knowledge/${record.routeSlug}/`;
+  assert(!sitemapUrls.includes(url), `draft Knowledge route leaked into sitemap: ${url}`);
+}
 for (const marker of draftMediaMarkers) assert(!sitemap.includes(marker), `draft Media record leaked into sitemap: ${marker}`);
 for (const route of legacyRoutes) assert(!sitemap.includes(`/${route}/`), `legacy route leaked into sitemap: ${route}`);
 
 const pagefindEntry = JSON.parse(read('dist/pagefind/pagefind-entry.json'));
-for (const lang of languages) assert(pagefindEntry.languages?.[lang]?.page_count === 17, `${lang}: expected 17 isolated Pagefind pages`);
+const baselinePagefindCount = 17;
+const expectedPagefindCounts = Object.fromEntries(languages.map((lang) => [
+  lang,
+  baselinePagefindCount + publishedKnowledgeRecords.filter((record) => record.lang === lang).length,
+]));
+for (const lang of languages) {
+  assert(
+    pagefindEntry.languages?.[lang]?.page_count === expectedPagefindCounts[lang],
+    `${lang}: expected ${expectedPagefindCounts[lang]} isolated Pagefind pages`,
+  );
+}
 const pagefindFragments = walk(join(dist, 'pagefind/fragment')).filter((path) => path.endsWith('.pf_fragment'));
-assert(pagefindFragments.length === 34, `expected 34 Pagefind fragments, found ${pagefindFragments.length}`);
+const expectedPagefindFragmentCount = Object.values(expectedPagefindCounts).reduce((sum, value) => sum + value, 0);
+assert(
+  pagefindFragments.length === expectedPagefindFragmentCount,
+  `expected ${expectedPagefindFragmentCount} Pagefind fragments, found ${pagefindFragments.length}`,
+);
+const pagefindFragmentsByLanguage = Object.fromEntries(languages.map((lang) => [lang, []]));
 for (const path of pagefindFragments) {
   const fragment = gunzipSync(readFileSync(path)).toString('utf8');
   const lang = relative(join(dist, 'pagefind/fragment'), path).split('_')[0];
+  assert(languages.includes(lang), `Pagefind fragment has an unknown language: ${relative(root, path)}`);
+  pagefindFragmentsByLanguage[lang].push(fragment);
   assert(fragment.includes(`/${lang}/`), `Pagefind fragment crossed language index: ${relative(root, path)}`);
-  for (const slug of draftSlugs) assert(!fragment.includes(slug), `draft leaked into Pagefind: ${slug}`);
+  for (const record of draftKnowledgeRecords) {
+    assert(!fragment.includes(record.routeSlug), `draft leaked into Pagefind: ${record.routeSlug}`);
+  }
+  for (const record of publishedKnowledgeRecords.filter((entry) => entry.lang !== lang)) {
+    assert(!fragment.includes(`/${record.lang}/knowledge/${record.routeSlug}/`), `published Knowledge crossed Pagefind language index: ${record.routeSlug}`);
+  }
   for (const marker of draftMediaMarkers) assert(!fragment.includes(marker), `draft Media record leaked into Pagefind: ${marker}`);
+}
+for (const record of publishedKnowledgeRecords) {
+  const indexedContent = pagefindFragmentsByLanguage[record.lang].join('\n');
+  assert(
+    indexedContent.includes(`/${record.lang}/knowledge/${record.routeSlug}/`),
+    `published Knowledge route is missing from Pagefind: ${record.routeSlug}`,
+  );
 }
 
 const htmlOutput = expectedPages.map((page) => readFileSync(page.path, 'utf8')).join('\n');
@@ -652,7 +706,11 @@ for (const directiveName of ['connect-src', 'form-action']) {
 }
 
 const generatedHtml = walk(dist).filter((path) => path.endsWith('.html') && !path.includes('/pagefind/'));
-assert(generatedHtml.length === 49, `expected 49 HTML files including root redirect and 404, found ${generatedHtml.length}`);
+const expectedGeneratedHtmlCount = expectedPages.length + 3;
+assert(
+  generatedHtml.length === expectedGeneratedHtmlCount,
+  `expected ${expectedGeneratedHtmlCount} HTML files including root redirect and 404, found ${generatedHtml.length}`,
+);
 
-console.log(`Verified 46 localized public URLs, 9 unique publication records, 6 hidden drafts, ${requiredRedirects.length} redirect rules, and ${generatedHtml.length} generated HTML files.`);
+console.log(`Verified ${sitemapUrls.length} localized public URLs, ${publicationSlugs.length} unique publication records, ${publishedKnowledgeRecords.length} published Knowledge records, ${draftKnowledgeRecords.length} draft Knowledge records, ${requiredRedirects.length} redirect rules, and ${generatedHtml.length} generated HTML files.`);
 console.log(`Pagefind: ru=${pagefindEntry.languages.ru.page_count}, en=${pagefindEntry.languages.en.page_count}.`);
