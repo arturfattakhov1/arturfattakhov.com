@@ -17,6 +17,7 @@ interface Props {
   searchable?: boolean;
   searchType?: string;
   alternatePaths?: Record<Language, string>;
+  appendSiteName?: boolean;
 }
 
 const {
@@ -31,6 +32,7 @@ const {
   searchable = false,
   searchType,
   alternatePaths,
+  appendSiteName = true,
 } = Astro.props;
 ---
 
@@ -50,6 +52,7 @@ const {
       publishedTime={publishedTime}
       modifiedTime={modifiedTime}
       alternatePaths={alternatePaths}
+      appendSiteName={appendSiteName}
     />
     {searchable && searchType && (
       <meta name="page-type" content={searchType} data-pagefind-meta="type[content]" />

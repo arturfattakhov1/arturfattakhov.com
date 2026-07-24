@@ -12,6 +12,7 @@ interface Props {
   publishedTime?: Date;
   modifiedTime?: Date;
   alternatePaths?: Record<Language, string>;
+  appendSiteName?: boolean;
 }
 
 const {
@@ -23,6 +24,7 @@ const {
   publishedTime,
   modifiedTime,
   alternatePaths,
+  appendSiteName = true,
 } = Astro.props;
 
 const siteUrl = Astro.site ?? new URL(identity.url);
@@ -31,7 +33,7 @@ const russianUrl = new URL(alternatePaths?.ru ?? swapLanguage(canonicalPath, 'ru
 const englishUrl = new URL(alternatePaths?.en ?? swapLanguage(canonicalPath, 'en'), siteUrl);
 const isAboutPage = canonicalPath === `/${lang}/about/`;
 const isHomePage = canonicalPath === `/${lang}/`;
-const documentTitle = isHomePage ? title : `${title} — ${identity.name[lang]}`;
+const documentTitle = isHomePage || !appendSiteName ? title : `${title} — ${identity.name[lang]}`;
 const structuredData = createIdentityJsonLd(lang, isAboutPage);
 ---
 

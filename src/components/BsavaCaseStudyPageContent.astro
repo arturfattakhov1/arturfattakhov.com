@@ -1,0 +1,144 @@
+---
+import { Image } from 'astro:assets';
+import html5Player from '../assets/images/cases/bsava-manual-ultrasonography-html5-player.png';
+import { bsavaCaseStudyCopy } from '../data/bsava-case-study';
+import type { Language } from '../i18n/config';
+import { localizedPath } from '../i18n/config';
+import Button from './Button.astro';
+import Container from './Container.astro';
+import PageSection from './PageSection.astro';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const copy = bsavaCaseStudyCopy[lang];
+---
+
+<section class="case-result" aria-labelledby="case-result-heading">
+  <Container size="wide">
+    <h2 id="case-result-heading">{copy.result.title}</h2>
+    <p class="case-result__introduction">{copy.result.introduction}</p>
+    <dl class="case-metrics">
+      {copy.result.metrics.map((metric) => (
+        <div>
+          <dt>{metric.value}</dt>
+          <dd>{metric.label}</dd>
+        </div>
+      ))}
+    </dl>
+  </Container>
+</section>
+
+<aside class="case-access-note" aria-labelledby="case-access-heading">
+  <Container size="reading">
+    <h2 id="case-access-heading">{copy.access.title}</h2>
+    {copy.access.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+  </Container>
+</aside>
+
+<div class="section-stack case-study-sections">
+  <PageSection id="original-problem" title={copy.problem.title}>
+    <Container size="reading" class="case-text-flow">
+      {copy.problem.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+    </Container>
+  </PageSection>
+
+  <PageSection id="environment-diagnosis" title={copy.diagnosis.title}>
+    <Container size="wide">
+      <p class="case-section-lead">{copy.diagnosis.introduction}</p>
+      <h3 class="case-subheading">{copy.diagnosis.environmentLabel}</h3>
+      <ol class="case-environment-flow" role="list">
+        {copy.diagnosis.environment.map((step) => <li>{step}</li>)}
+      </ol>
+      <h3 class="case-subheading">{copy.diagnosis.findingsLabel}</h3>
+      <ul class="case-evidence-list">
+        {copy.diagnosis.findings.map((finding) => <li>{finding}</li>)}
+      </ul>
+    </Container>
+  </PageSection>
+
+  <PageSection id="restoration" title={copy.restoration.title}>
+    <Container size="wide">
+      <p class="case-section-lead">{copy.restoration.introduction}</p>
+      <ol class="case-restoration-list">
+        {copy.restoration.items.map((item, index) => (
+          <li>
+            <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+            <p>{item}</p>
+          </li>
+        ))}
+      </ol>
+      <figure class="case-evidence-figure">
+        <Image
+          src={html5Player}
+          alt={copy.restoration.screenshotAlt}
+          width={1600}
+          height={884}
+          format="webp"
+          quality={78}
+          loading="lazy"
+          decoding="async"
+        />
+        <figcaption>{copy.restoration.screenshotCaption}</figcaption>
+      </figure>
+    </Container>
+  </PageSection>
+
+  <PageSection id="compatibility-layer" title={copy.diagram.title}>
+    <Container size="wide">
+      <p class="case-section-lead">{copy.diagram.introduction}</p>
+      <ol class="case-architecture" aria-label={copy.diagram.title}>
+        {copy.diagram.steps.map((step) => <li><span>{step}</span></li>)}
+      </ol>
+    </Container>
+  </PageSection>
+
+  <PageSection id="validation" title={copy.validation.title}>
+    <Container size="reading" class="case-text-flow">
+      {copy.validation.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+    </Container>
+  </PageSection>
+
+  <PageSection id="ai-role" title={copy.ai.title}>
+    <Container size="reading" class="case-text-flow">
+      {copy.ai.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+    </Container>
+  </PageSection>
+
+  <PageSection id="other-legacy-systems" title={copy.relevance.title}>
+    <Container size="reading">
+      <div class="case-text-flow">
+        {copy.relevance.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+      <ul class="case-evidence-list">
+        {copy.relevance.considerations.map((consideration) => <li>{consideration}</li>)}
+      </ul>
+    </Container>
+  </PageSection>
+
+  <PageSection id="questions" title={copy.faq.title}>
+    <Container size="wide">
+      <dl class="case-faq">
+        {copy.faq.items.map((item) => (
+          <div>
+            <dt>{item.question}</dt>
+            <dd>{item.answer}</dd>
+          </div>
+        ))}
+      </dl>
+    </Container>
+  </PageSection>
+
+  <PageSection id="collaboration" title={copy.collaboration.title} density="open">
+    <Container size="reading" class="case-collaboration">
+      {copy.collaboration.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+      <Button href={localizedPath(lang, 'contact')}>{copy.collaboration.button}</Button>
+      <div class="case-ip-note" aria-labelledby="case-ip-heading">
+        <h3 id="case-ip-heading">{copy.ip.title}</h3>
+        {copy.ip.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+    </Container>
+  </PageSection>
+</div>

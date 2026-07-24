@@ -9,7 +9,7 @@ interface AboutPageCopy {
   qualification: { body: string; details: string[] };
   vision: { body: string; principles: string[] };
   timeline: { introduction: string; sourceLabel: string };
-  links: { practice: string; research: string; publications: string; contact: string };
+  links: { practice: string; research: string; publications: string; caseStudy: string; contact: string };
 }
 
 export const aboutPageCopy: Record<Language, AboutPageCopy> = {
@@ -45,7 +45,13 @@ export const aboutPageCopy: Record<Language, AboutPageCopy> = {
       introduction: 'Ключевые подтверждённые этапы собраны здесь как ориентир, а не как полный CV.',
       sourceLabel: 'Проверенный этап',
     },
-    links: { practice: 'Практика', research: 'Исследования', publications: 'Публикации', contact: 'Связаться' },
+    links: {
+      practice: 'Практика',
+      research: 'Исследования',
+      publications: 'Публикации',
+      caseStudy: 'Практический digital-кейс: восстановление legacy veterinary software',
+      contact: 'Связаться',
+    },
   },
   en: {
     introduction: {
@@ -79,6 +85,12 @@ export const aboutPageCopy: Record<Language, AboutPageCopy> = {
       introduction: 'Selected verified milestones are shown here as orientation rather than as a full CV.',
       sourceLabel: 'Verified milestone',
     },
-    links: { practice: 'Practice', research: 'Research', publications: 'Publications', contact: 'Contact' },
+    links: {
+      practice: 'Practice',
+      research: 'Research',
+      publications: 'Publications',
+      caseStudy: 'Practical digital case: restoring legacy veterinary software',
+      contact: 'Contact',
+    },
   },
 };
