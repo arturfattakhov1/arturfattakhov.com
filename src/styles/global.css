@@ -4367,6 +4367,22 @@ main:has(> .knowledge-article) > .breadcrumbs {
   font-size: clamp(2.2rem, 4.2vw, 3.25rem);
 }
 
+.knowledge-article-list {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.knowledge-article-list > li {
+  min-width: 0;
+}
+
+.knowledge-article-list article {
+  padding: var(--space-6);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
 .knowledge-article-list__excerpt {
   margin: var(--space-3) 0 0;
   color: var(--text-soft);
@@ -4723,6 +4739,14 @@ main:has(> .knowledge-article) > .breadcrumbs {
   .media-channel-grid,
   .profile-icon-grid {
     grid-template-columns: 1fr;
+  }
+
+  .knowledge-article-list {
+    gap: var(--space-5);
+  }
+
+  .knowledge-article-list article {
+    padding: var(--space-5);
   }
 
   .about-inline-timeline li,
