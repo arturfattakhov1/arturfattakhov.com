@@ -24,6 +24,7 @@ interface HomePageCopy {
     introduction: string;
     items: Array<{ title: string; description: string }>;
     aboutLink: string;
+    caseStudyLink: string;
   };
   materials: {
     title: string;
@@ -73,6 +74,7 @@ export const homePageCopy: Record<Language, HomePageCopy> = {
         },
       ],
       aboutLink: 'Обо мне и опыт',
+      caseStudyLink: 'Практический кейс: восстановление legacy veterinary software',
     },
     materials: {
       title: 'Новые материалы',
@@ -118,6 +120,7 @@ export const homePageCopy: Record<Language, HomePageCopy> = {
         },
       ],
       aboutLink: 'About and experience',
+      caseStudyLink: 'Case study: restoring legacy veterinary software',
     },
     materials: {
       title: 'New material',
