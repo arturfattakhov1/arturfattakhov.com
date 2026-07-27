@@ -3691,6 +3691,27 @@ h1 {
   margin: 0 0 var(--space-5);
 }
 
+.knowledge-article .prose figure {
+  max-width: 100%;
+  margin: var(--space-10) 0;
+}
+
+.knowledge-article .prose img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.knowledge-article .prose figcaption {
+  margin-top: var(--space-3);
+  color: var(--muted);
+  font-size: var(--font-metadata);
+  line-height: 1.55;
+}
+
 .site-footer {
   padding-block: var(--space-10) var(--space-12);
   color: var(--muted);
