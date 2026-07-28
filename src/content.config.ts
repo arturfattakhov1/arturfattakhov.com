@@ -10,6 +10,17 @@ const relatedResource = z.object({
   url: z.url(),
 });
 
+const knowledgeAudio = z.object({
+  title: z.string(),
+  description: z.string(),
+  fileUrl: z.string().regex(/^\/audio\/podcast\/[a-z0-9]+(?:-[a-z0-9]+)*\.m4a$/),
+  mimeType: z.literal('audio/mp4'),
+  language,
+  duration: z.string().regex(/^PT(?=.+)(?:\d+H)?(?:[0-5]?\dM)?(?:[0-5]?\d(?:\.\d+)?S)?$/),
+  durationLabel: z.string(),
+  spotifyUrl: z.url().refine((url) => url.startsWith('https://'), 'Spotify URL must use HTTPS'),
+});
+
 const knowledge = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/knowledge' }),
   schema: z.object({
@@ -27,6 +38,7 @@ const knowledge = defineCollection({
     relatedMedia: z.array(relatedResource).default([]),
     relatedVideo: z.array(relatedResource).default([]),
     relatedPodcast: z.array(relatedResource).default([]),
+    audio: knowledgeAudio.optional(),
   }),
 });
 
