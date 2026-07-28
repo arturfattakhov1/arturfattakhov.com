@@ -817,6 +817,10 @@ const headers = read('public/_headers');
 assert(headers.includes("script-src 'self' 'wasm-unsafe-eval'"), 'Pagefind CSP allowance is missing');
 assert(!headers.includes("'unsafe-eval'"), 'ordinary unsafe-eval is prohibited');
 assert(headers.includes("font-src 'self'"), 'fonts must remain self-hosted');
+assert(
+  headers.includes('/audio/*\n  Cache-Control: public, max-age=0, must-revalidate\n  Accept-Ranges: bytes'),
+  'same-origin audio range and revalidation headers are missing',
+);
 const csp = headers.match(/Content-Security-Policy:\s*([^\n]+)/)?.[1] ?? '';
 assert(csp.startsWith("default-src 'self'"), 'same-origin media fallback in default-src must remain intact');
 assert(!csp.includes('open.spotify.com'), 'Spotify must not be added to CSP');
