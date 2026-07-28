@@ -13,6 +13,15 @@ featured: false
 relatedMedia: []
 relatedVideo: []
 relatedPodcast: []
+audio:
+  title: "Кошку рвёт: когда нужна помощь"
+  description: "Аудиозапись по теме статьи."
+  fileUrl: "/audio/podcast/s01e01-koshku-rvet-kogda-nuzhna-pomoshch.m4a"
+  mimeType: "audio/mp4"
+  language: "ru"
+  duration: "PT8M7.596S"
+  durationLabel: "8 минут"
+  spotifyUrl: "https://open.spotify.com/show/033OTXXuHSVlHqyxOQTUdm"
 ---
 
 ## Если нет времени читать

@@ -13,6 +13,15 @@ featured: false
 relatedMedia: []
 relatedVideo: []
 relatedPodcast: []
+audio:
+  title: "Vomiting in cats: when help is needed"
+  description: "A Russian-language audio recording related to this article."
+  fileUrl: "/audio/podcast/s01e01-koshku-rvet-kogda-nuzhna-pomoshch.m4a"
+  mimeType: "audio/mp4"
+  language: "ru"
+  duration: "PT8M7.596S"
+  durationLabel: "8 minutes"
+  spotifyUrl: "https://open.spotify.com/show/033OTXXuHSVlHqyxOQTUdm"
 ---
 
 ## If you do not have time to read

@@ -49,6 +49,20 @@ function frontmatterKeys(source, path) {
   return [...frontmatter.matchAll(/^([A-Za-z][A-Za-z0-9]*):/gm)].map((match) => match[1]);
 }
 
+function parseKnowledgeAudio(source, path, expectedFields) {
+  const block = source.match(/^audio:\r?\n((?: {2}[A-Za-z][A-Za-z0-9]*:\s*[^\r\n]*(?:\r?\n|$))+)/m)?.[1];
+  assert(block, `${path}: audio must be a structured object`);
+  const audio = {};
+  for (const match of block.matchAll(/^  ([A-Za-z][A-Za-z0-9]*):\s*(.+)$/gm)) {
+    const [, key, rawValue] = match;
+    assert(!(key in audio), `${path}: duplicate audio field "${key}"`);
+    assert(/^"(?:[^"\\]|\\.)*"$/.test(rawValue), `${path}: audio.${key} must be a quoted string`);
+    audio[key] = JSON.parse(rawValue);
+  }
+  exactKeys(audio, expectedFields, `${path}: audio`);
+  return audio;
+}
+
 function exactKeys(value, expected, label) {
   assert(value && typeof value === 'object' && !Array.isArray(value), `${label}: expected an object`);
   const keys = Object.keys(value);
@@ -249,15 +263,20 @@ for (const path of cmsPaths) {
 }
 
 const cmsKnowledgeBlock = cmsContentBlock(cmsConfig, 'knowledge');
-const expectedKnowledgeFrontmatterFields = [
+const knowledgeBaseFrontmatterFields = [
   'routeSlug', 'lang', 'translationKey', 'title', 'excerpt', 'category', 'date',
   'seoTitle', 'metaDescription', 'status', 'featured', 'relatedMedia', 'relatedVideo', 'relatedPodcast',
 ];
+const knowledgeAudioFields = [
+  'title', 'description', 'fileUrl', 'mimeType', 'language', 'duration', 'durationLabel', 'spotifyUrl',
+];
+const expectedKnowledgeFrontmatterFields = [...knowledgeBaseFrontmatterFields, 'audio'];
 const expectedKnowledgeCmsPaths = [
   ...expectedKnowledgeFrontmatterFields,
   'relatedMedia.title', 'relatedMedia.url',
   'relatedVideo.title', 'relatedVideo.url',
   'relatedPodcast.title', 'relatedPodcast.url',
+  ...knowledgeAudioFields.map((field) => `audio.${field}`),
   'body',
 ];
 const knowledgeDescriptors = assertCmsFieldPaths(cmsKnowledgeBlock, expectedKnowledgeCmsPaths, 'Knowledge');
@@ -265,7 +284,7 @@ assertEditablePaths(knowledgeDescriptors, [
   'routeSlug', 'lang', 'translationKey', 'title', 'excerpt', 'category', 'date',
   'seoTitle', 'metaDescription', 'status', 'body',
 ], 'Knowledge');
-for (const field of ['featured', 'relatedMedia', 'relatedVideo', 'relatedPodcast']) {
+for (const field of ['featured', 'relatedMedia', 'relatedVideo', 'relatedPodcast', 'audio']) {
   const descriptor = knowledgeDescriptors.find((candidate) => candidate.path === field);
   assert(descriptor?.hidden && descriptor.ownBlock.includes('label: false'), `CMS technical field must remain hidden: ${field}`);
 }
@@ -274,6 +293,9 @@ for (const field of ['relatedMedia', 'relatedVideo', 'relatedPodcast']) {
   assert(fieldBlock.includes('type: object'), `CMS related field must remain structured: ${field}`);
   assert(fieldBlock.includes('default: []') && fieldBlock.includes('list: true'), `CMS related field must preserve an array: ${field}`);
 }
+const audioFieldBlock = knowledgeDescriptors.find((candidate) => candidate.path === 'audio')?.ownBlock ?? '';
+assert(audioFieldBlock.includes('type: object'), 'CMS audio field must remain structured');
+assert(!audioFieldBlock.includes('list: true'), 'CMS audio field must remain a single optional object');
 
 const knowledgeSources = walk(join(root, 'src/content/knowledge')).filter((path) => path.endsWith('.md'));
 const knowledgeRecords = [];
@@ -283,8 +305,9 @@ for (const path of knowledgeSources) {
   const source = readFileSync(path, 'utf8');
   const keys = frontmatterKeys(source, relativePath);
   assert(keys.length === new Set(keys).size, `${relativePath}: duplicate frontmatter key`);
+  const expectedSourceFields = keys.includes('audio') ? expectedKnowledgeFrontmatterFields : knowledgeBaseFrontmatterFields;
   assert(
-    JSON.stringify(keys.toSorted()) === JSON.stringify(expectedKnowledgeFrontmatterFields.toSorted()),
+    JSON.stringify(keys.toSorted()) === JSON.stringify(expectedSourceFields.toSorted()),
     `${relativePath}: frontmatter keys do not match the CMS schema: ${keys.join(', ')}`,
   );
   for (const field of ['relatedMedia', 'relatedVideo', 'relatedPodcast']) {
@@ -296,7 +319,23 @@ for (const path of knowledgeSources) {
   const routeSlug = source.match(/^routeSlug:\s*([^\n]+)$/m)?.[1].trim();
   const status = source.match(/^status:\s*(draft|published)$/m)?.[1];
   assert(translationKey && lang && routeSlug && status, `${relativePath}: translation metadata is invalid`);
-  const record = { translationKey, lang, routeSlug, status, relativePath };
+  const audio = keys.includes('audio') ? parseKnowledgeAudio(source, relativePath, knowledgeAudioFields) : null;
+  if (audio) {
+    assert(/^\/audio\/podcast\/[a-z0-9]+(?:-[a-z0-9]+)*\.m4a$/.test(audio.fileUrl), `${relativePath}: audio fileUrl is outside the allowed path`);
+    const audioPath = join(root, 'public', audio.fileUrl.slice(1));
+    assert(existsSync(audioPath) && statSync(audioPath).isFile(), `${relativePath}: audio file does not exist: ${audio.fileUrl}`);
+    assert(audio.mimeType === 'audio/mp4', `${relativePath}: audio MIME must be audio/mp4`);
+    assert(/^PT(?=.+)(?:\d+H)?(?:[0-5]?\dM)?(?:[0-5]?\d(?:\.\d+)?S)?$/.test(audio.duration), `${relativePath}: audio duration is invalid`);
+    assert(audio.language === 'ru', `${relativePath}: the available recording must be identified as Russian`);
+    let spotifyUrl;
+    try {
+      spotifyUrl = new URL(audio.spotifyUrl);
+    } catch {
+      assert(false, `${relativePath}: Spotify URL is invalid`);
+    }
+    assert(spotifyUrl.protocol === 'https:', `${relativePath}: Spotify URL must use HTTPS`);
+  }
+  const record = { translationKey, lang, routeSlug, status, relativePath, audio };
   knowledgeRecords.push(record);
   const pair = knowledgeTranslations.get(translationKey) ?? [];
   pair.push(record);
@@ -305,6 +344,12 @@ for (const path of knowledgeSources) {
 for (const [translationKey, pair] of knowledgeTranslations) {
   assert(pair.length === 2 && new Set(pair.map((entry) => entry.lang)).size === 2, `${translationKey}: Knowledge RU/EN pair is incomplete`);
   assert(new Set(pair.map((entry) => entry.status)).size === 1, `${translationKey}: Knowledge RU/EN publication status differs`);
+  const audioRecords = pair.filter((entry) => entry.audio);
+  assert(audioRecords.length === 0 || audioRecords.length === 2, `${translationKey}: Knowledge audio must be present in both RU and EN`);
+  if (audioRecords.length === 2) {
+    assert(new Set(audioRecords.map((entry) => entry.audio.fileUrl)).size === 1, `${translationKey}: RU and EN must use the same physical audio file`);
+    assert(audioRecords.every((entry) => entry.audio.language === 'ru'), `${translationKey}: RU and EN must identify the recording language as Russian`);
+  }
 }
 const publishedKnowledgeRecords = knowledgeRecords.filter((record) => record.status === 'published');
 const draftKnowledgeRecords = knowledgeRecords.filter((record) => record.status === 'draft');
@@ -472,7 +517,15 @@ for (const lang of languages) {
 }
 for (const record of publishedKnowledgeRecords) {
   const route = `knowledge/${record.routeSlug}`;
-  expectedPages.push({ lang: record.lang, route, path: htmlPath(record.lang, route), searchable: true, article: true, knowledgeArticle: true });
+  expectedPages.push({
+    lang: record.lang,
+    route,
+    path: htmlPath(record.lang, route),
+    searchable: true,
+    article: true,
+    knowledgeArticle: true,
+    knowledgeRecord: record,
+  });
 }
 
 for (const page of expectedPages) {
@@ -502,6 +555,33 @@ for (const page of expectedPages) {
       : 'does not mean that all 120 clips were watched manually in full';
     assert(html.includes(validationCopy), `${routePath}: exact 120 validation claim is missing`);
     assert(html.includes(validationBoundary), `${routePath}: manual-review limitation is missing`);
+  }
+  if (page.knowledgeArticle) {
+    const audio = page.knowledgeRecord.audio;
+    if (audio) {
+      const audioElement = html.match(/<audio\b[^>]*>/)?.[0] ?? '';
+      assert(count(html, /<audio\b/g) === 1, `${routePath}: expected exactly one audio player`);
+      assert(/\bcontrols(?:[\s=>]|$)/.test(audioElement), `${routePath}: audio controls are missing`);
+      assert(/\bpreload="none"/.test(audioElement), `${routePath}: audio preload must be none`);
+      assert(!/\bautoplay(?:[\s=>]|$)/.test(audioElement), `${routePath}: audio autoplay is prohibited`);
+      assert(
+        new RegExp(`<source\\b[^>]*\\bsrc="${audio.fileUrl.replaceAll('.', '\\.')}"[^>]*\\btype="audio/mp4"[^>]*>`).test(html),
+        `${routePath}: local audio source is missing`,
+      );
+      assert(count(html, new RegExp(`href="${audio.fileUrl}"`, 'g')) >= 1, `${routePath}: local audio fallback link is missing`);
+      assert(
+        html.includes(`href="${audio.spotifyUrl}" target="_blank" rel="noopener noreferrer"`),
+        `${routePath}: safe Spotify link is missing`,
+      );
+      assert(!/<iframe\b/i.test(html) && !/<(?:audio|source|script|iframe)\b[^>]*\bsrc="https?:\/\/open\.spotify\.com/i.test(html), `${routePath}: Spotify must not be embedded or requested on page load`);
+      assert(html.includes('"@type":"AudioObject"'), `${routePath}: AudioObject JSON-LD is missing`);
+      assert(html.includes(`"contentUrl":"${site}${audio.fileUrl}"`), `${routePath}: AudioObject contentUrl is not absolute`);
+      assert(html.includes(`"encodingFormat":"${audio.mimeType}"`), `${routePath}: AudioObject encodingFormat is incorrect`);
+      assert(html.includes(`"duration":"${audio.duration}"`) && html.includes('"inLanguage":"ru"'), `${routePath}: AudioObject language or duration is incorrect`);
+      assert(html.includes(page.lang === 'ru' ? 'На русском' : 'In Russian'), `${routePath}: recording language label is missing`);
+    } else {
+      assert(!/<audio\b/.test(html) && !html.includes('"@type":"AudioObject"'), `${routePath}: audio leaked into an article without audio data`);
+    }
   }
   assert(!/<script\b[^>]*\bsrc="https?:\/\//i.test(html), `${routePath}: external script detected`);
   assert(!/<link\b[^>]*href="https?:\/\/[^\"]+\.(?:css|woff2?)/i.test(html), `${routePath}: external stylesheet or font detected`);
@@ -738,6 +818,8 @@ assert(headers.includes("script-src 'self' 'wasm-unsafe-eval'"), 'Pagefind CSP a
 assert(!headers.includes("'unsafe-eval'"), 'ordinary unsafe-eval is prohibited');
 assert(headers.includes("font-src 'self'"), 'fonts must remain self-hosted');
 const csp = headers.match(/Content-Security-Policy:\s*([^\n]+)/)?.[1] ?? '';
+assert(csp.startsWith("default-src 'self'"), 'same-origin media fallback in default-src must remain intact');
+assert(!csp.includes('open.spotify.com'), 'Spotify must not be added to CSP');
 for (const directiveName of ['connect-src', 'form-action']) {
   const directive = csp.split(';').map((part) => part.trim()).find((part) => part.startsWith(`${directiveName} `)) ?? '';
   const sources = directive.split(/\s+/).slice(1);

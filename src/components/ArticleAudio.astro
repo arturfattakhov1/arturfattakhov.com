@@ -1,0 +1,121 @@
+---
+import type { Language } from '../i18n/config';
+
+interface AudioData {
+  title: string;
+  description: string;
+  fileUrl: string;
+  mimeType: 'audio/mp4';
+  language: Language;
+  duration: string;
+  durationLabel: string;
+  spotifyUrl: string;
+}
+
+interface Props {
+  lang: Language;
+  audio: AudioData;
+}
+
+const { lang, audio } = Astro.props;
+const labels = {
+  ru: {
+    eyebrow: 'Аудиозапись',
+    language: 'На русском',
+    open: 'Открыть аудиофайл',
+    spotify: 'Подкаст в Spotify',
+    player: 'Аудиозапись',
+    fallback: 'Ваш браузер не поддерживает воспроизведение аудио.',
+  },
+  en: {
+    eyebrow: 'Audio',
+    language: 'In Russian',
+    open: 'Open audio file',
+    spotify: 'Podcast on Spotify',
+    player: 'Audio recording',
+    fallback: 'Your browser does not support audio playback.',
+  },
+}[lang];
+---
+
+<section class="article-audio" aria-labelledby="article-audio-title">
+  <p class="eyebrow">{labels.eyebrow}</p>
+  <h2 id="article-audio-title">{audio.title}</h2>
+  <p class="article-audio__description">{audio.description}</p>
+  <p class="article-audio__meta">
+    <span>{labels.language}</span>
+    <span aria-hidden="true">·</span>
+    <time datetime={audio.duration}>{audio.durationLabel}</time>
+  </p>
+  <audio
+    controls
+    preload="none"
+    aria-label={`${labels.player}: ${audio.title}`}
+  >
+    <source src={audio.fileUrl} type={audio.mimeType} />
+    <p>{labels.fallback} <a href={audio.fileUrl}>{labels.open}</a></p>
+  </audio>
+  <div class="article-audio__links">
+    <a href={audio.fileUrl}>{labels.open}</a>
+    <a href={audio.spotifyUrl} target="_blank" rel="noopener noreferrer">{labels.spotify}</a>
+  </div>
+</section>
+
+<style>
+  .article-audio {
+    max-width: var(--measure);
+    margin-block: 0 clamp(var(--space-10), 6vw, var(--space-16));
+    padding: var(--space-6);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+
+  .article-audio h2 {
+    margin: 0;
+    font-size: var(--font-section-title);
+    letter-spacing: var(--tracking-heading);
+  }
+
+  .article-audio__description {
+    margin: var(--space-3) 0 0;
+    color: var(--text-soft);
+  }
+
+  .article-audio__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: var(--space-4) 0;
+    color: var(--muted);
+    font-size: var(--font-supporting);
+  }
+
+  audio {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .article-audio__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-6);
+    margin-top: var(--space-4);
+  }
+
+  .article-audio__links a {
+    display: inline-flex;
+    min-height: var(--target-size);
+    align-items: center;
+    font-size: var(--font-supporting);
+    font-weight: 670;
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 30rem) {
+    .article-audio {
+      padding: var(--space-5);
+    }
+  }
+</style>

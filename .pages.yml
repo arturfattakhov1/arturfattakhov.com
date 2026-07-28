@@ -156,6 +156,27 @@ content:
           - name: url
             type: string
             required: true
+      - name: audio
+        label: false
+        type: object
+        hidden: true
+        fields:
+          - name: title
+            type: string
+          - name: description
+            type: string
+          - name: fileUrl
+            type: string
+          - name: mimeType
+            type: string
+          - name: language
+            type: string
+          - name: duration
+            type: string
+          - name: durationLabel
+            type: string
+          - name: spotifyUrl
+            type: string
       - name: body
         label: Article body
         type: rich-text
