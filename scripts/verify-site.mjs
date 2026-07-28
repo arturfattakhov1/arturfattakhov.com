@@ -562,7 +562,7 @@ for (const page of expectedPages) {
       const audioElement = html.match(/<audio\b[^>]*>/)?.[0] ?? '';
       assert(count(html, /<audio\b/g) === 1, `${routePath}: expected exactly one audio player`);
       assert(/\bcontrols(?:[\s=>]|$)/.test(audioElement), `${routePath}: audio controls are missing`);
-      assert(/\bpreload="metadata"/.test(audioElement), `${routePath}: audio preload must be metadata`);
+      assert(/\bpreload="none"/.test(audioElement), `${routePath}: audio preload must be none`);
       assert(!/\bautoplay(?:[\s=>]|$)/.test(audioElement), `${routePath}: audio autoplay is prohibited`);
       assert(
         new RegExp(`<source\\b[^>]*\\bsrc="${audio.fileUrl.replaceAll('.', '\\.')}"[^>]*\\btype="audio/mp4"[^>]*>`).test(html),
