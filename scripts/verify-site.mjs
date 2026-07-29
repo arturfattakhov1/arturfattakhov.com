@@ -620,6 +620,31 @@ for (const page of expectedPages) {
     assert(html.includes(validationBoundary), `${routePath}: manual-review limitation is missing`);
   }
   if (page.knowledgeArticle) {
+    const translationPair = publishedKnowledgeRecords.filter(
+      (record) => record.translationKey === page.knowledgeRecord.translationKey,
+    );
+    const russianArticle = translationPair.find((record) => record.lang === 'ru');
+    const englishArticle = translationPair.find((record) => record.lang === 'en');
+    assert(russianArticle && englishArticle, `${routePath}: published Knowledge translation pair is incomplete`);
+    const expectedLanguageTargets = [
+      { lang: 'ru', route: `knowledge/${russianArticle.routeSlug}` },
+      { lang: 'en', route: `knowledge/${englishArticle.routeSlug}` },
+    ];
+    const languageSwitcher = html.match(
+      /<nav\b[^>]*class="[^"]*\blanguage-switcher\b[^"]*"[^>]*>([\s\S]*?)<\/nav>/,
+    )?.[1] ?? '';
+    assert(languageSwitcher, `${routePath}: language switcher is missing`);
+    for (const target of expectedLanguageTargets) {
+      const targetPath = `/${target.lang}/${target.route}/`;
+      assert(
+        languageSwitcher.includes(`href="${targetPath}"`),
+        `${routePath}: language switcher does not link to ${targetPath}`,
+      );
+      assert(
+        existsSync(htmlPath(target.lang, target.route)),
+        `${routePath}: language switcher target was not generated: ${targetPath}`,
+      );
+    }
     assert(count(html, /data-newsletter-signup/g) === 1, `${routePath}: expected exactly one newsletter signup`);
     assert(
       html.includes(`href="${newsletterFormUrl}" target="_blank" rel="noopener noreferrer"`),

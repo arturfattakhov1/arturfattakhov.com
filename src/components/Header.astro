@@ -8,9 +8,10 @@ import Navigation from './Navigation.astro';
 interface Props {
   lang: Language;
   currentPath: string;
+  alternatePaths?: Record<Language, string>;
 }
 
-const { lang, currentPath } = Astro.props;
+const { lang, currentPath, alternatePaths } = Astro.props;
 ---
 
 <a class="skip-link" href="#main-content">{ui[lang].skipToContent}</a>
@@ -43,7 +44,7 @@ const { lang, currentPath } = Astro.props;
             <path d="m16 16 4 4"></path>
           </svg>
         </a>
-        <LanguageSwitcher lang={lang} currentPath={currentPath} />
+        <LanguageSwitcher lang={lang} currentPath={currentPath} alternatePaths={alternatePaths} />
         <a class="header-consultation" href={localizedPath(lang, 'consultation')} aria-current={currentPath === localizedPath(lang, 'consultation') ? 'page' : undefined}>{ui[lang].consultation}</a>
         <button
           class="menu-toggle"
