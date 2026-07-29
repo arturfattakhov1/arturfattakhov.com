@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import ArticleAudio from '../../../components/ArticleAudio.astro';
 import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import NewsletterSignup from '../../../components/NewsletterSignup.astro';
 import { identity, schemaIds } from '../../../data/identity';
 import { localizedPath, type Language } from '../../../i18n/config';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
@@ -52,6 +53,7 @@ const articleSchema = {
     </header>
     {article.data.audio && <ArticleAudio lang={lang} audio={article.data.audio} />}
     <div class="prose"><Content /></div>
+    <NewsletterSignup lang={lang} />
   </article>
   <script is:inline type="application/ld+json" set:html={serializeJsonLd(articleSchema)} />
 </BaseLayout>

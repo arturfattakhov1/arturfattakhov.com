@@ -1,0 +1,74 @@
+---
+import type { Language } from '../i18n/config';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const formUrl = 'https://sendsay.ru/form/x_1785247917138120/1/';
+const copy = {
+  ru: {
+    heading: 'Подпишитесь на мою рассылку',
+    description: 'Получайте новые статьи, аудиозаписи и профессиональные обновления о ветеринарной медицине и моих проектах.',
+    button: 'Подписаться',
+  },
+  en: {
+    heading: 'Sign up for my newsletter',
+    description: 'Get new articles, audio recordings, and professional updates on veterinary medicine and my projects.',
+    button: 'Subscribe',
+  },
+}[lang];
+const headingId = `newsletter-signup-heading-${lang}`;
+---
+
+<section class="newsletter-signup" aria-labelledby={headingId} data-newsletter-signup>
+  <h2 id={headingId}>{copy.heading}</h2>
+  <p>{copy.description}</p>
+  <a
+    class="button button--primary newsletter-signup__button"
+    href={formUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    {copy.button}
+  </a>
+</section>
+
+<style>
+  .newsletter-signup {
+    max-width: var(--measure);
+    margin-top: clamp(var(--space-12), 7vw, var(--space-16));
+    padding: clamp(var(--space-6), 5vw, var(--space-10));
+    overflow-wrap: anywhere;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+
+  .newsletter-signup h2 {
+    max-width: 24ch;
+    margin: 0;
+    font-size: var(--font-section-title);
+    letter-spacing: var(--tracking-heading);
+  }
+
+  .newsletter-signup p {
+    max-width: 62ch;
+    margin: var(--space-4) 0 0;
+    color: var(--text-soft);
+  }
+
+  .newsletter-signup__button {
+    width: fit-content;
+    max-width: 100%;
+    margin-top: var(--space-6);
+    text-align: center;
+  }
+
+  @media (max-width: 30rem) {
+    .newsletter-signup__button {
+      width: 100%;
+    }
+  }
+</style>

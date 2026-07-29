@@ -42,6 +42,15 @@ export const legalPageCopy: Record<Language, Record<LegalPageSlug, LegalPageCopy
           ],
         },
         {
+          id: 'newsletter',
+          title: 'Email-рассылка',
+          paragraphs: [
+            'При заполнении формы подписки обрабатывается email. Он используется для отправки рассылки с новыми статьями, аудиозаписями и профессиональными обновлениями.',
+            'Обработчиком данных для рассылки является Sendsay. Хранение и обработка email для этой цели выполняются через Sendsay. После отправки формы подписку необходимо подтвердить по ссылке в письме.',
+            'Отписаться можно по ссылке в каждом письме. Запросить удаление email можно через существующие контакты сайта.',
+          ],
+        },
+        {
           id: 'external-links',
           title: 'Внешние ссылки',
           paragraphs: [
@@ -173,6 +182,15 @@ export const legalPageCopy: Record<Language, Record<LegalPageSlug, LegalPageCopy
           paragraphs: [
             'When the contact form or consultation application is submitted, the name, email address, and information entered by the sender are processed. This information is used to review and respond to the inquiry and to manage related correspondence.',
             'Both forms are technically transmitted and processed through Formspree. Medical file upload is not available. Medical archives, payment, passport, insurance, or other sensitive information should not be entered in the forms. Form data is not used for mailing lists without separate consent.',
+          ],
+        },
+        {
+          id: 'newsletter',
+          title: 'Email newsletter',
+          paragraphs: [
+            'When the subscription form is completed, the email address is processed. It is used to send the newsletter with new articles, audio recordings, and professional updates.',
+            'Sendsay is the data processor for the newsletter. The email address is stored and processed through Sendsay for this purpose. After submitting the form, the subscription must be confirmed using the link in the confirmation email.',
+            'Subscribers can unsubscribe using the link in every email. Deletion of the email address can be requested through the website’s existing contact channels.',
           ],
         },
         {
