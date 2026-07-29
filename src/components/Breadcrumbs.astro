@@ -3,6 +3,7 @@ import type { Language } from '../i18n/config';
 import { localizedPath } from '../i18n/config';
 import { ui } from '../i18n/ui';
 import { createBreadcrumbJsonLd } from '../data/structured-data';
+import { serializeJsonLd } from '../utils/serialize-json-ld';
 
 interface BreadcrumbItem {
   label: string;
@@ -29,4 +30,4 @@ const structuredData = createBreadcrumbJsonLd(lang, Astro.url.pathname, items);
   </ol>
 </nav>
 
-<script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+<script is:inline type="application/ld+json" set:html={serializeJsonLd(structuredData)} />

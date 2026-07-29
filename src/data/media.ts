@@ -1,5 +1,6 @@
 import type { Language } from '../i18n/config';
 import mediaContent from './cms/media.json';
+import { mediaContentSchema, parseCmsContent } from './content-validation';
 
 export const mediaTypes = ['interview', 'project', 'video', 'article', 'podcast'] as const;
 export type MediaType = (typeof mediaTypes)[number];
@@ -24,7 +25,7 @@ export interface MediaRecord {
   }>;
 }
 
-export const mediaRecords = (mediaContent.records as MediaRecord[])
+export const mediaRecords: MediaRecord[] = parseCmsContent(mediaContentSchema, mediaContent, 'Media').records
   .filter((record) => record.status === 'published')
   .toSorted((a, b) => a.order - b.order);
 
