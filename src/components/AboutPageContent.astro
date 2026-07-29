@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+import professionalPortrait from '../assets/images/professional/about-professional-portrait.webp';
 import { aboutPageCopy } from '../data/about';
 import { getTimelineEntries } from '../data/timeline';
 import type { Language } from '../i18n/config';
@@ -12,14 +14,35 @@ const { lang } = Astro.props;
 const copy = aboutPageCopy[lang];
 const timelineIds = ['veterinary-education', 'research-teaching-qualification', 'private-practice', 'journal-publications-2025', 'patent-2025', 'diagnostic-imaging-qualification'];
 const timeline = getTimelineEntries(lang).filter((entry) => timelineIds.includes(entry.id));
+const portraitAlt = {
+  ru: 'Профессиональный портрет Артура Фаттахова',
+  en: 'Professional portrait of Artur Fattakhov',
+} as const;
 ---
 
 <AboutSections lang={lang}>
   <Fragment slot="introduction">
-    <Container size="reading" class="about-professional-intro">
-      <ul class="about-role-list" role="list">{copy.introduction.roles.map((role) => <li>{role}</li>)}</ul>
-      <p class="about-professional-intro__lead">{copy.introduction.lead}</p>
-      <p>{copy.introduction.body}</p>
+    <Container size="wide" class="about-professional-intro">
+      <div class="about-professional-intro__copy">
+        <ul class="about-role-list" role="list">{copy.introduction.roles.map((role) => <li>{role}</li>)}</ul>
+        <p class="about-professional-intro__lead">{copy.introduction.lead}</p>
+        <p>{copy.introduction.body}</p>
+      </div>
+      <figure class="editorial-photo about-professional-intro__photo">
+        <Image
+          src={professionalPortrait}
+          alt={portraitAlt[lang]}
+          width={960}
+          height={1200}
+          widths={[360, 480, 720, 960]}
+          sizes="(max-width: 48rem) calc(100vw - 2rem), 24rem"
+          layout="constrained"
+          quality={82}
+          loading="eager"
+          decoding="async"
+          fetchpriority="high"
+        />
+      </figure>
     </Container>
   </Fragment>
   <Fragment slot="why-veterinary-medicine"><Container size="reading"><p class="section-lead-compact">{copy.motivation.body}</p></Container></Fragment>
