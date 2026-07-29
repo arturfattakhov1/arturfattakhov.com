@@ -10,6 +10,7 @@ import { identity, schemaIds } from '../../../data/identity';
 import { webpageId } from '../../../data/structured-data';
 import { languages, localizedPath, type Language } from '../../../i18n/config';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { serializeJsonLd } from '../../../utils/serialize-json-ld';
 
 export function getStaticPaths() {
   return languages.map((lang) => ({ params: { lang }, props: { lang } }));
@@ -75,5 +76,5 @@ const articleSchema = {
     </header>
     <BsavaCaseStudyPageContent lang={lang} />
   </article>
-  <script is:inline type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  <script is:inline type="application/ld+json" set:html={serializeJsonLd(articleSchema)} />
 </BaseLayout>

@@ -5,6 +5,7 @@ import Breadcrumbs from '../../../components/Breadcrumbs.astro';
 import { identity, schemaIds } from '../../../data/identity';
 import { localizedPath, type Language } from '../../../i18n/config';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { serializeJsonLd } from '../../../utils/serialize-json-ld';
 
 export async function getStaticPaths() {
   const entries = await getCollection('knowledge', ({ data }) => data.status === 'published');
@@ -52,5 +53,5 @@ const articleSchema = {
     {article.data.audio && <ArticleAudio lang={lang} audio={article.data.audio} />}
     <div class="prose"><Content /></div>
   </article>
-  <script is:inline type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  <script is:inline type="application/ld+json" set:html={serializeJsonLd(articleSchema)} />
 </BaseLayout>

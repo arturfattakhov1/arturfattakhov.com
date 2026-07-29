@@ -1,19 +1,6 @@
 import type { Language } from '../i18n/config';
 import profileContent from './cms/profiles.json';
-
-export const profileKeys = [
-  'orcid',
-  'googleScholar',
-  'researchGate',
-  'webOfScience',
-  'github',
-  'instagram',
-  'threads',
-  'youtube',
-  'dzen',
-  'spotify',
-  'facebook',
-] as const;
+import { parseCmsContent, profileKeys, profilesContentSchema } from './content-validation';
 
 export type ProfileKey = (typeof profileKeys)[number];
 
@@ -25,7 +12,7 @@ export interface IdentityProfile {
   active: boolean;
 }
 
-const activeProfiles = (profileContent.profiles as IdentityProfile[])
+const activeProfiles: IdentityProfile[] = parseCmsContent(profilesContentSchema, profileContent, 'Profiles').profiles
   .filter((profile) => profile.active)
   .toSorted((a, b) => a.order - b.order);
 

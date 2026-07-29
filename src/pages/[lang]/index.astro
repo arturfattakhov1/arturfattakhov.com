@@ -5,6 +5,7 @@ import Button from '../../components/Button.astro';
 import Container from '../../components/Container.astro';
 import HomeSections from '../../components/HomeSections.astro';
 import homeMaterials from '../../data/cms/home-materials.json';
+import { homepageMaterialsSchema, parseCmsContent } from '../../data/content-validation';
 import { homePageCopy } from '../../data/home';
 import { homeContent } from '../../data/pages';
 import { publicationPath, publicationRecords } from '../../data/publication-records';
@@ -24,7 +25,7 @@ interface Props {
 const { lang } = Astro.props as Props;
 const content = homeContent[lang];
 const copy = homePageCopy[lang];
-const featuredRecords = homeMaterials.featuredPublicationSlugs.map((slug) => {
+const featuredRecords = parseCmsContent(homepageMaterialsSchema, homeMaterials, 'Homepage materials').featuredPublicationSlugs.map((slug) => {
   const record = publicationRecords.find((item) => item.slug === slug);
   if (!record) throw new Error(`Missing verified homepage publication record: ${slug}`);
   return record;

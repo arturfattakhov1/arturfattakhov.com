@@ -2,6 +2,7 @@
 import type { Language } from '../i18n/config';
 import { swapLanguage } from '../i18n/config';
 import { createIdentityJsonLd, identity } from '../data/identity';
+import { serializeJsonLd } from '../utils/serialize-json-ld';
 
 interface Props {
   title: string;
@@ -60,4 +61,4 @@ const structuredData = createIdentityJsonLd(lang, isAboutPage);
 <meta name="twitter:title" content={documentTitle} />
 <meta name="twitter:description" content={description} />
 
-<script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+<script is:inline type="application/ld+json" set:html={serializeJsonLd(structuredData)} />

@@ -1,6 +1,7 @@
 ---
 import { createPageJsonLd, type PageSchemaType, type SchemaListItem } from '../data/structured-data';
 import type { Language } from '../i18n/config';
+import { serializeJsonLd } from '../utils/serialize-json-ld';
 
 interface Props {
   type: PageSchemaType;
@@ -15,4 +16,4 @@ interface Props {
 const structuredData = createPageJsonLd(Astro.props);
 ---
 
-<script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+<script is:inline type="application/ld+json" set:html={serializeJsonLd(structuredData)} />

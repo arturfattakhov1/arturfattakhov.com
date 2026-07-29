@@ -24,6 +24,53 @@ function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
+function isExternalHttpsUrl(value) {
+  if (typeof value !== 'string' || /[\u0000-\u001f\u007f-\u009f]/.test(value)) return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && !url.username && !url.password;
+  } catch {
+    return false;
+  }
+}
+
+function isRouteSlug(value) {
+  return typeof value === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
+}
+
+function serializeJsonLd(value) {
+  return JSON.stringify(value)
+    .replaceAll('<', '\\u003c')
+    .replaceAll('>', '\\u003e')
+    .replaceAll('&', '\\u0026')
+    .replaceAll('\u2028', '\\u2028')
+    .replaceAll('\u2029', '\\u2029');
+}
+
+for (const invalidUrl of [
+  'javascript:alert(1)',
+  'data:text/html,<script>alert(1)</script>',
+  'file:///etc/passwd',
+  'http://example.com',
+  'https://user:password@example.com',
+  'https://example.com/\u0000control',
+]) {
+  assert(!isExternalHttpsUrl(invalidUrl), `Unsafe external URL was accepted: ${JSON.stringify(invalidUrl)}`);
+}
+assert(isExternalHttpsUrl('https://example.com/path?query=value'), 'Valid HTTPS URL was rejected');
+
+for (const invalidSlug of ['../admin', 'a/b', 'a\\b', 'a..b', '-slug', 'slug-', 'slug--value', 'Slug', 'slug value']) {
+  assert(!isRouteSlug(invalidSlug), `Unsafe route slug was accepted: ${JSON.stringify(invalidSlug)}`);
+}
+
+const jsonLdTestValue = '</script><script>alert(1)</script>&\u2028\u2029';
+const serializedJsonLdTest = serializeJsonLd({ value: jsonLdTestValue });
+assert(!serializedJsonLdTest.includes('</script>'), 'JSON-LD serializer emitted a raw script closing tag');
+for (const escape of ['\\u003c', '\\u003e', '\\u0026', '\\u2028', '\\u2029']) {
+  assert(serializedJsonLdTest.includes(escape), `JSON-LD serializer omitted ${escape}`);
+}
+assert(JSON.parse(serializedJsonLdTest).value === jsonLdTestValue, 'JSON-LD serialization changed the logical value');
+
 function read(path) {
   return readFileSync(join(root, path), 'utf8');
 }
@@ -234,6 +281,10 @@ function assertEditablePaths(descriptors, expected, label) {
 
 assert(existsSync(dist), 'dist is missing; run npm run build first');
 
+const sourceFiles = walk(join(root, 'src')).filter((path) => /\.(?:astro|ts)$/.test(path));
+const sourceText = sourceFiles.map((path) => readFileSync(path, 'utf8')).join('\n');
+assert(!/type=["']application\/ld\+json["'][^>]*set:html=\{JSON\.stringify\(/s.test(sourceText), 'JSON-LD uses direct JSON.stringify in set:html');
+
 const cmsConfig = read('.pages.yml');
 const cmsPaths = [...cmsConfig.matchAll(/^\s+path:\s+([^\n]+)$/gm)].map((match) => match[1].trim());
 const expectedCmsPaths = [
@@ -319,6 +370,7 @@ for (const path of knowledgeSources) {
   const routeSlug = source.match(/^routeSlug:\s*([^\n]+)$/m)?.[1].trim();
   const status = source.match(/^status:\s*(draft|published)$/m)?.[1];
   assert(translationKey && lang && routeSlug && status, `${relativePath}: translation metadata is invalid`);
+  assert(isRouteSlug(routeSlug), `${relativePath}: routeSlug is invalid`);
   const audio = keys.includes('audio') ? parseKnowledgeAudio(source, relativePath, knowledgeAudioFields) : null;
   if (audio) {
     assert(/^\/audio\/podcast\/[a-z0-9]+(?:-[a-z0-9]+)*\.m4a$/.test(audio.fileUrl), `${relativePath}: audio fileUrl is outside the allowed path`);
@@ -428,8 +480,7 @@ for (const [index, record] of cmsMedia.records.entries()) {
     exactKeys(link, ['source', 'url'], `${label} link ${linkIndex + 1}`);
     exactKeys(link.source, languages, `${label} link ${linkIndex + 1} source`);
     for (const lang of languages) assert(typeof link.source[lang] === 'string' && link.source[lang].length >= 2, `${label}: ${lang} source is invalid`);
-    const url = new URL(link.url);
-    assert(url.protocol === 'https:' && url.hostname, `${label}: external link must use HTTPS`);
+    assert(isExternalHttpsUrl(link.url), `${label}: external link must be a credential-free HTTPS URL`);
   }
 }
 
@@ -471,8 +522,9 @@ for (const profile of cmsProfiles.profiles) {
   assert(profileKeys.includes(profile.key) && !seenProfileKeys.has(profile.key), `CMS Profile platform is missing, unsupported, or duplicated: ${profile.key}`);
   seenProfileKeys.add(profile.key);
   assert(profile.name === expectedProfileNames[profile.key], `CMS Profile name changed for ${profile.key}`);
+  assert(isExternalHttpsUrl(profile.url), `CMS Profile URL must be a credential-free HTTPS URL for ${profile.key}`);
   const url = new URL(profile.url);
-  assert(url.protocol === 'https:' && url.hostname === allowedProfileHosts[profile.key], `CMS Profile URL is not allowed for ${profile.key}`);
+  assert(url.hostname === allowedProfileHosts[profile.key], `CMS Profile URL is not allowed for ${profile.key}`);
   assert(Number.isInteger(profile.order) && profile.order > 0 && !profileOrders.has(profile.order), `CMS Profile display order must be unique: ${profile.key}`);
   profileOrders.add(profile.order);
   assert(typeof profile.active === 'boolean', `CMS Profile active flag is invalid: ${profile.key}`);
@@ -494,7 +546,7 @@ assert(
 );
 assert(
   cmsHomepageMaterials.featuredPublicationSlugs.length === new Set(cmsHomepageMaterials.featuredPublicationSlugs).size
-    && cmsHomepageMaterials.featuredPublicationSlugs.every((slug) => publicationSlugs.includes(slug)),
+    && cmsHomepageMaterials.featuredPublicationSlugs.every((slug) => isRouteSlug(slug) && publicationSlugs.includes(slug)),
   'CMS Homepage selection contains a duplicate or unknown publication',
 );
 
@@ -537,6 +589,16 @@ for (const page of expectedPages) {
   assert(html.includes(`<link rel="canonical" href="${site}${routePath}">`), `${routePath}: canonical is missing or incorrect`);
   assert(html.includes('hreflang="ru"') && html.includes('hreflang="en"') && html.includes('hreflang="x-default"'), `${routePath}: hreflang set is incomplete`);
   assert(html.includes('"@type":"Person"') && html.includes('"@type":"WebSite"'), `${routePath}: identity structured data is missing`);
+  const jsonLdScripts = [...html.matchAll(/<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)];
+  assert(jsonLdScripts.length > 0, `${routePath}: JSON-LD scripts are missing`);
+  for (const script of jsonLdScripts) {
+    assert(!script[1].includes('</script>'), `${routePath}: raw script closing tag appears inside JSON-LD`);
+    try {
+      JSON.parse(script[1]);
+    } catch {
+      assert(false, `${routePath}: JSON-LD is not parseable`);
+    }
+  }
   if (page.route) assert(html.includes('"@type":"BreadcrumbList"'), `${routePath}: BreadcrumbList is missing`);
   if (page.article) assert(html.includes('"@type":"Article"'), `${routePath}: Article structured data is missing`);
   if (page.bsavaCase) {
@@ -641,7 +703,7 @@ for (const lang of languages) {
   assert(count(profiles, /src="\/icons\/profiles\/[^"]+\.svg"/g) === activeProfiles.length, `${lang}: local profile icon count must match active profiles`);
   for (const profile of cmsProfiles.profiles) {
     if (profile.active) {
-      assert(profiles.includes(profile.url), `${lang}: active Profile link is missing ${profile.key}`);
+      assert(profiles.includes(profile.url.replaceAll('&', '&amp;')), `${lang}: active Profile link is missing ${profile.key}`);
     } else {
       assert(!profiles.includes(profile.url), `${lang}: inactive Profile leaked ${profile.key}`);
     }

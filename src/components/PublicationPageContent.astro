@@ -4,6 +4,7 @@ import { createPublicationJsonLd, type PublicationRecord } from '../data/publica
 import { publicationDetailCopy, publicationsPageCopy } from '../data/publications';
 import type { Language } from '../i18n/config';
 import { localizedPath } from '../i18n/config';
+import { serializeJsonLd } from '../utils/serialize-json-ld';
 import Breadcrumbs from './Breadcrumbs.astro';
 import Button from './Button.astro';
 import PublicationBadges from './PublicationBadges.astro';
@@ -253,5 +254,5 @@ const formatDate = (date: string) => dateFormatter.format(new Date(`${date}T00:0
     </section>
   </div>
 
-  <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+  <script is:inline type="application/ld+json" set:html={serializeJsonLd(structuredData)} />
 </article>
