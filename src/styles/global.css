@@ -4453,6 +4453,46 @@ main:has(> .knowledge-article) > .breadcrumbs {
   line-height: 1.35;
 }
 
+.editorial-photo {
+  margin: 0;
+  background: var(--surface-subtle);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.editorial-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.about-professional-intro,
+.practice-opening__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem);
+  gap: clamp(var(--space-8), 6vw, var(--space-16));
+  align-items: start;
+}
+
+.about-professional-intro__copy,
+.practice-opening__copy {
+  min-width: 0;
+}
+
+.about-professional-intro__photo,
+.practice-opening__photo {
+  width: 100%;
+  justify-self: end;
+}
+
+.practice-page .practice-opening {
+  max-width: var(--wide-field);
+}
+
+.editorial-photo--section {
+  margin: var(--space-6) 0;
+}
+
 .about-inline-timeline {
   margin-top: 2rem;
   border-top: 1px solid var(--line);
@@ -4744,6 +4784,17 @@ main:has(> .knowledge-article) > .breadcrumbs {
 }
 
 @media (max-width: 48rem) {
+  .about-professional-intro,
+  .practice-opening__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-professional-intro__photo,
+  .practice-opening__photo {
+    width: min(100%, 22rem);
+    justify-self: start;
+  }
+
   .publication-counts,
   .media-channel-grid,
   .profile-icon-grid {

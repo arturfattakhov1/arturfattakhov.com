@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+import ultrasoundExamination from '../assets/images/professional/practice-ultrasound-examination.webp';
 import { practicePageCopy } from '../data/practice';
 import { localizedPath, type Language } from '../i18n/config';
 import Button from './Button.astro';
@@ -12,13 +14,36 @@ interface Props {
 
 const { lang } = Astro.props;
 const copy = practicePageCopy[lang];
+const ultrasoundAlt = {
+  ru: 'Артур Фаттахов проводит ультразвуковое исследование животного',
+  en: 'Artur Fattakhov performing an ultrasound examination on an animal',
+} as const;
 ---
 
 <div class="section-stack practice-page" data-practice-page>
   <PageIntro class="practice-opening">
-    <p class="eyebrow">{copy.opening.eyebrow}</p>
-    <p class="lead">{copy.opening.lead}</p>
-    <p class="practice-opening__context">{copy.opening.context}</p>
+    <div class="practice-opening__grid">
+      <div class="practice-opening__copy">
+        <p class="eyebrow">{copy.opening.eyebrow}</p>
+        <p class="lead">{copy.opening.lead}</p>
+        <p class="practice-opening__context">{copy.opening.context}</p>
+      </div>
+      <figure class="editorial-photo practice-opening__photo">
+        <Image
+          src={ultrasoundExamination}
+          alt={ultrasoundAlt[lang]}
+          width={900}
+          height={1200}
+          widths={[360, 540, 720, 900]}
+          sizes="(max-width: 48rem) calc(100vw - 2rem), 24rem"
+          layout="constrained"
+          quality={82}
+          loading="eager"
+          decoding="async"
+          fetchpriority="high"
+        />
+      </figure>
+    </div>
   </PageIntro>
 
   <PageSection id="formats" title={copy.formats.title} density="editorial">
