@@ -5,6 +5,7 @@ import { gunzipSync } from 'node:zlib';
 const root = process.cwd();
 const dist = join(root, 'dist');
 const site = 'https://arturfattakhov.com';
+const newsletterFormUrl = 'https://sendsay.ru/form/x_1785247917138120/1/';
 const languages = ['ru', 'en'];
 const standardRoutes = ['', 'about', 'practice', 'research', 'publications', 'media', 'contact', 'consultation', 'profiles', 'knowledge', 'search', 'privacy', 'terms', 'disclaimer'];
 const searchableStandardRoutes = ['about', 'practice', 'research', 'publications', 'media', 'consultation', 'profiles', 'knowledge'];
@@ -619,6 +620,45 @@ for (const page of expectedPages) {
     assert(html.includes(validationBoundary), `${routePath}: manual-review limitation is missing`);
   }
   if (page.knowledgeArticle) {
+    const translationPair = publishedKnowledgeRecords.filter(
+      (record) => record.translationKey === page.knowledgeRecord.translationKey,
+    );
+    const russianArticle = translationPair.find((record) => record.lang === 'ru');
+    const englishArticle = translationPair.find((record) => record.lang === 'en');
+    assert(russianArticle && englishArticle, `${routePath}: published Knowledge translation pair is incomplete`);
+    const expectedLanguageTargets = [
+      { lang: 'ru', route: `knowledge/${russianArticle.routeSlug}` },
+      { lang: 'en', route: `knowledge/${englishArticle.routeSlug}` },
+    ];
+    const languageSwitcher = html.match(
+      /<nav\b[^>]*class="[^"]*\blanguage-switcher\b[^"]*"[^>]*>([\s\S]*?)<\/nav>/,
+    )?.[1] ?? '';
+    assert(languageSwitcher, `${routePath}: language switcher is missing`);
+    for (const target of expectedLanguageTargets) {
+      const targetPath = `/${target.lang}/${target.route}/`;
+      assert(
+        languageSwitcher.includes(`href="${targetPath}"`),
+        `${routePath}: language switcher does not link to ${targetPath}`,
+      );
+      assert(
+        existsSync(htmlPath(target.lang, target.route)),
+        `${routePath}: language switcher target was not generated: ${targetPath}`,
+      );
+    }
+    assert(count(html, /data-newsletter-signup/g) === 1, `${routePath}: expected exactly one newsletter signup`);
+    assert(
+      html.includes(`href="${newsletterFormUrl}" target="_blank" rel="noopener noreferrer"`),
+      `${routePath}: newsletter CTA must use the exact public Sendsay form safely`,
+    );
+    assert(
+      html.includes(page.lang === 'ru' ? 'Подпишитесь на мою рассылку' : 'Sign up for my newsletter'),
+      `${routePath}: localized newsletter heading is missing`,
+    );
+    assert(
+      html.includes(page.lang === 'ru' ? '>Подписаться</a>' : '>Subscribe</a>'),
+      `${routePath}: localized newsletter CTA is missing`,
+    );
+    assert(!/<iframe\b/i.test(html), `${routePath}: newsletter must not use an iframe`);
     const audio = page.knowledgeRecord.audio;
     if (audio) {
       const audioElement = html.match(/<audio\b[^>]*>/)?.[0] ?? '';
@@ -644,6 +684,11 @@ for (const page of expectedPages) {
     } else {
       assert(!/<audio\b/.test(html) && !html.includes('"@type":"AudioObject"'), `${routePath}: audio leaked into an article without audio data`);
     }
+  } else {
+    assert(
+      !html.includes('data-newsletter-signup') && !html.includes(newsletterFormUrl),
+      `${routePath}: newsletter signup leaked outside Knowledge articles`,
+    );
   }
   assert(!/<script\b[^>]*\bsrc="https?:\/\//i.test(html), `${routePath}: external script detected`);
   assert(!/<link\b[^>]*href="https?:\/\/[^\"]+\.(?:css|woff2?)/i.test(html), `${routePath}: external stylesheet or font detected`);
@@ -767,6 +812,14 @@ for (const lang of languages) {
   const terms = readFileSync(htmlPath(lang, 'terms'), 'utf8');
   const disclaimer = readFileSync(htmlPath(lang, 'disclaimer'), 'utf8');
   assert(privacy.includes('Formspree') && privacy.includes(lang === 'ru' ? 'Загрузка медицинских файлов отсутствует' : 'Medical file upload is not available'), `${lang}: Privacy form-processing model is inconsistent`);
+  assert(
+    privacy.includes('id="newsletter"')
+      && privacy.includes('Sendsay')
+      && privacy.includes(lang === 'ru' ? 'подписку необходимо подтвердить' : 'subscription must be confirmed')
+      && privacy.includes(lang === 'ru' ? 'Отписаться можно по ссылке в каждом письме' : 'unsubscribe using the link in every email')
+      && privacy.includes(lang === 'ru' ? 'Запросить удаление email' : 'Deletion of the email address can be requested'),
+    `${lang}: Privacy newsletter processing model is incomplete`,
+  );
   assert(terms.includes('id="consultation-applications"'), `${lang}: Terms consultation application boundary is missing`);
   assert(disclaimer.includes(lang === 'ru' ? 'Онлайн-заявка не предназначена для экстренной помощи' : 'The online application is not intended for emergency care'), `${lang}: Disclaimer emergency boundary is missing`);
 
@@ -882,6 +935,7 @@ assert(headers.includes("font-src 'self'"), 'fonts must remain self-hosted');
 const csp = headers.match(/Content-Security-Policy:\s*([^\n]+)/)?.[1] ?? '';
 assert(csp.startsWith("default-src 'self'"), 'same-origin media fallback in default-src must remain intact');
 assert(!csp.includes('open.spotify.com'), 'Spotify must not be added to CSP');
+assert(!csp.includes('sendsay.ru'), 'Sendsay must not be added to CSP for an external newsletter link');
 for (const directiveName of ['connect-src', 'form-action']) {
   const directive = csp.split(';').map((part) => part.trim()).find((part) => part.startsWith(`${directiveName} `)) ?? '';
   const sources = directive.split(/\s+/).slice(1);

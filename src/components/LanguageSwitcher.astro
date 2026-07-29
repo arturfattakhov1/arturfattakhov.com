@@ -6,13 +6,16 @@ import { ui } from '../i18n/ui';
 interface Props {
   lang: Language;
   currentPath: string;
+  alternatePaths?: Record<Language, string>;
 }
 
-const { lang, currentPath } = Astro.props;
+const { lang, currentPath, alternatePaths } = Astro.props;
+const russianPath = alternatePaths?.ru ?? swapLanguage(currentPath, 'ru');
+const englishPath = alternatePaths?.en ?? swapLanguage(currentPath, 'en');
 ---
 
 <nav class="language-switcher" aria-label={ui[lang].languageLabel}>
-  <a href={swapLanguage(currentPath, 'ru')} lang="ru" hreflang="ru" aria-current={lang === 'ru' ? 'page' : undefined}>RU</a>
+  <a href={russianPath} lang="ru" hreflang="ru" aria-current={lang === 'ru' ? 'page' : undefined}>RU</a>
   <span aria-hidden="true">/</span>
-  <a href={swapLanguage(currentPath, 'en')} lang="en" hreflang="en" aria-current={lang === 'en' ? 'page' : undefined}>EN</a>
+  <a href={englishPath} lang="en" hreflang="en" aria-current={lang === 'en' ? 'page' : undefined}>EN</a>
 </nav>

@@ -65,7 +65,7 @@ const {
   </head>
   <body>
     <div class="site-shell">
-      <Header lang={lang} currentPath={canonicalPath} />
+      <Header lang={lang} currentPath={canonicalPath} alternatePaths={alternatePaths} />
       <main id="main-content" tabindex="-1" data-pagefind-body={searchable ? true : undefined}>
         <slot />
       </main>
