@@ -5,15 +5,15 @@ import PageSection from './PageSection.astro';
 interface Props { lang: Language; }
 const { lang } = Astro.props;
 const headings = {
-  ru: ['Кратко обо мне', 'Почему ветеринарная медицина', 'Клиническая практика', 'Визуальная диагностика', 'Предпринимательский опыт', 'Исследовательская квалификация', 'Профессиональное видение', 'Профессиональная хронология'],
-  en: ['Professional introduction', 'Why veterinary medicine', 'Clinical practice', 'Diagnostic imaging', 'Entrepreneurial experience', 'Research qualification', 'Professional vision', 'Professional timeline'],
+  ru: ['Кратко обо мне', 'Почему ветеринарная медицина', 'Клиническая практика', 'Визуальная диагностика', 'Предпринимательский опыт', 'Исследовательская квалификация', 'Дополнительная подготовка', 'Профессиональное видение', 'Профессиональная хронология'],
+  en: ['Professional introduction', 'Why veterinary medicine', 'Clinical practice', 'Diagnostic imaging', 'Entrepreneurial experience', 'Research qualification', 'Additional training', 'Professional vision', 'Professional timeline'],
 } as const;
-const ids = ['introduction', 'why-veterinary-medicine', 'clinical-practice', 'diagnostic-imaging', 'entrepreneurial-experience', 'research-qualification', 'professional-vision', 'professional-timeline'] as const;
+const ids = ['introduction', 'why-veterinary-medicine', 'clinical-practice', 'diagnostic-imaging', 'entrepreneurial-experience', 'research-qualification', 'professional-credentials', 'professional-vision', 'professional-timeline'] as const;
 ---
 
 <div class="section-stack about-sections about-sections--professional">
   {ids.map((id, index) => (
-    <PageSection id={id} title={headings[lang][index]} density={index === 0 || index === 6 ? 'open' : 'editorial'}>
+    <PageSection id={id} title={headings[lang][index]} density={id === 'introduction' || id === 'professional-vision' ? 'open' : 'editorial'}>
       <slot name={id} />
     </PageSection>
   ))}
