@@ -7,6 +7,7 @@ import Button from './Button.astro';
 import Container from './Container.astro';
 import PageIntro from './PageIntro.astro';
 import PageSection from './PageSection.astro';
+import PracticeTestimonials from './PracticeTestimonials.astro';
 
 interface Props {
   lang: Language;
@@ -92,6 +93,8 @@ const ultrasoundAlt = {
       </aside>
     </Container>
   </PageSection>
+
+  <PracticeTestimonials lang={lang} />
 
   <PageSection id="contact-practice" title={copy.contact.title} density="compact">
     <Container class="practice-contact">

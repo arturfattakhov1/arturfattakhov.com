@@ -20,6 +20,63 @@ const publicationSlugs = [
   'feline-calicivirus-saint-petersburg', 'urethral-intussusception-cat', 'xray-morphometric-laminitis-cattle-patent',
 ];
 const legacyRoutes = ['timeline', 'cv', 'blog', 'faq', 'uses'];
+const practiceTestimonials = [
+  {
+    id: 'testimonial-1',
+    ru: {
+      text: 'Спасибо Артуру за профессиональную консультацию. Он быстро и грамотно ответил на все мои вопросы и дал понятные рекомендации по дальнейшим действиям.',
+      attribution: 'Владелец кота',
+    },
+    en: {
+      text: 'Thank you to Artur for a professional consultation. He answered all my questions clearly and promptly and provided understandable recommendations for the next steps.',
+      attribution: 'Cat owner',
+    },
+  },
+  {
+    id: 'testimonial-2',
+    ru: {
+      text: 'Когда из-за перекрытой дороги не было возможности попасть к ветеринарному врачу очно, консультация помогла определить дальнейшие действия по состоянию собаки. Спасибо за профессиональный подход.',
+      attribution: 'Владелец собаки',
+    },
+    en: {
+      text: 'When a road closure made an in-person veterinary visit impossible, the consultation helped us understand the next steps for our dog. Thank you for the professional approach.',
+      attribution: 'Dog owner',
+    },
+  },
+  {
+    id: 'testimonial-3',
+    ru: {
+      text: 'Артур внимательно собрал анамнез, провёл осмотр и подробно объяснял каждое действие. Он составил понятный и последовательный план лечения, ответил на все вопросы и после визита оставался на связи, интересуясь состоянием кота.',
+      attribution: 'Владелец кота',
+    },
+    en: {
+      text: 'Artur took a careful history, examined the cat, and explained each step in detail. He provided a clear and structured treatment plan, answered every question, and remained available after the visit to check on the cat’s condition.',
+      attribution: 'Cat owner',
+    },
+  },
+  {
+    id: 'testimonial-4',
+    ru: {
+      text: 'Доктор приехал в назначенное время, провёл УЗИ, взял анализы крови, осмотрел кошку и ответил на все вопросы. Очень внимательный и чуткий специалист, который уделил питомцу достаточно времени.',
+      attribution: 'Владелец кошки',
+    },
+    en: {
+      text: 'The doctor arrived at the agreed time, performed an ultrasound examination, collected blood samples, examined the cat, and answered all our questions. He was attentive, considerate, and gave the pet the time she needed.',
+      attribution: 'Cat owner',
+    },
+  },
+  {
+    id: 'testimonial-5',
+    ru: {
+      text: 'Артур внимательно изучил результаты предыдущих анализов, провёл всесторонний осмотр и рекомендовал необходимый минимум дополнительных исследований. Дальнейшее лечение планировалось определить после получения результатов.',
+      attribution: 'Владелец кота',
+    },
+    en: {
+      text: 'Artur carefully reviewed the previous test results, performed a thorough examination, and recommended only the necessary additional tests. The next treatment steps were to be determined after the results became available.',
+      attribution: 'Cat owner',
+    },
+  },
+];
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -811,6 +868,24 @@ for (const lang of languages) {
 
   const practice = readFileSync(htmlPath(lang, 'practice'), 'utf8');
   assert(practice.includes(`href="/${lang}/consultation/"`) && practice.includes(`href="/${lang}/contact/"`), `${lang}: Practice CTAs must lead to Consultation and Contact`);
+  assert(count(practice, /<blockquote>/g) === practiceTestimonials.length, `${lang}: Practice must contain exactly five testimonial blockquotes`);
+  const renderedTestimonialIds = [...practice.matchAll(/data-testimonial-id="([^"]+)"/g)].map((match) => match[1]);
+  assert(
+    JSON.stringify(renderedTestimonialIds) === JSON.stringify(practiceTestimonials.map((testimonial) => testimonial.id)),
+    `${lang}: Practice testimonial order or ids are incorrect`,
+  );
+  for (const testimonial of practiceTestimonials) {
+    assert(
+      practice.includes(testimonial[lang].text) && practice.includes(testimonial[lang].attribution),
+      `${lang}: Practice testimonial content is incomplete for ${testimonial.id}`,
+    );
+  }
+  const translationNote = 'Translated from the original Russian reviews.';
+  assert(
+    lang === 'en' ? practice.includes(translationNote) : !practice.includes(translationNote),
+    `${lang}: Practice translation note visibility is incorrect`,
+  );
+  assert(!/"@type":"(?:Review|AggregateRating)"/.test(practice), `${lang}: Practice contains prohibited testimonial structured data`);
 
   const privacy = readFileSync(htmlPath(lang, 'privacy'), 'utf8');
   const terms = readFileSync(htmlPath(lang, 'terms'), 'utf8');
@@ -931,6 +1006,7 @@ for (const lang of languages) {
 }
 
 const htmlOutput = expectedPages.map((page) => readFileSync(page.path, 'utf8')).join('\n');
+assert(count(htmlOutput, /data-practice-testimonials/g) === languages.length, 'Testimonials must appear only once on each Practice page');
 for (const marker of draftMediaMarkers) assert(!htmlOutput.includes(marker), `draft Media record leaked into public HTML: ${marker}`);
 for (const profile of cmsProfiles.profiles.filter((entry) => !entry.active)) {
   assert(!htmlOutput.includes(profile.url), `inactive Profile leaked into public HTML or JSON-LD: ${profile.key}`);

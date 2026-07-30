@@ -1,0 +1,29 @@
+---
+import { practiceTestimonials, testimonialSectionCopy } from '../data/testimonials';
+import type { Language } from '../i18n/config';
+import Container from './Container.astro';
+import PageSection from './PageSection.astro';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const copy = testimonialSectionCopy[lang];
+---
+
+<PageSection id="client-feedback" title={copy.title} density="compact" class="practice-testimonials">
+  <Container>
+    {copy.translationNote && <p class="practice-testimonials__note">{copy.translationNote}</p>}
+    <ul class="practice-testimonials__grid" data-practice-testimonials>
+      {practiceTestimonials.map((testimonial) => (
+        <li class="practice-testimonial" data-testimonial-id={testimonial.id}>
+          <blockquote>
+            <p>{testimonial[lang].text}</p>
+          </blockquote>
+          <p class="practice-testimonial__attribution">{testimonial[lang].attribution}</p>
+        </li>
+      ))}
+    </ul>
+  </Container>
+</PageSection>

@@ -5636,6 +5636,46 @@ main:has(.search-page) > .breadcrumbs {
   margin-top: var(--space-4);
 }
 
+.practice-testimonials__note {
+  margin: 0 0 var(--space-5);
+  color: var(--muted);
+  font-size: var(--font-supporting);
+}
+
+.practice-testimonials__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+  align-items: start;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.practice-testimonial {
+  padding: var(--space-5);
+  background: var(--surface-subtle);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.practice-testimonial blockquote,
+.practice-testimonial blockquote p {
+  margin: 0;
+}
+
+.practice-testimonial blockquote p {
+  color: var(--text-soft);
+  line-height: 1.62;
+}
+
+.practice-testimonial__attribution {
+  margin: var(--space-4) 0 0;
+  color: var(--text);
+  font-size: var(--font-supporting);
+  font-weight: 680;
+}
+
 .urgent-notice {
   margin-top: var(--space-8);
   padding: var(--space-6);
@@ -5695,6 +5735,10 @@ main:has(.search-page) > .breadcrumbs {
   .practice-format-grid {
     grid-template-columns: 1fr;
     gap: var(--space-6);
+  }
+
+  .practice-testimonials__grid {
+    grid-template-columns: 1fr;
   }
 
   .practice-contact {
