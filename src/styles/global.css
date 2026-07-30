@@ -4467,7 +4467,8 @@ main:has(> .knowledge-article) > .breadcrumbs {
 }
 
 .about-professional-intro,
-.practice-opening__grid {
+.practice-opening__grid,
+.about-diagnostic-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem);
   gap: clamp(var(--space-8), 6vw, var(--space-16));
@@ -4480,9 +4481,98 @@ main:has(> .knowledge-article) > .breadcrumbs {
 }
 
 .about-professional-intro__photo,
-.practice-opening__photo {
+.practice-opening__photo,
+.about-diagnostic-grid__photo {
   width: 100%;
   justify-self: end;
+}
+
+.about-diagnostic-grid__photo {
+  max-width: 23rem;
+}
+
+.professional-credentials {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-6);
+  margin-top: var(--space-8);
+}
+
+.professional-credential {
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.professional-credential__preview {
+  display: block;
+  aspect-ratio: 4 / 3;
+  background: var(--surface-subtle);
+  overflow: hidden;
+}
+
+.professional-credential__preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  transition: transform 180ms ease;
+}
+
+.professional-credential__preview:hover img {
+  transform: scale(1.015);
+}
+
+.professional-credential__preview:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+}
+
+.professional-credential__body {
+  padding: var(--space-5);
+}
+
+.professional-credential__body h3 {
+  margin: 0;
+  font-size: 1.08rem;
+  line-height: 1.35;
+}
+
+.professional-credential__body > p {
+  margin: .65rem 0 0;
+  color: var(--text-soft);
+  font-size: .92rem;
+  line-height: 1.5;
+}
+
+.professional-credential__body dl {
+  display: grid;
+  gap: .45rem;
+  margin: 1rem 0 0;
+}
+
+.professional-credential__body dl div {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: .5rem;
+}
+
+.professional-credential__body dt,
+.professional-credential__body dd {
+  margin: 0;
+  font-size: .82rem;
+  line-height: 1.45;
+}
+
+.professional-credential__body dt {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.professional-credential__body dd {
+  color: var(--text-soft);
 }
 
 .practice-page .practice-opening {
@@ -4785,14 +4875,20 @@ main:has(> .knowledge-article) > .breadcrumbs {
 
 @media (max-width: 48rem) {
   .about-professional-intro,
-  .practice-opening__grid {
+  .practice-opening__grid,
+  .about-diagnostic-grid {
     grid-template-columns: 1fr;
   }
 
   .about-professional-intro__photo,
-  .practice-opening__photo {
+  .practice-opening__photo,
+  .about-diagnostic-grid__photo {
     width: min(100%, 22rem);
     justify-self: start;
+  }
+
+  .professional-credentials {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .publication-counts,
@@ -4807,6 +4903,10 @@ main:has(> .knowledge-article) > .breadcrumbs {
 }
 
 @media (max-width: 32rem) {
+  .professional-credentials {
+    grid-template-columns: 1fr;
+  }
+
   .publication-counts,
   .media-channel-grid,
   .profile-icon-grid {

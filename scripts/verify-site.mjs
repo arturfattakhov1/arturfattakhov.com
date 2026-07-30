@@ -697,7 +697,11 @@ for (const page of expectedPages) {
 for (const lang of languages) {
   const about = readFileSync(htmlPath(lang, 'about'), 'utf8');
   assert(about.includes('id="professional-timeline"'), `${lang}: About timeline anchor is missing`);
-  assert(count(about, /<section\b[^>]*class="[^"]*page-section/g) >= 8, `${lang}: About does not contain the required sections`);
+  assert(about.includes('id="professional-credentials"'), `${lang}: About credentials anchor is missing`);
+  assert(count(about, /<section\b[^>]*class="[^"]*page-section/g) >= 9, `${lang}: About does not contain the required sections`);
+  assert(count(about, /data-professional-credential=/g) === 3, `${lang}: About must show exactly 3 professional credentials`);
+  assert(!/href="[^"]*\.pdf(?:[?#"])/i.test(about), `${lang}: About must not link to PDF documents`);
+  assert(about.includes('about-diagnostic-imaging-review'), `${lang}: About diagnostic imaging photograph is missing`);
   assert(about.includes(`href="/${lang}/${bsavaCaseRoute}/"`), `${lang}: About incoming link to the BSAVA case is missing`);
 
   const publications = readFileSync(htmlPath(lang, 'publications'), 'utf8');
@@ -831,6 +835,17 @@ for (const lang of languages) {
   assert(count(shell, new RegExp(consultationLabel, 'g')) >= 3, `${lang}: localized Consultation CTA is missing from the shell`);
   for (const route of legacyRoutes) assert(!shell.includes(`href="/${lang}/${route}/"`), `${lang}: global shell links to legacy route ${route}`);
 }
+
+const credentialAssets = walk(join(root, 'src/assets/images/credentials'));
+assert(credentialAssets.length === 3, 'Professional credentials must contain exactly 3 optimized assets');
+for (const asset of credentialAssets) {
+  assert(asset.endsWith('.webp'), `Professional credential must be an optimized WebP: ${relative(root, asset)}`);
+}
+const allowedLegacyRasterAssets = new Set(['src/assets/images/artur-fattakhov-homepage.jpg']);
+const prohibitedSourceAssets = walk(join(root, 'src/assets/images')).filter(
+  (asset) => /\.(?:pdf|heic|jpe?g)$/i.test(asset) && !allowedLegacyRasterAssets.has(relative(root, asset)),
+);
+assert(prohibitedSourceAssets.length === 0, `Source PDF/HEIC/JPEG assets must not be committed: ${prohibitedSourceAssets.map((asset) => relative(root, asset)).join(', ')}`);
 
 const redirects = read('public/_redirects');
 const requiredRedirects = [
